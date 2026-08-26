@@ -163,7 +163,22 @@
   border-color: var(--primary);
   background: var(--primary-light);
   transform: scale(1.005);
-  box-shadow: 0 0 25px var(--primary-glow);
+  box-shadow: 0 0 30px var(--primary-glow), inset 0 0 15px rgba(99, 102, 241, 0.1);
+}
+
+.dropzone.drag-active {
+  animation: dropzonePulse 1.8s infinite alternate ease-in-out;
+}
+
+@keyframes dropzonePulse {
+  0% {
+    box-shadow: 0 0 15px var(--primary-glow), inset 0 0 8px rgba(99, 102, 241, 0.15);
+    border-color: var(--primary);
+  }
+  100% {
+    box-shadow: 0 0 35px var(--primary-glow), inset 0 0 20px rgba(99, 102, 241, 0.3);
+    border-color: #818cf8;
+  }
 }
 
 .dropzone-icon-box {
