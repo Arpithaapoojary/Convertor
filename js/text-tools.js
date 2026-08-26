@@ -63,11 +63,20 @@ function initTextTransformer() {
         case 'camel':
           result = text.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
           break;
+        case 'pascal':
+          result = text.toLowerCase().replace(/(?:^|[^a-zA-Z0-9]+)(.)/g, (m, chr) => chr.toUpperCase());
+          break;
         case 'kebab':
           result = text.trim().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '');
           break;
         case 'snake':
           result = text.trim().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+          break;
+        case 'constant':
+          result = text.trim().toUpperCase().replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+          break;
+        case 'dot':
+          result = text.trim().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '.').replace(/^\.+|\.+$/g, '');
           break;
         case 'slugify':
           result = text.trim().toLowerCase()
@@ -96,6 +105,26 @@ function initTextTransformer() {
           break;
         case 'number-lines':
           result = text.split('\n').map((l, i) => `${i + 1}. ${l}`).join('\n');
+          break;
+        case 'strip-html':
+          result = text.replace(/<[^>]*>/g, '');
+          break;
+        case 'extract-emails': {
+          const emails = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || [];
+          result = Array.from(new Set(emails)).join('\n');
+          if (!result) showToast('No email addresses found', 'warning');
+          break;
+        }
+        case 'extract-urls': {
+          const urls = text.match(/https?:\/\/[^\s$.?#].[^\s]*/gi) || [];
+          result = Array.from(new Set(urls)).join('\n');
+          if (!result) showToast('No URLs found', 'warning');
+          break;
+        }
+        case 'sample':
+          result = `OmniDoc Studio — Professional Document & Text Suite.
+Transform strings, parse data formats (JSON, CSV, XML), generate QR codes, and merge PDFs with ease!
+Contact our team at support@omnidoc.dev or visit https://github.com/Arpithaapoojary/Convertor for documentation.`;
           break;
       }
 
