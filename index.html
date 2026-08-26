@@ -1108,9 +1108,17 @@ Welcome to the **OmniDoc Markdown Editor**!
               <h1 class="tool-view-title"><i data-lucide="qr-code" style="color: var(--primary);"></i> QR Code Studio & Generator</h1>
               <p class="tool-view-subtitle">Generate custom, scan-ready QR codes for Websites, WiFi credentials, vCards, Email, and Text.</p>
             </div>
-            <button class="btn btn-primary" id="btn-download-qr-png">
-              <i data-lucide="download"></i> Download PNG
-            </button>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-secondary" id="btn-copy-qr-img">
+                <i data-lucide="copy" style="width: 14px;"></i> Copy Image
+              </button>
+              <button class="btn btn-secondary" id="btn-download-qr-svg">
+                <i data-lucide="file-code" style="width: 14px;"></i> Download SVG
+              </button>
+              <button class="btn btn-primary" id="btn-download-qr-png">
+                <i data-lucide="download" style="width: 14px;"></i> Download PNG
+              </button>
+            </div>
           </div>
 
           <div class="tool-grid-sidebar">
@@ -1189,6 +1197,18 @@ Welcome to the **OmniDoc Markdown Editor**!
                     <input type="color" id="qr-bg-color" class="color-picker-input" value="#ffffff">
                     <span style="font-size: 0.85rem; color: var(--text-secondary);">Background</span>
                   </div>
+                </div>
+              </div>
+
+              <!-- Quick Color Presets -->
+              <div class="form-group" style="margin-top: 0.5rem;">
+                <label class="form-label" style="font-size: 0.8rem;">Quick Color Presets</label>
+                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                  <button type="button" class="btn btn-outline btn-sm qr-preset-btn" data-fg="#000000" data-bg="#ffffff" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;">Classic B&W</button>
+                  <button type="button" class="btn btn-outline btn-sm qr-preset-btn" data-fg="#0284c7" data-bg="#f0f9ff" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; color: #0284c7;">Ocean Blue</button>
+                  <button type="button" class="btn btn-outline btn-sm qr-preset-btn" data-fg="#059669" data-bg="#ecfdf5" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; color: #059669;">Emerald</button>
+                  <button type="button" class="btn btn-outline btn-sm qr-preset-btn" data-fg="#7c3aed" data-bg="#f5f3ff" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; color: #7c3aed;">Cyber Violet</button>
+                  <button type="button" class="btn btn-outline btn-sm qr-preset-btn" data-fg="#e11d48" data-bg="#fff1f2" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; color: #e11d48;">Crimson</button>
                 </div>
               </div>
 

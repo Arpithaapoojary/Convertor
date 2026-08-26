@@ -107,6 +107,20 @@ function initQrGenerator() {
     });
   }
 
+  const copyImgBtn = document.getElementById('btn-copy-qr-img');
+
+  // Preset buttons handler
+  document.querySelectorAll('.qr-preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const fg = btn.getAttribute('data-fg');
+      const bg = btn.getAttribute('data-bg');
+      if (fg && fgColor) fgColor.value = fg;
+      if (bg && bgColor) bgColor.value = bg;
+      renderQrCode();
+      showToast('Applied color preset!', 'info');
+    });
+  });
+
   if (downloadPngBtn) {
     downloadPngBtn.addEventListener('click', () => {
       const canvas = canvasHolder.querySelector('canvas');
@@ -126,6 +140,76 @@ function initQrGenerator() {
         showToast('Downloaded QR Code PNG!', 'success');
       } else {
         showToast('No QR code generated', 'error');
+      }
+    });
+  }
+
+  if (downloadSvgBtn) {
+    downloadSvgBtn.addEventListener('click', () => {
+      const canvas = canvasHolder.querySelector('canvas');
+      if (!canvas) {
+        showToast('No QR code generated to export SVG', 'error');
+        return;
+      }
+      const size = canvas.width;
+      const ctx = canvas.getContext('2d');
+      const imgData = ctx.getImageData(0, 0, size, size);
+      const data = imgData.data;
+
+      // Extract foreground modules
+      let svgRects = '';
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          const idx = (y * size + x) * 4;
+          const r = data[idx], g = data[idx + 1], b = data[idx + 2], a = data[idx + 3];
+          // If darker than threshold, draw rect
+          if (a > 128 && (r + g + b) / 3 < 128) {
+            svgRects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${fgColor ? fgColor.value : '#000000'}" />`;
+          }
+        }
+      }
+
+      const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">
+  <rect width="${size}" height="${size}" fill="${bgColor ? bgColor.value : '#ffffff'}"/>
+  ${svgRects}
+</svg>`;
+
+      const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'qrcode.svg';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Downloaded Vector QR Code SVG!', 'success');
+    });
+  }
+
+  if (copyImgBtn) {
+    copyImgBtn.addEventListener('click', async () => {
+      const canvas = canvasHolder.querySelector('canvas');
+      if (!canvas) {
+        showToast('No QR code available to copy', 'error');
+        return;
+      }
+
+      try {
+        canvas.toBlob(async (blob) => {
+          if (!blob) {
+            showToast('Failed to copy QR image', 'error');
+            return;
+          }
+          if (navigator.clipboard && navigator.clipboard.write) {
+            await navigator.clipboard.write([
+              new ClipboardItem({ 'image/png': blob })
+            ]);
+            showToast('QR Code image copied to clipboard!', 'success');
+          } else {
+            showToast('Clipboard image copy not supported in this browser', 'warning');
+          }
+        });
+      } catch (err) {
+        showToast('Could not copy image: ' + err.message, 'error');
       }
     });
   }
