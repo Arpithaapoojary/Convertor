@@ -1,4 +1,4 @@
-# ⚡ OmniDoc Studio (Convertor)
+#  OmniDoc Studio (Convertor)
 
 > Ultra-Fast, 100% Client-Side Document, Image, Text, and Data Utility Suite.
 
