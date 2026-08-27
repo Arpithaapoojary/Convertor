@@ -139,16 +139,17 @@
 }
 
 /* ==========================================================================
-   File Dropzones
+   File Dropzones (Ultra-Modern SaaS File Upload)
    ========================================================================== */
 
 .dropzone {
   border: 2px dashed var(--border-medium);
-  border-radius: var(--radius-lg);
-  padding: 3rem 2rem;
+  border-radius: var(--radius-xl);
+  padding: 3.25rem 2rem;
   text-align: center;
   background: var(--bg-surface);
-  transition: all var(--transition-normal);
+  background-image: radial-gradient(circle at 50% 10%, rgba(99, 102, 241, 0.04) 0%, transparent 65%);
+  transition: all var(--transition-smooth);
   cursor: pointer;
   position: relative;
   overflow: hidden;
@@ -156,68 +157,112 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
+  gap: 1.1rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.dropzone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--grad-mesh);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+  pointer-events: none;
 }
 
 .dropzone:hover, .dropzone.drag-active {
   border-color: var(--primary);
-  background: var(--primary-light);
-  transform: scale(1.005);
-  box-shadow: 0 0 30px var(--primary-glow), inset 0 0 15px rgba(99, 102, 241, 0.1);
+  background-color: var(--bg-surface-elevated);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px -6px rgba(99, 102, 241, 0.25), inset 0 0 25px rgba(99, 102, 241, 0.08);
+}
+
+.dropzone:hover::before, .dropzone.drag-active::before {
+  opacity: 1;
 }
 
 .dropzone.drag-active {
+  border-style: solid;
+  border-color: var(--primary);
   animation: dropzonePulse 1.8s infinite alternate ease-in-out;
 }
 
 @keyframes dropzonePulse {
   0% {
-    box-shadow: 0 0 15px var(--primary-glow), inset 0 0 8px rgba(99, 102, 241, 0.15);
+    box-shadow: 0 0 20px var(--primary-glow), inset 0 0 12px rgba(99, 102, 241, 0.15);
     border-color: var(--primary);
   }
   100% {
-    box-shadow: 0 0 35px var(--primary-glow), inset 0 0 20px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 0 45px var(--primary-glow), inset 0 0 28px rgba(99, 102, 241, 0.35);
     border-color: #818cf8;
   }
 }
 
 .dropzone-icon-box {
-  width: 64px;
-  height: 64px;
+  width: 70px;
+  height: 70px;
   border-radius: var(--radius-lg);
   background: var(--bg-surface-elevated);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-medium);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--primary);
-  margin-bottom: 0.25rem;
-  transition: transform var(--transition-fast);
+  margin-bottom: 0.35rem;
+  box-shadow: var(--shadow-md), var(--inner-highlight);
+  transition: transform var(--transition-bounce), box-shadow var(--transition-normal);
+  position: relative;
+  z-index: 2;
 }
 
 .dropzone:hover .dropzone-icon-box {
-  transform: translateY(-4px) scale(1.05);
+  transform: translateY(-6px) scale(1.08);
+  box-shadow: 0 10px 25px var(--primary-glow), var(--inner-highlight);
+  color: #ffffff;
+  background: var(--grad-primary);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .dropzone-title {
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--text-primary);
+  letter-spacing: -0.015em;
+  position: relative;
+  z-index: 2;
+  transition: color var(--transition-fast);
+}
+
+.dropzone:hover .dropzone-title {
+  color: #ffffff;
+}
+[data-theme="light"] .dropzone:hover .dropzone-title {
+  color: var(--primary);
 }
 
 .dropzone-subtitle {
   color: var(--text-secondary);
-  font-size: 0.88rem;
-  max-width: 450px;
+  font-size: 0.9rem;
+  max-width: 480px;
+  line-height: 1.5;
+  position: relative;
+  z-index: 2;
 }
 
 .dropzone-limits {
-  font-size: 0.75rem;
+  font-size: 0.76rem;
+  font-weight: 600;
   color: var(--text-muted);
   background: var(--bg-surface-elevated);
-  padding: 0.25rem 0.75rem;
+  padding: 0.3rem 0.85rem;
   border-radius: var(--radius-full);
   border: 1px solid var(--border-subtle);
+  position: relative;
+  z-index: 2;
+  box-shadow: var(--shadow-xs);
+  letter-spacing: 0.02em;
+}
 }
 
 .hidden-file-input {
