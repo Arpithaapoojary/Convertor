@@ -10,7 +10,7 @@ OmniDoc Studio is a privacy-first web application featuring 18+ high-performance
 
 ---
 
-## 🚀 Complete Suite of 18+ Tools
+##  Complete Suite of 18+ Tools
 
 ### 📑 1. PDF Suite
 - **Merge PDF**: Combine multiple PDF documents in custom order.
