@@ -2,10 +2,86 @@
    OmniDoc Studio - Utility Functions & Helpers
    ========================================================================== */
 
+// Audio Synthesizer for Tactile Feedback (Web Audio API)
+let audioCtx = null;
+function playFeedbackSound(type = 'success') {
+  try {
+    const isMuted = localStorage.getItem('omnidoc_sound_muted') === 'true';
+    if (isMuted) return;
+
+    if (!audioCtx) {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (AudioContext) audioCtx = new AudioContext();
+    }
+    if (!audioCtx || audioCtx.state === 'suspended') {
+      audioCtx?.resume();
+    }
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    const now = audioCtx.currentTime;
+    if (type === 'success') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, now); // D5
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.12); // A5
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      osc.start(now);
+      osc.stop(now + 0.15);
+    } else if (type === 'error') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, now); // A3
+      osc.frequency.linearRampToValueAtTime(146.83, now + 0.2); // D3
+      gain.gain.setValueAtTime(0.07, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+      osc.start(now);
+      osc.stop(now + 0.22);
+    } else {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, now);
+      gain.gain.setValueAtTime(0.05, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      osc.start(now);
+      osc.stop(now + 0.08);
+    }
+  } catch (e) {
+    // Audio synthesis fallback silently ignored if unsupported
+  }
+}
+
+// Debounce helper to limit function calls
+function debounce(fn, delay = 250) {
+  let timer = null;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+// Throttle helper to throttle rapid events
+function throttle(fn, limit = 200) {
+  let lastRan = 0;
+  return function (...args) {
+    const now = Date.now();
+    if (now - lastRan >= limit) {
+      fn.apply(this, args);
+      lastRan = now;
+    }
+  };
+}
+
 // Toast Notifications Helper
 function showToast(message, type = 'info', duration = 3000) {
   const container = document.getElementById('toast-container');
   if (!container) return;
+
+  // Enforce max 4 toasts visible at once
+  while (container.children.length >= 4) {
+    container.removeChild(container.firstChild);
+  }
 
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
@@ -21,6 +97,9 @@ function showToast(message, type = 'info', duration = 3000) {
 
   container.appendChild(toast);
   if (window.lucide) lucide.createIcons();
+
+  // Play audio chime
+  playFeedbackSound(type);
 
   setTimeout(() => {
     toast.classList.add('fade-out');
