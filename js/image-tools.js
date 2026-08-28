@@ -103,6 +103,8 @@ function initImageCompressor() {
     }, format, quality);
   }
 
+  const lockRatioCheckbox = document.getElementById('compress-lock-ratio');
+
   if (qualitySlider) {
     qualitySlider.addEventListener('input', (e) => {
       qualityVal.textContent = e.target.value + '%';
@@ -111,8 +113,62 @@ function initImageCompressor() {
   }
 
   if (formatSelect) formatSelect.addEventListener('change', compressImage);
-  if (resizeWidth) resizeWidth.addEventListener('change', compressImage);
-  if (resizeHeight) resizeHeight.addEventListener('change', compressImage);
+
+  if (resizeWidth) {
+    resizeWidth.addEventListener('input', () => {
+      if (lockRatioCheckbox && lockRatioCheckbox.checked && imgState.compressorOriginalImg) {
+        const origW = imgState.compressorOriginalImg.naturalWidth;
+        const origH = imgState.compressorOriginalImg.naturalHeight;
+        const w = parseInt(resizeWidth.value, 10);
+        if (w && origW) {
+          resizeHeight.value = Math.round((w / origW) * origH);
+        }
+      }
+      compressImage();
+    });
+  }
+
+  if (resizeHeight) {
+    resizeHeight.addEventListener('input', () => {
+      if (lockRatioCheckbox && lockRatioCheckbox.checked && imgState.compressorOriginalImg) {
+        const origW = imgState.compressorOriginalImg.naturalWidth;
+        const origH = imgState.compressorOriginalImg.naturalHeight;
+        const h = parseInt(resizeHeight.value, 10);
+        if (h && origH) {
+          resizeWidth.value = Math.round((h / origH) * origW);
+        }
+      }
+      compressImage();
+    });
+  }
+
+  // Handle Quick Presets
+  document.querySelectorAll('[data-img-scale]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!imgState.compressorOriginalImg) return;
+      const scale = parseFloat(btn.getAttribute('data-img-scale')) || 1.0;
+      resizeWidth.value = Math.round(imgState.compressorOriginalImg.naturalWidth * scale);
+      resizeHeight.value = Math.round(imgState.compressorOriginalImg.naturalHeight * scale);
+      compressImage();
+      showToast(`Scaled image to ${Math.round(scale * 100)}%`, 'info');
+    });
+  });
+
+  document.querySelectorAll('[data-img-preset]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!imgState.compressorOriginalImg) return;
+      const preset = btn.getAttribute('data-img-preset');
+      if (preset === 'avatar') {
+        resizeWidth.value = 512;
+        resizeHeight.value = 512;
+      } else if (preset === 'hd') {
+        resizeWidth.value = 1920;
+        resizeHeight.value = 1080;
+      }
+      compressImage();
+      showToast(`Applied ${preset.toUpperCase()} dimension preset`, 'info');
+    });
+  });
 
   if (downloadBtn) {
     downloadBtn.addEventListener('click', () => {

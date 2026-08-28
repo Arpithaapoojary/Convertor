@@ -538,7 +538,7 @@
                 <span id="compress-savings-badge" class="savings-badge" style="display: none;">-60%</span>
               </div>
 
-              <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 1rem; align-items: end;">
+              <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 1rem; align-items: end;">
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label" for="compress-quality-slider">
                     <span>Quality Level</span>
@@ -567,6 +567,22 @@
                   <label class="form-label" for="compress-max-height">Height (px)</label>
                   <input type="number" id="compress-max-height" class="form-input" placeholder="Original">
                 </div>
+
+                <div class="form-group" style="margin-bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 0.25rem;">
+                  <label class="form-label" style="font-size: 0.72rem; margin-bottom: 0.4rem;" title="Lock Aspect Ratio">Lock Ratio</label>
+                  <input type="checkbox" id="compress-lock-ratio" checked style="accent-color: var(--primary); width: 18px; height: 18px; cursor: pointer;">
+                </div>
+              </div>
+
+              <!-- Quick Scaling Presets -->
+              <div style="display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; align-items: center;">
+                <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">Quick Presets:</span>
+                <button type="button" class="btn btn-secondary btn-sm" data-img-scale="1.0">100%</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-img-scale="0.75">75%</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-img-scale="0.5">50%</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-img-scale="0.25">25%</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-img-preset="avatar">512×512</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-img-preset="hd">1920×1080</button>
               </div>
 
               <!-- Side-by-Side Comparison -->
