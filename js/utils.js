@@ -117,16 +117,37 @@ function formatBytes(bytes, decimals = 2) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
+// Object URL Lifecycle Management for Memory Efficiency
+const _trackedObjectUrls = new Set();
+
+function createTrackedObjectURL(blob) {
+  const url = URL.createObjectURL(blob);
+  _trackedObjectUrls.add(url);
+  return url;
+}
+
+function revokeTrackedObjectURL(url) {
+  if (_trackedObjectUrls.has(url)) {
+    URL.revokeObjectURL(url);
+    _trackedObjectUrls.delete(url);
+  }
+}
+
+function revokeAllTrackedObjectURLs() {
+  _trackedObjectUrls.forEach(url => URL.revokeObjectURL(url));
+  _trackedObjectUrls.clear();
+}
+
 // Trigger File Download in Browser
 function downloadBlob(blob, filename) {
-  const url = URL.createObjectURL(blob);
+  const url = createTrackedObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = filename;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  setTimeout(() => revokeTrackedObjectURL(url), 3000);
 }
 
 // Trigger Text / String Download
