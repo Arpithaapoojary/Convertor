@@ -37,6 +37,7 @@ class OmniDocApp {
   constructor() {
     this.activeToolId = 'pdf-merge';
     this.theme = localStorage.getItem('omnidoc_theme') || 'dark';
+    this.recentTools = JSON.parse(localStorage.getItem('omnidoc_recent_tools') || '[]');
     this.paletteSelectedIndex = 0;
     this.filteredPaletteTools = [...TOOLS_REGISTRY];
   }
@@ -71,6 +72,12 @@ class OmniDocApp {
     this.applyTheme(this.theme === 'dark' ? 'light' : 'dark');
   }
 
+  recordRecentTool(toolId) {
+    this.recentTools = [toolId, ...this.recentTools.filter(id => id !== toolId)].slice(0, 5);
+    localStorage.setItem('omnidoc_recent_tools', JSON.stringify(this.recentTools));
+    localStorage.setItem('omnidoc_last_tool', toolId);
+  }
+
   // Route & Tab Navigation
   navigateTo(toolId) {
     const tool = TOOLS_REGISTRY.find(t => t.id === toolId);
@@ -78,6 +85,7 @@ class OmniDocApp {
 
     this.activeToolId = toolId;
     window.location.hash = toolId;
+    this.recordRecentTool(toolId);
 
     // Update active nav items
     document.querySelectorAll('.nav-item').forEach(item => {
@@ -116,8 +124,11 @@ class OmniDocApp {
 
   handleInitialRoute() {
     const hash = window.location.hash.replace('#', '');
+    const savedLast = localStorage.getItem('omnidoc_last_tool');
     if (hash && TOOLS_REGISTRY.some(t => t.id === hash)) {
       this.navigateTo(hash);
+    } else if (savedLast && TOOLS_REGISTRY.some(t => t.id === savedLast)) {
+      this.navigateTo(savedLast);
     } else {
       this.navigateTo('pdf-merge');
     }
