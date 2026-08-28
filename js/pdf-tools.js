@@ -891,6 +891,10 @@ function initPdfRotator() {
     await page.render({ canvasContext: ctx, viewport }).promise;
   }
 
+  const rotateAllCcwBtn = document.getElementById('btn-rotate-all-ccw');
+  const rotateAll180Btn = document.getElementById('btn-rotate-all-180');
+  const rotateResetBtn = document.getElementById('btn-rotate-reset');
+
   if (rotateAllCwBtn) {
     rotateAllCwBtn.addEventListener('click', () => {
       const total = pdfState.rotatePageAngles.length;
@@ -899,7 +903,43 @@ function initPdfRotator() {
         const canvas = document.getElementById(`rotate-canvas-${i + 1}`);
         if (canvas) canvas.style.transform = `rotate(${pdfState.rotatePageAngles[i]}deg)`;
       }
-      showToast('Rotated all pages by 90°', 'info');
+      showToast('Rotated all pages +90°', 'info');
+    });
+  }
+
+  if (rotateAllCcwBtn) {
+    rotateAllCcwBtn.addEventListener('click', () => {
+      const total = pdfState.rotatePageAngles.length;
+      for (let i = 0; i < total; i++) {
+        pdfState.rotatePageAngles[i] = (pdfState.rotatePageAngles[i] - 90 + 360) % 360;
+        const canvas = document.getElementById(`rotate-canvas-${i + 1}`);
+        if (canvas) canvas.style.transform = `rotate(${pdfState.rotatePageAngles[i]}deg)`;
+      }
+      showToast('Rotated all pages -90°', 'info');
+    });
+  }
+
+  if (rotateAll180Btn) {
+    rotateAll180Btn.addEventListener('click', () => {
+      const total = pdfState.rotatePageAngles.length;
+      for (let i = 0; i < total; i++) {
+        pdfState.rotatePageAngles[i] = (pdfState.rotatePageAngles[i] + 180) % 360;
+        const canvas = document.getElementById(`rotate-canvas-${i + 1}`);
+        if (canvas) canvas.style.transform = `rotate(${pdfState.rotatePageAngles[i]}deg)`;
+      }
+      showToast('Inverted all pages by 180°', 'info');
+    });
+  }
+
+  if (rotateResetBtn) {
+    rotateResetBtn.addEventListener('click', () => {
+      const total = pdfState.rotatePageAngles.length;
+      for (let i = 0; i < total; i++) {
+        pdfState.rotatePageAngles[i] = 0;
+        const canvas = document.getElementById(`rotate-canvas-${i + 1}`);
+        if (canvas) canvas.style.transform = `rotate(0deg)`;
+      }
+      showToast('Reset all page rotations to 0°', 'info');
     });
   }
 

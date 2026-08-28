@@ -474,12 +474,21 @@
               <h1 class="tool-view-title"><i data-lucide="rotate-cw" style="color: var(--accent-rose);"></i> Rotate PDF Pages</h1>
               <p class="tool-view-subtitle">Fix upside-down or sideways pages in seconds. Rotate all pages at once or adjust individual pages.</p>
             </div>
-            <div style="display: flex; gap: 0.5rem;">
-              <button class="btn btn-secondary" id="btn-rotate-all-cw">
-                <i data-lucide="rotate-cw"></i> Rotate All 90°
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button class="btn btn-secondary btn-sm" id="btn-rotate-all-cw" title="Rotate all 90° Clockwise">
+                <i data-lucide="rotate-cw" style="width: 14px;"></i> +90°
               </button>
-              <button class="btn btn-primary" id="btn-save-rotated-pdf">
-                <i data-lucide="download"></i> Save Rotated PDF
+              <button class="btn btn-secondary btn-sm" id="btn-rotate-all-ccw" title="Rotate all 90° Counter-Clockwise">
+                <i data-lucide="rotate-ccw" style="width: 14px;"></i> -90°
+              </button>
+              <button class="btn btn-secondary btn-sm" id="btn-rotate-all-180" title="Rotate all 180°">
+                <i data-lucide="refresh-cw" style="width: 14px;"></i> 180°
+              </button>
+              <button class="btn btn-secondary btn-sm" id="btn-rotate-reset" title="Reset all page rotations">
+                <i data-lucide="undo-2" style="width: 14px;"></i> Reset
+              </button>
+              <button class="btn btn-primary btn-sm" id="btn-save-rotated-pdf">
+                <i data-lucide="download" style="width: 14px;"></i> Save PDF
               </button>
             </div>
           </div>
