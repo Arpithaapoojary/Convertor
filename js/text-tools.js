@@ -106,6 +106,37 @@ function initTextTransformer() {
         case 'number-lines':
           result = text.split('\n').map((l, i) => `${i + 1}. ${l}`).join('\n');
           break;
+        case 'json-escape':
+          result = JSON.stringify(text).slice(1, -1);
+          break;
+        case 'json-unescape':
+          try {
+            result = JSON.parse(`"${text.replace(/"/g, '\\"')}"`);
+          } catch (e) {
+            result = text.replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+          }
+          break;
+        case 'b64-encode':
+          try {
+            result = btoa(unescape(encodeURIComponent(text)));
+          } catch (e) {
+            showToast('Base64 encoding error', 'error');
+          }
+          break;
+        case 'b64-decode':
+          try {
+            result = decodeURIComponent(escape(atob(text.trim())));
+          } catch (e) {
+            showToast('Invalid Base64 string', 'error');
+          }
+          break;
+        case 'rot13':
+          result = text.replace(/[a-zA-Z]/g, c => {
+            const code = c.charCodeAt(0);
+            const base = code <= 90 ? 65 : 97;
+            return String.fromCharCode(((code - base + 13) % 26) + base);
+          });
+          break;
         case 'strip-html':
           result = text.replace(/<[^>]*>/g, '');
           break;
@@ -216,7 +247,15 @@ function initTextDiff() {
     const diff = getDiff(origLines, modLines);
     outputContainer.innerHTML = '';
 
+    let addedCount = 0;
+    let removedCount = 0;
+    let unchangedCount = 0;
+
     diff.forEach(item => {
+      if (item.type === 'added') addedCount++;
+      else if (item.type === 'removed') removedCount++;
+      else unchangedCount++;
+
       const lineEl = document.createElement('div');
       lineEl.className = `diff-line diff-${item.type}`;
       const prefix = item.type === 'added' ? '+ ' : (item.type === 'removed' ? '- ' : '  ');
@@ -224,7 +263,9 @@ function initTextDiff() {
       outputContainer.appendChild(lineEl);
     });
 
-    showToast('Diff comparison completed!', 'success');
+    const totalLines = diff.length || 1;
+    const similarity = Math.round((unchangedCount / totalLines) * 100);
+    showToast(`Diff comparison: ${similarity}% match (+${addedCount}, -${removedCount})`, 'success');
   });
 }
 
