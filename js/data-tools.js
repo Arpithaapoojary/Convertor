@@ -60,6 +60,17 @@ function initCsvJsonConverter() {
     tableContainer.innerHTML = html;
   }
 
+  function detectDelimiter(str) {
+    const sample = str.split('\n')[0] || '';
+    const counts = {
+      ',': (sample.match(/,/g) || []).length,
+      ';': (sample.match(/;/g) || []).length,
+      '\t': (sample.match(/\t/g) || []).length,
+      '|': (sample.match(/\|/g) || []).length
+    };
+    return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0] || ',';
+  }
+
   function convertCsvToJson() {
     const raw = csvInput.value.trim();
     if (!raw) {
@@ -68,24 +79,30 @@ function initCsvJsonConverter() {
     }
 
     try {
+      const delimiter = detectDelimiter(raw);
       if (window.Papa) {
-        const parsed = Papa.parse(raw, { header: true, dynamicTyping: true, skipEmptyLines: true });
+        const parsed = Papa.parse(raw, { 
+          header: true, 
+          dynamicTyping: true, 
+          skipEmptyLines: true,
+          delimiter: delimiter
+        });
         jsonInput.value = JSON.stringify(parsed.data, null, 2);
         renderTable(parsed.data);
-        showToast('Converted CSV to JSON!', 'success');
+        const count = parsed.data.length;
+        showToast(`Converted ${count} row(s) to JSON (detected '${delimiter === '\t' ? 'TAB' : delimiter}')!`, 'success');
       } else {
-        // Fallback basic CSV parser
         const lines = raw.split('\n');
-        const headers = lines[0].split(',').map(h => h.trim());
+        const headers = lines[0].split(delimiter).map(h => h.trim());
         const data = lines.slice(1).filter(l => l.trim()).map(line => {
-          const vals = line.split(',');
+          const vals = line.split(delimiter);
           const obj = {};
           headers.forEach((h, i) => obj[h] = vals[i] ? vals[i].trim() : '');
           return obj;
         });
         jsonInput.value = JSON.stringify(data, null, 2);
         renderTable(data);
-        showToast('Converted CSV to JSON!', 'success');
+        showToast(`Converted ${data.length} rows to JSON!`, 'success');
       }
     } catch (e) {
       showToast('Error converting CSV: ' + e.message, 'error');
@@ -107,7 +124,7 @@ function initCsvJsonConverter() {
         const csv = Papa.unparse(data);
         csvInput.value = csv;
         renderTable(data);
-        showToast('Converted JSON to CSV!', 'success');
+        showToast(`Converted ${data.length} records to CSV!`, 'success');
       } else {
         const headers = Object.keys(data[0]);
         const rows = [headers.join(',')];
@@ -116,7 +133,7 @@ function initCsvJsonConverter() {
         });
         csvInput.value = rows.join('\n');
         renderTable(data);
-        showToast('Converted JSON to CSV!', 'success');
+        showToast(`Converted ${data.length} records to CSV!`, 'success');
       }
     } catch (e) {
       showToast('Invalid JSON: ' + e.message, 'error');
