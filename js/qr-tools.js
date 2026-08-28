@@ -16,6 +16,8 @@ function initQrGenerator() {
   const wifiPass = document.getElementById('qr-wifi-pass');
   const wifiType = document.getElementById('qr-wifi-type');
 
+  const wifiHidden = document.getElementById('qr-wifi-hidden');
+
   const vcardContainer = document.getElementById('qr-vcard-fields');
   const vcardName = document.getElementById('qr-vcard-name');
   const vcardPhone = document.getElementById('qr-vcard-phone');
@@ -40,7 +42,8 @@ function initQrGenerator() {
       const ssid = wifiSsid ? wifiSsid.value : '';
       const pass = wifiPass ? wifiPass.value : '';
       const enc = wifiType ? wifiType.value : 'WPA';
-      return `WIFI:T:${enc};S:${ssid};P:${pass};;`;
+      const hidden = wifiHidden && wifiHidden.checked ? 'H:true;' : '';
+      return `WIFI:T:${enc};S:${ssid};P:${pass};${hidden};`;
     } else if (type === 'vcard') {
       const name = vcardName ? vcardName.value : '';
       const phone = vcardPhone ? vcardPhone.value : '';
@@ -94,8 +97,9 @@ function initQrGenerator() {
     });
   }
 
-  [qrTextInput, wifiSsid, wifiPass, wifiType, vcardName, vcardPhone, vcardEmail, vcardOrg].forEach(el => {
+  [qrTextInput, wifiSsid, wifiPass, wifiType, wifiHidden, vcardName, vcardPhone, vcardEmail, vcardOrg].forEach(el => {
     if (el) el.addEventListener('input', renderQrCode);
+    if (el && el.type === 'checkbox') el.addEventListener('change', renderQrCode);
   });
 
   if (fgColor) fgColor.addEventListener('input', renderQrCode);
