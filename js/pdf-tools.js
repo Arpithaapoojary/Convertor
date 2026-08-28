@@ -71,11 +71,16 @@ function initPdfMerge() {
     actionBtn.disabled = false;
     if (clearBtn) clearBtn.style.display = 'inline-flex';
 
+    let draggedMergeIndex = null;
+
     pdfState.mergeFiles.forEach((item, index) => {
       const row = document.createElement('div');
       row.className = 'pdf-merge-item';
+      row.draggable = true;
+      row.setAttribute('data-drag-idx', index);
       row.innerHTML = `
         <div class="file-item-info">
+          <i data-lucide="grip-vertical" class="pdf-item-drag-handle" title="Drag to reorder"></i>
           <span class="pdf-order-badge">${index + 1}</span>
           <i data-lucide="file-text" style="color: var(--primary); width: 20px;"></i>
           <div class="file-item-meta">
@@ -95,6 +100,40 @@ function initPdfMerge() {
           </button>
         </div>
       `;
+
+      // Drag and drop events
+      row.addEventListener('dragstart', (e) => {
+        draggedMergeIndex = index;
+        row.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+
+      row.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        row.classList.add('drag-over');
+      });
+
+      row.addEventListener('dragleave', () => {
+        row.classList.remove('drag-over');
+      });
+
+      row.addEventListener('drop', (e) => {
+        e.preventDefault();
+        row.classList.remove('drag-over');
+        if (draggedMergeIndex !== null && draggedMergeIndex !== index) {
+          const [movedItem] = pdfState.mergeFiles.splice(draggedMergeIndex, 1);
+          pdfState.mergeFiles.splice(index, 0, movedItem);
+          renderMergeList();
+          showToast('Reordered documents', 'info');
+        }
+      });
+
+      row.addEventListener('dragend', () => {
+        row.classList.remove('dragging');
+        draggedMergeIndex = null;
+      });
+
       listContainer.appendChild(row);
     });
 
@@ -427,11 +466,16 @@ function initImagesToPdf() {
 
     convertBtn.disabled = false;
 
+    let draggedImgIndex = null;
+
     pdfState.imgToPdfFiles.forEach((item, index) => {
       const row = document.createElement('div');
       row.className = 'pdf-merge-item';
+      row.draggable = true;
+      row.setAttribute('data-drag-idx', index);
       row.innerHTML = `
         <div class="file-item-info">
+          <i data-lucide="grip-vertical" class="pdf-item-drag-handle" title="Drag to reorder"></i>
           <img src="${item.dataUrl}" style="width: 38px; height: 38px; object-fit: cover; border-radius: 4px;" />
           <div class="file-item-meta">
             <div class="file-item-name" title="${item.name}">${item.name}</div>
@@ -450,6 +494,39 @@ function initImagesToPdf() {
           </button>
         </div>
       `;
+
+      row.addEventListener('dragstart', (e) => {
+        draggedImgIndex = index;
+        row.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+
+      row.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        row.classList.add('drag-over');
+      });
+
+      row.addEventListener('dragleave', () => {
+        row.classList.remove('drag-over');
+      });
+
+      row.addEventListener('drop', (e) => {
+        e.preventDefault();
+        row.classList.remove('drag-over');
+        if (draggedImgIndex !== null && draggedImgIndex !== index) {
+          const [movedItem] = pdfState.imgToPdfFiles.splice(draggedImgIndex, 1);
+          pdfState.imgToPdfFiles.splice(index, 0, movedItem);
+          renderImgList();
+          showToast('Reordered images', 'info');
+        }
+      });
+
+      row.addEventListener('dragend', () => {
+        row.classList.remove('dragging');
+        draggedImgIndex = null;
+      });
+
       listContainer.appendChild(row);
     });
 
