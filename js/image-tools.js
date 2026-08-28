@@ -499,17 +499,41 @@ function initPaletteAndFilters() {
       colorMap[hex] = (colorMap[hex] || 0) + 1;
     }
 
-    const sorted = Object.entries(colorMap).sort((a, b) => b[1] - a[1]).slice(0, 7);
+    function getLuminance(r, g, b) {
+      const a = [r, g, b].map(v => {
+        v /= 255;
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      });
+      return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+    }
+
+    const sorted = Object.entries(colorMap).sort((a, b) => b[1] - a[1]).slice(0, 8);
     swatchContainer.innerHTML = '';
 
     sorted.forEach(([hex]) => {
+      const r = parseInt(hex.substr(1, 2), 16);
+      const g = parseInt(hex.substr(3, 2), 16);
+      const b = parseInt(hex.substr(5, 2), 16);
+      const lum = getLuminance(r, g, b);
+      const crWhite = (1.05 / (lum + 0.05)).toFixed(1);
+      const crBlack = ((lum + 0.05) / 0.05).toFixed(1);
+      const bestText = lum > 0.4 ? '#000000' : '#ffffff';
+      const bestCr = lum > 0.4 ? crBlack : crWhite;
+      const wcagBadge = parseFloat(bestCr) >= 7 ? 'AAA' : (parseFloat(bestCr) >= 4.5 ? 'AA' : 'Fail');
+
       const item = document.createElement('div');
       item.className = 'palette-swatch-item';
+      item.style.cursor = 'pointer';
       item.innerHTML = `
-        <div class="palette-color-box" style="background-color: ${hex};" title="Click to copy ${hex}"></div>
-        <span class="palette-hex">${hex}</span>
+        <div class="palette-color-box" style="background-color: ${hex}; display: flex; align-items: center; justify-content: center;" title="Click to copy ${hex}">
+          <span style="font-size: 0.68rem; font-weight: 700; color: ${bestText}; background: rgba(0,0,0,0.25); padding: 2px 4px; border-radius: 3px;">${wcagBadge}</span>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+          <span class="palette-hex" style="font-weight: 700;">${hex}</span>
+          <span style="font-size: 0.65rem; color: var(--text-muted);">${bestCr}:1</span>
+        </div>
       `;
-      item.addEventListener('click', () => copyToClipboard(hex, `Copied color ${hex}!`));
+      item.addEventListener('click', () => copyToClipboard(hex, `Copied color ${hex} (Contrast ${bestCr}:1 ${wcagBadge})!`));
       swatchContainer.appendChild(item);
     });
   }
