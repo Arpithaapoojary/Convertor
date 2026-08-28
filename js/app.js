@@ -156,24 +156,67 @@ class OmniDocApp {
       themeBtn.addEventListener('click', () => this.toggleTheme());
     }
 
+    const soundBtn = document.getElementById('btn-toggle-sound');
+    if (soundBtn) {
+      const isMuted = localStorage.getItem('omnidoc_sound_muted') === 'true';
+      soundBtn.innerHTML = isMuted 
+        ? `<i data-lucide="volume-x" style="width: 18px; height: 18px;"></i>` 
+        : `<i data-lucide="volume-2" style="width: 18px; height: 18px;"></i>`;
+      soundBtn.addEventListener('click', () => {
+        const currentlyMuted = localStorage.getItem('omnidoc_sound_muted') === 'true';
+        const nextMuted = !currentlyMuted;
+        localStorage.setItem('omnidoc_sound_muted', nextMuted ? 'true' : 'false');
+        soundBtn.innerHTML = nextMuted 
+          ? `<i data-lucide="volume-x" style="width: 18px; height: 18px;"></i>` 
+          : `<i data-lucide="volume-2" style="width: 18px; height: 18px;"></i>`;
+        if (window.lucide) lucide.createIcons();
+        showToast(nextMuted ? 'Audio feedback muted' : 'Audio feedback enabled', 'info');
+      });
+    }
+
     const searchTrigger = document.getElementById('btn-header-search');
     if (searchTrigger) {
       searchTrigger.addEventListener('click', () => this.openPalette());
     }
   }
 
-  // Command Palette (Ctrl + K)
+  // Command Palette (Ctrl + K) & Global Shortcuts
   bindCommandPalette() {
     const overlay = document.getElementById('command-palette-overlay');
     const input = document.getElementById('palette-input-box');
     const list = document.getElementById('palette-results-container');
 
-    // Global shortcut Ctrl+K or Cmd+K or /
+    // Global shortcut listeners
     window.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      // Ctrl+K / Cmd+K -> Command palette
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         this.togglePalette();
-      } else if (e.key === 'Escape' && overlay && overlay.classList.contains('open')) {
+      } 
+      // Ctrl+Shift+T -> Toggle Theme
+      else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 't') {
+        e.preventDefault();
+        this.toggleTheme();
+        showToast(`Switched to ${this.theme} theme`, 'info');
+      }
+      // Alt + 1..5 category jump
+      else if (e.altKey && ['1', '2', '3', '4', '5'].includes(e.key)) {
+        e.preventDefault();
+        const categoryMap = {
+          '1': 'pdf-merge',
+          '2': 'img-compress',
+          '3': 'text-transform',
+          '4': 'data-csv-json',
+          '5': 'qr-generator'
+        };
+        if (categoryMap[e.key]) this.navigateTo(categoryMap[e.key]);
+      }
+      // ? -> Show shortcut help
+      else if (e.key === '?' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        e.preventDefault();
+        showToast('Shortcuts: Ctrl+K (Search), Ctrl+Shift+T (Theme), Alt+1-5 (Suites)', 'info', 4000);
+      }
+      else if (e.key === 'Escape' && overlay && overlay.classList.contains('open')) {
         this.closePalette();
       }
     });
