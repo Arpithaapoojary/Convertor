@@ -24,6 +24,8 @@ const TOOLS_REGISTRY = [
 
   // Data & Code
   { id: 'data-csv-json', title: 'CSV ↔ JSON', category: 'Data & Format', icon: 'table', desc: 'Convert CSV to JSON and JSON to CSV with live table preview.' },
+  { id: 'data-json-beautifier', title: 'JSON Studio', category: 'Data & Format', icon: 'braces', desc: 'Format, minify, repair syntax, and validate JSON data structures.' },
+  { id: 'data-jwt', title: 'JWT Inspector', category: 'Data & Format', icon: 'key-round', desc: 'Decode, inspect, and validate JSON Web Tokens with timestamp checks.' },
   { id: 'data-markdown', title: 'Markdown Live Editor', category: 'Data & Format', icon: 'file-code', desc: 'Real-time Markdown editor with rendered HTML preview.' },
   { id: 'data-encode', title: 'Base64 & URL Encoder', category: 'Data & Format', icon: 'shield', desc: 'Encode and decode Base64, URL components, and HTML entities.' },
   { id: 'data-hash-uuid', title: 'Hash & UUID Generator', category: 'Data & Format', icon: 'hash', desc: 'Generate MD5, SHA-256 hashes and bulk UUID v4 strings.' },

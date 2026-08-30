@@ -6,11 +6,11 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-emerald?style=for-the-badge)
 ![Zero Backend Required](https://img.shields.io/badge/100%25-Client--Side-blue?style=for-the-badge)
 
-OmniDoc Studio is a privacy-first web application featuring 18+ high-performance utilities for processing PDFs, optimizing images, transforming text, converting data structures, and generating QR codes directly in your browser without uploading files to any external server.
+OmniDoc Studio is a privacy-first web application featuring 20+ high-performance utilities for processing PDFs, optimizing images, transforming text, converting data structures, inspecting tokens, and generating QR codes directly in your browser without uploading files to any external server.
 
 ---
 
-##  Complete Suite of 18+ Tools
+## 🚀 Complete Suite of 20+ Tools
 
 ### 📑 1. PDF Suite
 - **Merge PDF**: Combine multiple PDF documents in custom order with intuitive HTML5 drag-and-drop reordering.
@@ -27,11 +27,13 @@ OmniDoc Studio is a privacy-first web application featuring 18+ high-performance
 - **Palette & Filters**: Extract dominant color palettes with WCAG 2.1 contrast ratio ratings (AAA/AA), one-click HEX/RGB copying, and real-time canvas filters (Brightness, Contrast, Grayscale, Sepia, Blur, Invert).
 
 ### ✍️ 3. Text & Content Studio
-- **Smart Text Transformer**: 22+ case transformations (UPPERCASE, lowercase, Title Case, camelCase, PascalCase, kebab-case, snake_case, CONSTANT_CASE, dot.case, Slugify, Reverse, JSON Escape/Unescape, Base64 Codec, ROT13 Cipher), HTML tag stripping, and regex extractors (Emails, URLs).
+- **Smart Text Transformer**: 28+ case transformations (UPPERCASE, lowercase, Title Case, camelCase, PascalCase, kebab-case, snake_case, CONSTANT_CASE, dot.case, Slugify, Reverse, JSON Escape/Unescape, Base64 Codec, ROT13 Cipher, Binary, Hex, Reverse Words, Word Frequency Density, Lorem Ipsum), HTML tag stripping, and regex extractors (Emails, URLs).
 - **Text Diff Viewer**: Side-by-side comparison using the Longest Common Subsequence (LCS) algorithm to highlight additions, deletions, and percentage similarity score.
 
 ### 📊 4. Data & Code Studio
 - **CSV ↔ JSON**: Bidirectional conversion with smart delimiter auto-detection (commas, semicolons, tabs, pipes) and interactive table data preview powered by PapaParse.
+- **JSON Studio**: Comprehensive JSON formatter (2 spaces, 4 spaces, Tabs), minifier, deep key sorting, schema validator with live byte size and depth calculation, and auto-repair for common JSON syntax mistakes.
+- **JWT Inspector & Debugger**: Real-time JSON Web Token decoder for Header, Payload claims, and Signature with colorized string breakdown, live expiration countdown timer, and standard claims dictionary.
 - **Live Markdown Editor**: Split-screen Markdown editor with real-time rendered HTML preview and sanitized export.
 - **Base64 & URL Codec**: Encode and decode Base64, URL parameters, and HTML entities.
 - **Hash & UUID Generator**: Compute MD5, SHA-1, SHA-256, and SHA-512 cryptographic hashes and generate bulk RFC 4122 UUID v4 strings.

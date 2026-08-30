@@ -138,12 +138,20 @@
         <div>
           <div class="nav-category-title">
             <span>Data & Code</span>
-            <span class="nav-category-count">4</span>
+            <span class="nav-category-count">6</span>
           </div>
           <ul class="nav-list">
             <li class="nav-item" data-tool-target="data-csv-json">
               <span class="nav-item-icon"><i data-lucide="table"></i></span>
               <span>CSV ↔ JSON</span>
+            </li>
+            <li class="nav-item" data-tool-target="data-json-beautifier">
+              <span class="nav-item-icon"><i data-lucide="braces"></i></span>
+              <span>JSON Studio</span>
+            </li>
+            <li class="nav-item" data-tool-target="data-jwt">
+              <span class="nav-item-icon"><i data-lucide="key-round"></i></span>
+              <span>JWT Inspector</span>
             </li>
             <li class="nav-item" data-tool-target="data-markdown">
               <span class="nav-item-icon"><i data-lucide="file-code"></i></span>
@@ -856,9 +864,13 @@
               <button class="btn btn-outline btn-sm" data-text-transform="b64-encode">Base64 Encode</button>
               <button class="btn btn-outline btn-sm" data-text-transform="b64-decode">Base64 Decode</button>
               <button class="btn btn-outline btn-sm" data-text-transform="rot13">ROT13 Cipher</button>
-              <button class="btn btn-outline btn-sm" data-text-transform="strip-html">Strip HTML</button>
-              <button class="btn btn-outline btn-sm" data-text-transform="extract-emails">Extract Emails</button>
-              <button class="btn btn-outline btn-sm" data-text-transform="extract-urls">Extract URLs</button>
+              <button class="btn btn-outline btn-sm" data-text-transform="binary-encode">Binary Encode</button>
+              <button class="btn btn-outline btn-sm" data-text-transform="binary-decode">Binary Decode</button>
+              <button class="btn btn-outline btn-sm" data-text-transform="hex-encode">Hex Encode</button>
+              <button class="btn btn-outline btn-sm" data-text-transform="hex-decode">Hex Decode</button>
+              <button class="btn btn-outline btn-sm" data-text-transform="reverse-words">Reverse Words</button>
+              <button class="btn btn-outline btn-sm" data-text-transform="word-frequency">Word Frequency</button>
+              <button class="btn btn-outline btn-sm" data-text-transform="lorem">Lorem Ipsum</button>
               <button class="btn btn-outline btn-sm" data-text-transform="sample">Sample Text</button>
             </div>
 
@@ -964,7 +976,167 @@
         </section>
 
         <!-- ==========================================
-             14. MARKDOWN LIVE EDITOR PANEL
+             14. JSON STUDIO & VALIDATOR PANEL
+             ========================================== -->
+        <section class="tool-panel" id="panel-data-json-beautifier">
+          <div class="tool-view-header">
+            <div>
+              <h1 class="tool-view-title"><i data-lucide="braces" style="color: var(--accent-amber);"></i> JSON Studio & Schema Validator</h1>
+              <p class="tool-view-subtitle">Format, compact minify, auto-repair syntax errors, sort keys, and validate JSON data structures in real time.</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-secondary" id="btn-copy-json-studio">
+                <i data-lucide="copy" style="width: 14px;"></i> Copy JSON
+              </button>
+              <button class="btn btn-primary" id="btn-download-json-studio">
+                <i data-lucide="download" style="width: 14px;"></i> Download .json
+              </button>
+            </div>
+          </div>
+
+          <!-- Stats & Status Bar -->
+          <div class="stats-grid">
+            <div class="stat-widget">
+              <div class="stat-val" id="json-stat-bytes">0 B</div>
+              <div class="stat-label">File Size</div>
+            </div>
+            <div class="stat-widget">
+              <div class="stat-val" id="json-stat-keys">0</div>
+              <div class="stat-label">Total Keys</div>
+            </div>
+            <div class="stat-widget">
+              <div class="stat-val" id="json-stat-arrays">0</div>
+              <div class="stat-label">Array Items</div>
+            </div>
+            <div class="stat-widget">
+              <div class="stat-val" id="json-stat-depth">0</div>
+              <div class="stat-label">Max Depth</div>
+            </div>
+            <div class="stat-widget" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+              <div id="json-stat-valid-badge" class="badge badge-muted">Empty</div>
+              <div class="stat-label" style="margin-top: 0.25rem;">Schema Status</div>
+            </div>
+          </div>
+
+          <!-- Error Alert Banner -->
+          <div class="json-error-banner" id="json-studio-error-banner" style="display: none;">
+            <i data-lucide="alert-octagon" style="width: 20px; height: 20px; color: var(--accent-rose); flex-shrink: 0;"></i>
+            <span class="json-error-message">Syntax error in JSON string</span>
+          </div>
+
+          <div class="glass-card">
+            <!-- Action Toolbar -->
+            <div class="text-actions-bar">
+              <button class="btn btn-secondary btn-sm" data-json-action="format-2">Format (2 Spaces)</button>
+              <button class="btn btn-secondary btn-sm" data-json-action="format-4">Format (4 Spaces)</button>
+              <button class="btn btn-secondary btn-sm" data-json-action="format-tab">Format (Tabs)</button>
+              <button class="btn btn-secondary btn-sm" data-json-action="minify">Minify / Compact</button>
+              <button class="btn btn-secondary btn-sm" data-json-action="sort-keys">Sort Keys (A-Z)</button>
+              <button class="btn btn-outline btn-sm" data-json-action="repair" style="border-color: var(--accent-amber); color: var(--accent-amber);">Auto-Repair Syntax</button>
+              <button class="btn btn-outline btn-sm" data-json-action="sample">Load Sample</button>
+              <button class="btn btn-outline btn-sm" data-json-action="clear">Clear</button>
+            </div>
+
+            <!-- Dropzone -->
+            <div class="dropzone" id="json-studio-dropzone" style="padding: 1rem; margin-bottom: 1rem;">
+              <i data-lucide="file-code" style="width: 20px; height: 20px; color: var(--accent-amber);"></i>
+              <div class="dropzone-title" style="font-size: 0.88rem;">Drop .json file here to load</div>
+              <input type="file" id="json-studio-file-input" class="hidden-file-input" accept=".json,application/json">
+            </div>
+
+            <textarea id="json-studio-input" class="form-textarea" style="min-height: 420px; font-family: var(--font-mono); font-size: 0.85rem;" placeholder="Paste JSON here to format, minify, or validate..."></textarea>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             15. JWT INSPECTOR & DEBUGGER PANEL
+             ========================================== -->
+        <section class="tool-panel" id="panel-data-jwt">
+          <div class="tool-view-header">
+            <div>
+              <h1 class="tool-view-title"><i data-lucide="key-round" style="color: var(--accent-purple);"></i> JWT Inspector & Token Debugger</h1>
+              <p class="tool-view-subtitle">Decode JSON Web Tokens, inspect algorithm headers & payload claims, and compute live expiration status.</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-secondary" id="btn-copy-jwt-decoded">
+                <i data-lucide="copy" style="width: 14px;"></i> Copy Decoded JSON
+              </button>
+              <button class="btn btn-outline" id="btn-clear-jwt">Clear</button>
+            </div>
+          </div>
+
+          <!-- Token Input Card -->
+          <div class="glass-card" style="margin-bottom: 1.5rem;">
+            <div class="card-header">
+              <span class="card-title"><i data-lucide="shield-check" style="width: 18px;"></i> Encoded Token Input</span>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <label for="jwt-sample-select" style="font-size: 0.8rem; color: var(--text-muted);">Sample:</label>
+                <select id="jwt-sample-select" class="form-select" style="width: auto; padding: 0.3rem 0.75rem; font-size: 0.8rem;">
+                  <option value="standard" selected>Auth Bearer Token</option>
+                  <option value="rsa">RS256 Scopes Token</option>
+                  <option value="expired">Expired Token</option>
+                </select>
+              </div>
+            </div>
+            <textarea id="jwt-input-token" class="form-textarea" style="min-height: 100px; font-family: var(--font-mono); font-size: 0.82rem;" placeholder="Paste encoded JWT string (ey...) here..."></textarea>
+          </div>
+
+          <!-- Status & Colorized Breakdown -->
+          <div class="jwt-status-card" id="jwt-status-card">
+            <div class="jwt-status-details">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <span id="jwt-status-badge" class="badge badge-success">Valid & Active</span>
+                <span id="jwt-alg-badge" class="badge badge-muted" style="font-family: var(--font-mono);">Algorithm: HS256</span>
+              </div>
+              <span id="jwt-expiration-desc" style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 0.35rem;">Expires in 7 days</span>
+            </div>
+          </div>
+
+          <!-- Colored Token Parts -->
+          <div class="glass-card" style="margin-bottom: 1.5rem;">
+            <div class="card-header" style="margin-bottom: 0.75rem; padding-bottom: 0.5rem;">
+              <span class="card-title" style="font-size: 0.92rem;"><i data-lucide="layers" style="width: 16px;"></i> Token Structure Breakdown</span>
+              <div style="display: flex; gap: 0.75rem; font-size: 0.75rem; font-weight: 600;">
+                <span style="color: #f87171;">● Header</span>
+                <span style="color: #c084fc;">● Payload</span>
+                <span style="color: #22d3ee;">● Signature</span>
+              </div>
+            </div>
+            <div class="jwt-token-display" id="jwt-token-colored-display"></div>
+          </div>
+
+          <!-- Two Column Decoded View -->
+          <div class="tool-grid-2col">
+            <!-- Header Pane -->
+            <div class="glass-card">
+              <div class="card-header">
+                <span class="card-title" style="color: #f87171;"><i data-lucide="code" style="width: 16px;"></i> Decoded Header</span>
+                <button class="btn btn-secondary btn-sm" id="btn-copy-jwt-header">Copy Header</button>
+              </div>
+              <textarea id="jwt-header-output" class="form-textarea" style="min-height: 180px; font-family: var(--font-mono); font-size: 0.82rem;" readonly></textarea>
+            </div>
+
+            <!-- Payload Pane -->
+            <div class="glass-card">
+              <div class="card-header">
+                <span class="card-title" style="color: #c084fc;"><i data-lucide="database" style="width: 16px;"></i> Decoded Payload</span>
+                <button class="btn btn-secondary btn-sm" id="btn-copy-jwt-payload">Copy Payload</button>
+              </div>
+              <textarea id="jwt-payload-output" class="form-textarea" style="min-height: 180px; font-family: var(--font-mono); font-size: 0.82rem;" readonly></textarea>
+            </div>
+          </div>
+
+          <!-- Claims Inspector -->
+          <div class="glass-card" style="margin-top: 1.5rem;">
+            <div class="card-header">
+              <span class="card-title"><i data-lucide="list-checks" style="width: 18px;"></i> Claims & Timestamp Inspector</span>
+            </div>
+            <div id="jwt-claims-list"></div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             16. MARKDOWN LIVE EDITOR PANEL
              ========================================== -->
         <section class="tool-panel" id="panel-data-markdown">
           <div class="tool-view-header">

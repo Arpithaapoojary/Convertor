@@ -152,6 +152,52 @@ function initTextTransformer() {
           if (!result) showToast('No URLs found', 'warning');
           break;
         }
+        case 'binary-encode':
+          result = text.split('').map(c => c.charCodeAt(0).toString(2).padStart(8, '0')).join(' ');
+          break;
+        case 'binary-decode':
+          try {
+            result = text.trim().split(/\s+/).map(bin => String.fromCharCode(parseInt(bin, 2))).join('');
+          } catch (e) {
+            showToast('Invalid binary string', 'error');
+          }
+          break;
+        case 'hex-encode':
+          result = text.split('').map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join(' ');
+          break;
+        case 'hex-decode':
+          try {
+            result = text.replace(/\s+/g, '').match(/.{1,2}/g)?.map(byte => String.fromCharCode(parseInt(byte, 16))).join('') || '';
+          } catch (e) {
+            showToast('Invalid hex string', 'error');
+          }
+          break;
+        case 'reverse-words':
+          result = text.split('\n').map(line => line.split(/\s+/).reverse().join(' ')).join('\n');
+          break;
+        case 'word-frequency': {
+          const rawWords = text.toLowerCase().match(/\b[a-z0-9_]{2,}\b/g) || [];
+          if (rawWords.length === 0) {
+            showToast('No words found for frequency analysis', 'warning');
+            break;
+          }
+          const freqMap = {};
+          rawWords.forEach(w => freqMap[w] = (freqMap[w] || 0) + 1);
+          const sorted = Object.entries(freqMap).sort((a, b) => b[1] - a[1]);
+          const total = rawWords.length;
+          result = `=== KEYWORD FREQUENCY & DENSITY ANALYSIS ===\nTotal Words Analyzed: ${total}\nUnique Words: ${sorted.length}\n\nRank  Keyword             Count    Density\n------------------------------------------\n` + 
+            sorted.slice(0, 30).map(([k, v], i) => {
+              const rank = String(i + 1).padEnd(5);
+              const kw = k.padEnd(19);
+              const cnt = String(v).padEnd(8);
+              const pct = ((v / total) * 100).toFixed(2) + '%';
+              return `${rank} ${kw} ${cnt} ${pct}`;
+            }).join('\n');
+          break;
+        }
+        case 'lorem':
+          result = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n\nCurabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida.`;
+          break;
         case 'sample':
           result = `OmniDoc Studio — Professional Document & Text Suite.
 Transform strings, parse data formats (JSON, CSV, XML), generate QR codes, and merge PDFs with ease!
