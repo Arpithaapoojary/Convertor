@@ -315,9 +315,200 @@ function initTextDiff() {
   });
 }
 
+/* ==========================================================================
+   3. Secure Password & Passphrase Generator Implementation
+   ========================================================================== */
+
+function initPasswordGenerator() {
+  const lengthSlider = document.getElementById('pass-length-slider');
+  const lengthVal = document.getElementById('pass-length-val');
+  const optUpper = document.getElementById('pass-opt-upper');
+  const optLower = document.getElementById('pass-opt-lower');
+  const optNumbers = document.getElementById('pass-opt-numbers');
+  const optSymbols = document.getElementById('pass-opt-symbols');
+  const optNoAmbiguous = document.getElementById('pass-opt-no-ambiguous');
+  const modeSelect = document.getElementById('pass-mode-select');
+  const passOutput = document.getElementById('pass-output-text');
+  const strengthBar = document.getElementById('pass-strength-bar');
+  const strengthLabel = document.getElementById('pass-strength-label');
+  const entropyVal = document.getElementById('pass-entropy-val');
+  const generateBtn = document.getElementById('btn-generate-password');
+  const copyBtn = document.getElementById('btn-copy-password');
+  const bulkQty = document.getElementById('pass-bulk-qty');
+  const bulkOutput = document.getElementById('pass-bulk-output');
+  const copyBulkBtn = document.getElementById('btn-copy-bulk-passwords');
+
+  if (!generateBtn) return;
+
+  const WORD_LIST = [
+    'amber', 'azure', 'beacon', 'breeze', 'canyon', 'cascade', 'cipher', 'clover',
+    'cosmos', 'crater', 'crystal', 'delta', 'drift', 'echo', 'ember', 'falcon',
+    'flame', 'forest', 'fossil', 'galaxy', 'glacier', 'granite', 'harbor', 'haven',
+    'horizon', 'island', 'jungle', 'lagoon', 'legend', 'lotus', 'lunar', 'meadow',
+    'meteor', 'nebula', 'nexus', 'oasis', 'ocean', 'orbit', 'pebble', 'phoenix',
+    'planet', 'prism', 'pulse', 'pyramid', 'quantum', 'quartz', 'quiver', 'radius',
+    'ripple', 'river', 'rocket', 'safari', 'shadow', 'shield', 'siren', 'solar',
+    'spectrum', 'sphere', 'spiral', 'spring', 'starlight', 'summit', 'sunrise', 'sunset',
+    'thunder', 'timber', 'topaz', 'torrent', 'tower', 'tulip', 'valley', 'vapor',
+    'vector', 'velvet', 'vessel', 'vertex', 'vortex', 'voyage', 'whisper', 'zenith'
+  ];
+
+  function getSecureRandomInt(max) {
+    const array = new Uint32Array(1);
+    crypto.getRandomValues(array);
+    return array[0] % max;
+  }
+
+  function generateSinglePassword() {
+    const mode = modeSelect ? modeSelect.value : 'random';
+    const length = parseInt(lengthSlider ? lengthSlider.value : '16', 10) || 16;
+
+    if (mode === 'passphrase') {
+      const wordCount = Math.max(3, Math.min(8, Math.round(length / 4)));
+      const words = [];
+      for (let i = 0; i < wordCount; i++) {
+        words.push(WORD_LIST[getSecureRandomInt(WORD_LIST.length)]);
+      }
+      return words.join('-');
+    }
+
+    let chars = '';
+    let required = [];
+
+    const hasUpper = optUpper ? optUpper.checked : true;
+    const hasLower = optLower ? optLower.checked : true;
+    const hasNumbers = optNumbers ? optNumbers.checked : true;
+    const hasSymbols = optSymbols ? optSymbols.checked : true;
+    const noAmbiguous = optNoAmbiguous ? optNoAmbiguous.checked : false;
+
+    let upperSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let lowerSet = 'abcdefghijklmnopqrstuvwxyz';
+    let numSet = '0123456789';
+    let symSet = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+    if (noAmbiguous) {
+      upperSet = upperSet.replace(/[IO]/g, '');
+      lowerSet = lowerSet.replace(/[lo]/g, '');
+      numSet = numSet.replace(/[01]/g, '');
+      symSet = symSet.replace(/[|:;]/g, '');
+    }
+
+    if (hasUpper) { chars += upperSet; required.push(upperSet[getSecureRandomInt(upperSet.length)]); }
+    if (hasLower) { chars += lowerSet; required.push(lowerSet[getSecureRandomInt(lowerSet.length)]); }
+    if (hasNumbers) { chars += numSet; required.push(numSet[getSecureRandomInt(numSet.length)]); }
+    if (hasSymbols) { chars += symSet; required.push(symSet[getSecureRandomInt(symSet.length)]); }
+
+    if (!chars) chars = lowerSet;
+
+    let password = [...required];
+    while (password.length < length) {
+      password.push(chars[getSecureRandomInt(chars.length)]);
+    }
+
+    // Fisher-Yates Shuffle
+    for (let i = password.length - 1; i > 0; i--) {
+      const j = getSecureRandomInt(i + 1);
+      [password[i], password[j]] = [password[j], password[i]];
+    }
+
+    return password.join('');
+  }
+
+  function calculateEntropy(pass) {
+    let poolSize = 0;
+    if (/[a-z]/.test(pass)) poolSize += 26;
+    if (/[A-Z]/.test(pass)) poolSize += 26;
+    if (/[0-9]/.test(pass)) poolSize += 10;
+    if (/[^a-zA-Z0-9]/.test(pass)) poolSize += 32;
+    if (pass.includes('-') && pass.split('-').every(w => WORD_LIST.includes(w))) {
+      poolSize = WORD_LIST.length;
+      return Math.round(pass.split('-').length * Math.log2(poolSize));
+    }
+    if (poolSize === 0) return 0;
+    return Math.round(pass.length * Math.log2(poolSize));
+  }
+
+  function updatePasswordUI() {
+    const pass = generateSinglePassword();
+    if (passOutput) passOutput.value = pass;
+
+    const entropy = calculateEntropy(pass);
+    if (entropyVal) entropyVal.textContent = `${entropy} bits`;
+
+    let strength = 'Weak';
+    let color = '#ef4444';
+    let pct = Math.min(100, Math.round((entropy / 100) * 100));
+
+    if (entropy >= 90) {
+      strength = 'Military Grade (Ultra)';
+      color = '#10b981';
+    } else if (entropy >= 70) {
+      strength = 'Very Strong';
+      color = '#06b6d4';
+    } else if (entropy >= 50) {
+      strength = 'Strong';
+      color = '#3b82f6';
+    } else if (entropy >= 35) {
+      strength = 'Moderate';
+      color = '#f59e0b';
+    }
+
+    if (strengthBar) {
+      strengthBar.style.width = `${pct}%`;
+      strengthBar.style.backgroundColor = color;
+    }
+    if (strengthLabel) {
+      strengthLabel.textContent = strength;
+      strengthLabel.style.color = color;
+    }
+
+    // Generate bulk
+    const qty = parseInt(bulkQty ? bulkQty.value : '5', 10) || 5;
+    const bulkList = [];
+    for (let i = 0; i < qty; i++) {
+      bulkList.push(generateSinglePassword());
+    }
+    if (bulkOutput) bulkOutput.value = bulkList.join('\n');
+  }
+
+  if (lengthSlider && lengthVal) {
+    lengthSlider.addEventListener('input', (e) => {
+      lengthVal.textContent = `${e.target.value} chars`;
+      updatePasswordUI();
+    });
+  }
+
+  [optUpper, optLower, optNumbers, optSymbols, optNoAmbiguous, modeSelect, bulkQty].forEach(el => {
+    if (el) el.addEventListener('change', updatePasswordUI);
+  });
+
+  generateBtn.addEventListener('click', () => {
+    updatePasswordUI();
+    showToast('Generated fresh secure password!', 'success');
+  });
+
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      if (!passOutput.value) return;
+      copyToClipboard(passOutput.value, 'Password copied to clipboard!');
+    });
+  }
+
+  if (copyBulkBtn) {
+    copyBulkBtn.addEventListener('click', () => {
+      if (!bulkOutput.value) return;
+      copyToClipboard(bulkOutput.value, 'All bulk passwords copied!');
+    });
+  }
+
+  updatePasswordUI();
+}
+
 function initAllTextTools() {
   initTextTransformer();
   initTextDiff();
+  initPasswordGenerator();
 }
 
 window.addEventListener('DOMContentLoaded', initAllTextTools);
+

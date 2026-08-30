@@ -21,6 +21,7 @@ const TOOLS_REGISTRY = [
   // Text & Content
   { id: 'text-transform', title: 'Text Transformer', category: 'Text & Content', icon: 'type', desc: 'Case conversion, line cleaning, sorting, and text formatting.' },
   { id: 'text-diff', title: 'Text Compare & Diff', category: 'Text & Content', icon: 'git-compare', desc: 'Find differences between two texts side-by-side.' },
+  { id: 'text-password', title: 'Password Generator', category: 'Text & Content', icon: 'lock', desc: 'Generate secure random passwords and passphrases with entropy score.' },
 
   // Data & Code
   { id: 'data-csv-json', title: 'CSV ↔ JSON', category: 'Data & Format', icon: 'table', desc: 'Convert CSV to JSON and JSON to CSV with live table preview.' },

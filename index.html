@@ -120,7 +120,7 @@
         <div>
           <div class="nav-category-title">
             <span>Text & Content</span>
-            <span class="nav-category-count">2</span>
+            <span class="nav-category-count">3</span>
           </div>
           <ul class="nav-list">
             <li class="nav-item" data-tool-target="text-transform">
@@ -130,6 +130,10 @@
             <li class="nav-item" data-tool-target="text-diff">
               <span class="nav-item-icon"><i data-lucide="git-compare"></i></span>
               <span>Text Diff & Compare</span>
+            </li>
+            <li class="nav-item" data-tool-target="text-password">
+              <span class="nav-item-icon"><i data-lucide="lock"></i></span>
+              <span>Password Generator</span>
             </li>
           </ul>
         </div>
@@ -919,7 +923,111 @@
         </section>
 
         <!-- ==========================================
-             13. CSV <-> JSON PANEL
+             13. PASSWORD & PASSPHRASE GENERATOR PANEL
+             ========================================== -->
+        <section class="tool-panel" id="panel-text-password">
+          <div class="tool-view-header">
+            <div>
+              <h1 class="tool-view-title"><i data-lucide="lock" style="color: var(--accent-rose);"></i> Password & Passphrase Studio</h1>
+              <p class="tool-view-subtitle">Generate cryptographically secure random passwords and memorable passphrases with Shannon entropy rating.</p>
+            </div>
+            <button class="btn btn-primary" id="btn-generate-password">
+              <i data-lucide="refresh-cw" style="width: 16px;"></i> Generate New
+            </button>
+          </div>
+
+          <div class="tool-grid-2col">
+            <!-- Generator Options -->
+            <div class="glass-card">
+              <div class="card-header">
+                <span class="card-title"><i data-lucide="sliders" style="width: 18px;"></i> Security Configuration</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="pass-mode-select">Generation Mode</label>
+                <select id="pass-mode-select" class="form-select">
+                  <option value="random" selected>Random Character Password</option>
+                  <option value="passphrase">Memorable Multi-Word Passphrase</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="pass-length-slider">
+                  <span>Password Length / Word Count</span>
+                  <span id="pass-length-val" class="slider-val-badge">16 chars</span>
+                </label>
+                <input type="range" id="pass-length-slider" class="range-slider" min="8" max="64" value="16">
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.25rem;">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="pass-opt-upper" checked>
+                  <span>Include Uppercase Letters (A-Z)</span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="pass-opt-lower" checked>
+                  <span>Include Lowercase Letters (a-z)</span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="pass-opt-numbers" checked>
+                  <span>Include Numeric Digits (0-9)</span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="pass-opt-symbols" checked>
+                  <span>Include Special Symbols (!@#$%)</span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="pass-opt-no-ambiguous">
+                  <span>Exclude Ambiguous Characters (I, l, 1, O, 0)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Output & Strength Card -->
+            <div class="glass-card">
+              <div class="card-header">
+                <span class="card-title"><i data-lucide="shield-check" style="width: 18px;"></i> Generated Password</span>
+                <button class="btn btn-secondary btn-sm" id="btn-copy-password">
+                  <i data-lucide="copy" style="width: 14px;"></i> Copy
+                </button>
+              </div>
+
+              <div class="form-group">
+                <input type="text" id="pass-output-text" class="form-input" style="font-family: var(--font-mono); font-size: 1.1rem; font-weight: 700; text-align: center; letter-spacing: 0.05em; padding: 0.85rem;" readonly>
+              </div>
+
+              <!-- Strength & Entropy Meter -->
+              <div style="margin: 1.5rem 0;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.82rem; font-weight: 700; margin-bottom: 0.45rem;">
+                  <span>Strength: <strong id="pass-strength-label" style="color: #10b981;">Very Strong</strong></span>
+                  <span id="pass-entropy-val" style="color: var(--text-muted);">96 bits</span>
+                </div>
+                <div style="width: 100%; height: 8px; background: var(--bg-input); border-radius: var(--radius-full); overflow: hidden;">
+                  <div id="pass-strength-bar" style="width: 85%; height: 100%; background: #10b981; transition: width 0.3s ease, background 0.3s ease;"></div>
+                </div>
+              </div>
+
+              <!-- Bulk Generator Section -->
+              <div style="border-top: 1px solid var(--border-subtle); padding-top: 1.25rem; margin-top: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
+                  <span style="font-size: 0.85rem; font-weight: 700;">Bulk Passwords</span>
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <select id="pass-bulk-qty" class="form-select" style="width: auto; padding: 0.2rem 0.6rem; font-size: 0.78rem;">
+                      <option value="5" selected>5 qty</option>
+                      <option value="10">10 qty</option>
+                      <option value="20">20 qty</option>
+                    </select>
+                    <button class="btn btn-secondary btn-sm" id="btn-copy-bulk-passwords">Copy All</button>
+                  </div>
+                </div>
+                <textarea id="pass-bulk-output" class="form-textarea" style="min-height: 120px; font-family: var(--font-mono); font-size: 0.82rem;" readonly></textarea>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             14. CSV <-> JSON PANEL
              ========================================== -->
         <section class="tool-panel" id="panel-data-csv-json">
           <div class="tool-view-header">
