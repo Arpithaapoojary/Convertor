@@ -18,6 +18,7 @@ const TOOLS_REGISTRY = [
   { id: 'img-convert', title: 'Image Converter', category: 'Image Studio', icon: 'refresh-cw', desc: 'Convert between PNG, JPG, WebP, and other raster formats.' },
   { id: 'img-b64', title: 'Image to Base64', category: 'Image Studio', icon: 'binary', desc: 'Encode images to Base64 Data URI strings or decode Base64 to image.' },
   { id: 'img-palette', title: 'Palette & Filters', category: 'Image Studio', icon: 'palette', desc: 'Extract dominant color palettes and apply visual image filters.' },
+  { id: 'img-inspect', title: 'Image Inspector & Ratio', category: 'Image Studio', icon: 'maximize', desc: 'Inspect dimensions, aspect ratios, megapixels, and calculate scaling.' },
 
   // Text & Content
   { id: 'text-transform', title: 'Text Transformer', category: 'Text & Content', icon: 'type', desc: 'Case conversion, line cleaning, sorting, and text formatting.' },

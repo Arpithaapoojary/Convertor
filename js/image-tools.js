@@ -592,12 +592,111 @@ function initPaletteAndFilters() {
   }
 }
 
+/* ==========================================================================
+   5. Image Inspector & Aspect Ratio Calculator
+   ========================================================================== */
+
+function initImageInspector() {
+  const dropzone = document.getElementById('img-inspect-dropzone');
+  const fileInput = document.getElementById('img-inspect-input');
+  const resultCard = document.getElementById('img-inspect-result-card');
+  const previewImg = document.getElementById('img-inspect-preview');
+  const statDim = document.getElementById('inspect-stat-dim');
+  const statRatio = document.getElementById('inspect-stat-ratio');
+  const statMp = document.getElementById('inspect-stat-mp');
+  const statSize = document.getElementById('inspect-stat-size');
+  const statOrient = document.getElementById('inspect-stat-orient');
+  const statType = document.getElementById('inspect-stat-type');
+  const calcWidth = document.getElementById('inspect-calc-width');
+  const calcHeight = document.getElementById('inspect-calc-height');
+
+  let currentRatio = 16 / 9;
+
+  function gcd(a, b) {
+    return b === 0 ? a : gcd(b, a % b);
+  }
+
+  function getSimplifiedRatio(w, h) {
+    const divisor = gcd(w, h);
+    const rw = w / divisor;
+    const rh = h / divisor;
+    const decimal = w / h;
+    if (Math.abs(decimal - 16/9) < 0.02) return '16:9 (Widescreen)';
+    if (Math.abs(decimal - 4/3) < 0.02) return '4:3 (Standard)';
+    if (Math.abs(decimal - 1) < 0.02) return '1:1 (Square)';
+    if (Math.abs(decimal - 9/16) < 0.02) return '9:16 (Story / Reel)';
+    if (Math.abs(decimal - 21/9) < 0.02) return '21:9 (Ultrawide)';
+    if (Math.abs(decimal - 3/2) < 0.02) return '3:2 (Classic 35mm)';
+    return `${rw}:${rh} (${decimal.toFixed(2)}:1)`;
+  }
+
+  if (!dropzone || !fileInput) return;
+
+  setupDropzone(dropzone, fileInput, (files) => {
+    const file = files[0];
+    if (!file || !file.type.startsWith('image/')) {
+      showToast('Please upload a valid image file', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const w = img.naturalWidth;
+        const h = img.naturalHeight;
+        currentRatio = w / h;
+
+        if (previewImg) previewImg.src = e.target.result;
+        if (statDim) statDim.textContent = `${w} × ${h} px`;
+        if (statRatio) statRatio.textContent = getSimplifiedRatio(w, h);
+        if (statMp) statMp.textContent = `${((w * h) / 1000000).toFixed(2)} MP`;
+        if (statSize) statSize.textContent = formatBytes(file.size);
+        if (statType) statType.textContent = file.type || 'image/png';
+        if (statOrient) statOrient.textContent = w > h ? 'Landscape' : (w < h ? 'Portrait' : 'Square');
+
+        if (calcWidth) calcWidth.value = w;
+        if (calcHeight) calcHeight.value = h;
+
+        if (resultCard) resultCard.style.display = 'block';
+        showToast(`Analyzed ${file.name} (${w}×${h}px)`, 'success');
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  if (calcWidth && calcHeight) {
+    calcWidth.addEventListener('input', () => {
+      const w = parseFloat(calcWidth.value) || 0;
+      calcHeight.value = Math.round(w / currentRatio);
+    });
+
+    calcHeight.addEventListener('input', () => {
+      const h = parseFloat(calcHeight.value) || 0;
+      calcWidth.value = Math.round(h * currentRatio);
+    });
+  }
+
+  document.querySelectorAll('[data-ratio-preset]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const [rw, rh] = btn.getAttribute('data-ratio-preset').split(':').map(Number);
+      currentRatio = rw / rh;
+      const w = parseFloat(calcWidth.value) || 1920;
+      calcHeight.value = Math.round(w / currentRatio);
+      showToast(`Set ratio preset to ${rw}:${rh}`, 'info');
+    });
+  });
+}
+
 // Master Image Tools Init
 function initAllImageTools() {
   initImageCompressor();
   initImageConverter();
   initImageBase64();
   initPaletteAndFilters();
+  initImageInspector();
 }
 
 window.addEventListener('DOMContentLoaded', initAllImageTools);
+

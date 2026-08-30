@@ -98,7 +98,7 @@
         <div>
           <div class="nav-category-title">
             <span>Image Studio</span>
-            <span class="nav-category-count">4</span>
+            <span class="nav-category-count">5</span>
           </div>
           <ul class="nav-list">
             <li class="nav-item" data-tool-target="img-compress">
@@ -116,6 +116,10 @@
             <li class="nav-item" data-tool-target="img-palette">
               <span class="nav-item-icon"><i data-lucide="palette"></i></span>
               <span>Palette & Filters</span>
+            </li>
+            <li class="nav-item" data-tool-target="img-inspect">
+              <span class="nav-item-icon"><i data-lucide="maximize"></i></span>
+              <span>Image Inspector</span>
             </li>
           </ul>
         </div>
@@ -856,7 +860,94 @@
         </section>
 
         <!-- ==========================================
-             11. TEXT TRANSFORMER PANEL
+             11. IMAGE INSPECTOR & ASPECT RATIO PANEL
+             ========================================== -->
+        <section class="tool-panel" id="panel-img-inspect">
+          <div class="tool-view-header">
+            <div>
+              <h1 class="tool-view-title"><i data-lucide="maximize" style="color: var(--accent-emerald);"></i> Image Inspector & Aspect Ratio Studio</h1>
+              <p class="tool-view-subtitle">Inspect natural image dimensions, exact megapixels, simplified aspect ratios, and calculate scaling dimensions.</p>
+            </div>
+          </div>
+
+          <div class="dropzone" id="img-inspect-dropzone">
+            <div class="dropzone-icon-box">
+              <i data-lucide="scan" style="width: 32px; height: 32px; color: var(--accent-emerald);"></i>
+            </div>
+            <div class="dropzone-title">Upload an image to inspect details</div>
+            <div class="dropzone-subtitle">Supports JPG, PNG, WebP, SVG, and GIF files.</div>
+            <input type="file" id="img-inspect-input" class="hidden-file-input" accept="image/*">
+          </div>
+
+          <div id="img-inspect-result-card" style="display: none; margin-top: 1.5rem;">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+              <div class="stat-widget">
+                <div class="stat-val" id="inspect-stat-dim">0 × 0</div>
+                <div class="stat-label">Resolution (W × H)</div>
+              </div>
+              <div class="stat-widget">
+                <div class="stat-val" id="inspect-stat-ratio">16:9</div>
+                <div class="stat-label">Aspect Ratio</div>
+              </div>
+              <div class="stat-widget">
+                <div class="stat-val" id="inspect-stat-mp">0 MP</div>
+                <div class="stat-label">Megapixels</div>
+              </div>
+              <div class="stat-widget">
+                <div class="stat-val" id="inspect-stat-size">0 KB</div>
+                <div class="stat-label">File Size</div>
+              </div>
+              <div class="stat-widget">
+                <div class="stat-val" id="inspect-stat-orient">Landscape</div>
+                <div class="stat-label">Orientation</div>
+              </div>
+            </div>
+
+            <div class="tool-grid-2col" style="margin-top: 1.5rem;">
+              <!-- Image Preview -->
+              <div class="glass-card" style="display: flex; align-items: center; justify-content: center; text-align: center; min-height: 280px;">
+                <img id="img-inspect-preview" style="max-height: 320px; max-width: 100%; object-fit: contain; border-radius: var(--radius-md);" alt="Image Inspection">
+              </div>
+
+              <!-- Aspect Ratio Scaling Calculator -->
+              <div class="glass-card">
+                <div class="card-header">
+                  <span class="card-title"><i data-lucide="calculator" style="width: 18px;"></i> Proportional Resize Calculator</span>
+                </div>
+
+                <p class="text-secondary" style="font-size: 0.82rem; margin-bottom: 1rem;">Change either width or height to calculate proportional scaled dimensions.</p>
+
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+                  <button class="qr-preset-btn" data-ratio-preset="16:9">16:9</button>
+                  <button class="qr-preset-btn" data-ratio-preset="4:3">4:3</button>
+                  <button class="qr-preset-btn" data-ratio-preset="1:1">1:1</button>
+                  <button class="qr-preset-btn" data-ratio-preset="9:16">9:16</button>
+                  <button class="qr-preset-btn" data-ratio-preset="21:9">21:9</button>
+                  <button class="qr-preset-btn" data-ratio-preset="3:2">3:2</button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="inspect-calc-width">Target Width (px)</label>
+                    <input type="number" id="inspect-calc-width" class="form-input" value="1920">
+                  </div>
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="inspect-calc-height">Target Height (px)</label>
+                    <input type="number" id="inspect-calc-height" class="form-input" value="1080">
+                  </div>
+                </div>
+
+                <div style="margin-top: 1.25rem; padding: 0.75rem; background: var(--bg-input); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); font-size: 0.8rem; color: var(--text-muted);">
+                  MIME Type: <strong id="inspect-stat-type" style="color: var(--text-primary);">image/png</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             12. TEXT TRANSFORMER PANEL
              ========================================== -->
         <section class="tool-panel" id="panel-text-transform">
           <div class="tool-view-header">
