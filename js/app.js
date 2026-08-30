@@ -40,10 +40,20 @@ const TOOLS_REGISTRY = [
   { id: 'barcode-generator', title: 'Barcode 128 Studio', category: 'QR & Barcode', icon: 'barcode', desc: 'Generate Code 128 barcodes with custom dimensions and SVG export.' }
 ];
 
+const ACCENT_THEMES = {
+  indigo: { primary: '#6366f1', hover: '#4f46e5', active: '#4338ca', rgb: '99, 102, 241' },
+  cyan: { primary: '#06b6d4', hover: '#0891b2', active: '#0e7490', rgb: '6, 182, 212' },
+  emerald: { primary: '#10b981', hover: '#059669', active: '#047857', rgb: '16, 185, 129' },
+  violet: { primary: '#8b5cf6', hover: '#7c3aed', active: '#6d28d9', rgb: '139, 92, 246' },
+  rose: { primary: '#f43f5e', hover: '#e11d48', active: '#be123c', rgb: '244, 63, 94' },
+  amber: { primary: '#f59e0b', hover: '#d97706', active: '#b45309', rgb: '245, 158, 11' }
+};
+
 class OmniDocApp {
   constructor() {
     this.activeToolId = 'pdf-merge';
     this.theme = localStorage.getItem('omnidoc_theme') || 'dark';
+    this.accent = localStorage.getItem('omnidoc_accent') || 'indigo';
     this.recentTools = JSON.parse(localStorage.getItem('omnidoc_recent_tools') || '[]');
     this.paletteSelectedIndex = 0;
     this.filteredPaletteTools = [...TOOLS_REGISTRY];
@@ -51,6 +61,7 @@ class OmniDocApp {
 
   init() {
     this.applyTheme(this.theme);
+    this.applyAccent(this.accent);
     this.bindNavigation();
     this.bindHeaderActions();
     this.bindCommandPalette();
@@ -58,6 +69,25 @@ class OmniDocApp {
 
     // Re-render Lucide icons
     if (window.lucide) lucide.createIcons();
+  }
+
+  // Accent Color Theme
+  applyAccent(accentName) {
+    const config = ACCENT_THEMES[accentName] || ACCENT_THEMES.indigo;
+    this.accent = accentName;
+    const root = document.documentElement;
+    root.style.setProperty('--primary', config.primary);
+    root.style.setProperty('--primary-hover', config.hover);
+    root.style.setProperty('--primary-active', config.active);
+    root.style.setProperty('--primary-light', `rgba(${config.rgb}, 0.12)`);
+    root.style.setProperty('--primary-glow', `rgba(${config.rgb}, 0.35)`);
+    root.style.setProperty('--border-focus', config.primary);
+    root.style.setProperty('--border-glow', `rgba(${config.rgb}, 0.45)`);
+    localStorage.setItem('omnidoc_accent', accentName);
+
+    document.querySelectorAll('.accent-dot-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-accent') === accentName);
+    });
   }
 
   // Theme Handling
@@ -181,6 +211,33 @@ class OmniDocApp {
   }
 
   bindHeaderActions() {
+    const accentBtn = document.getElementById('btn-toggle-accent');
+    const accentMenu = document.getElementById('accent-dropdown-menu');
+    if (accentBtn && accentMenu) {
+      accentBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        accentMenu.classList.toggle('show');
+      });
+
+      document.querySelectorAll('.accent-dot-btn').forEach(dot => {
+        dot.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const chosen = dot.getAttribute('data-accent');
+          if (chosen) {
+            this.applyAccent(chosen);
+            showToast(`Applied ${chosen.toUpperCase()} accent theme!`, 'info');
+          }
+          accentMenu.classList.remove('show');
+        });
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!accentBtn.contains(e.target) && !accentMenu.contains(e.target)) {
+          accentMenu.classList.remove('show');
+        }
+      });
+    }
+
     const zenBtn = document.getElementById('btn-toggle-zen');
     if (zenBtn) {
       zenBtn.addEventListener('click', () => this.toggleZenMode());

@@ -730,3 +730,53 @@ body.zen-mode .top-header {
     font-size: 1.45rem;
   }
 }
+
+/* Custom Accent Color System */
+.accent-menu-wrap {
+  position: relative;
+}
+
+.accent-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  padding: 0.6rem;
+  display: none;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  box-shadow: var(--shadow-xl);
+  backdrop-filter: blur(16px);
+  z-index: 1000;
+  width: 136px;
+}
+
+.accent-dropdown.show {
+  display: grid;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.accent-dot-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+}
+
+.accent-dot-btn:hover {
+  transform: scale(1.15);
+}
+
+.accent-dot-btn.active {
+  border-color: #ffffff;
+  box-shadow: 0 0 10px currentColor;
+}
+
