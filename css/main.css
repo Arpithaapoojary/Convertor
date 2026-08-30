@@ -225,7 +225,24 @@ button {
   z-index: 40;
   flex-shrink: 0;
   box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-normal);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Zen Mode (Distraction-Free Workspace) */
+body.zen-mode .sidebar {
+  transform: translateX(-100%);
+  position: fixed;
+}
+
+body.zen-mode .main-wrapper {
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+body.zen-mode .top-header {
+  background: var(--bg-glass);
+  border-bottom: 1px dashed var(--border-medium);
 }
 
 .sidebar-header {

@@ -164,7 +164,24 @@ class OmniDocApp {
     }
   }
 
+  toggleZenMode() {
+    const isZen = document.body.classList.toggle('zen-mode');
+    const zenBtn = document.getElementById('btn-toggle-zen');
+    if (zenBtn) {
+      zenBtn.innerHTML = isZen 
+        ? `<i data-lucide="minimize-2" style="width: 18px; height: 18px;"></i>` 
+        : `<i data-lucide="maximize-2" style="width: 18px; height: 18px;"></i>`;
+      if (window.lucide) lucide.createIcons();
+    }
+    showToast(isZen ? 'Entered Zen Mode (Distraction-Free)' : 'Exited Zen Mode', 'info');
+  }
+
   bindHeaderActions() {
+    const zenBtn = document.getElementById('btn-toggle-zen');
+    if (zenBtn) {
+      zenBtn.addEventListener('click', () => this.toggleZenMode());
+    }
+
     const themeBtn = document.getElementById('btn-toggle-theme');
     if (themeBtn) {
       themeBtn.addEventListener('click', () => this.toggleTheme());
@@ -213,6 +230,11 @@ class OmniDocApp {
         this.toggleTheme();
         showToast(`Switched to ${this.theme} theme`, 'info');
       }
+      // Shift+Z -> Toggle Zen Mode
+      else if (e.shiftKey && e.key.toLowerCase() === 'z' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        e.preventDefault();
+        this.toggleZenMode();
+      }
       // Alt + 1..5 category jump
       else if (e.altKey && ['1', '2', '3', '4', '5'].includes(e.key)) {
         e.preventDefault();
@@ -228,10 +250,14 @@ class OmniDocApp {
       // ? -> Show shortcut help
       else if (e.key === '?' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
         e.preventDefault();
-        showToast('Shortcuts: Ctrl+K (Search), Ctrl+Shift+T (Theme), Alt+1-5 (Suites)', 'info', 4000);
+        showToast('Shortcuts: Ctrl+K (Search), Shift+Z (Zen), Ctrl+Shift+T (Theme), Alt+1-5 (Suites)', 'info', 4000);
       }
-      else if (e.key === 'Escape' && overlay && overlay.classList.contains('open')) {
-        this.closePalette();
+      else if (e.key === 'Escape') {
+        if (overlay && overlay.classList.contains('open')) {
+          this.closePalette();
+        } else if (document.body.classList.contains('zen-mode')) {
+          this.toggleZenMode();
+        }
       }
     });
 
