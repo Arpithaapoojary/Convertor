@@ -188,7 +188,7 @@
         <div>
           <div class="nav-category-title">
             <span>QR Studio</span>
-            <span class="nav-category-count">2</span>
+            <span class="nav-category-count">3</span>
           </div>
           <ul class="nav-list">
             <li class="nav-item" data-tool-target="qr-generator">
@@ -198,6 +198,10 @@
             <li class="nav-item" data-tool-target="qr-scanner">
               <span class="nav-item-icon"><i data-lucide="scan"></i></span>
               <span>QR Image Scanner</span>
+            </li>
+            <li class="nav-item" data-tool-target="barcode-generator">
+              <span class="nav-item-icon"><i data-lucide="barcode"></i></span>
+              <span>Barcode 128 Studio</span>
             </li>
           </ul>
         </div>
@@ -1813,6 +1817,86 @@ Welcome to the **OmniDoc Markdown Editor**!
               </div>
             </div>
             <textarea id="qr-scan-result-text" class="form-textarea" style="min-height: 120px;" readonly></textarea>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             20. BARCODE 128 STUDIO PANEL
+             ========================================== -->
+        <section class="tool-panel" id="panel-barcode-generator">
+          <div class="tool-view-header">
+            <div>
+              <h1 class="tool-view-title"><i data-lucide="barcode" style="color: var(--accent-amber);"></i> Barcode 128 Studio & Generator</h1>
+              <p class="tool-view-subtitle">Generate scannable standard Code 128 linear barcodes with custom dimensions, colors, and SVG/PNG export.</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-secondary" id="btn-copy-barcode-img">
+                <i data-lucide="copy" style="width: 14px;"></i> Copy Image
+              </button>
+              <button class="btn btn-secondary" id="btn-download-barcode-svg">
+                <i data-lucide="file-code" style="width: 14px;"></i> Download SVG
+              </button>
+              <button class="btn btn-primary" id="btn-download-barcode-png">
+                <i data-lucide="download" style="width: 14px;"></i> Download PNG
+              </button>
+            </div>
+          </div>
+
+          <div class="tool-grid-2col">
+            <!-- Left Controls -->
+            <div class="glass-card">
+              <div class="card-header">
+                <span class="card-title"><i data-lucide="sliders" style="width: 18px;"></i> Barcode Parameters</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="barcode-text-input">Content / Payload (Text or Numbers)</label>
+                <input type="text" id="barcode-text-input" class="form-input" style="font-family: var(--font-mono); font-weight: 700;" value="OMNIDOC-2026">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="barcode-height-slider">
+                  <span>Bar Height</span>
+                  <span id="barcode-height-val" class="slider-val-badge">80px</span>
+                </label>
+                <input type="range" id="barcode-height-slider" class="range-slider" min="40" max="180" value="80">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="barcode-scale-slider">
+                  <span>Bar Width Scale</span>
+                  <span id="barcode-scale-val" class="slider-val-badge">2px</span>
+                </label>
+                <input type="range" id="barcode-scale-slider" class="range-slider" min="1" max="4" value="2">
+              </div>
+
+              <div style="display: flex; gap: 1.5rem; margin-top: 1rem; align-items: center;">
+                <div class="color-picker-group">
+                  <label class="form-label" style="margin-bottom: 0;">Bar Color</label>
+                  <input type="color" id="barcode-color-dark" class="color-picker-input" value="#000000">
+                </div>
+                <div class="color-picker-group">
+                  <label class="form-label" style="margin-bottom: 0;">Background</label>
+                  <input type="color" id="barcode-color-light" class="color-picker-input" value="#ffffff">
+                </div>
+              </div>
+
+              <div style="margin-top: 1.25rem;">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="barcode-show-text" checked>
+                  <span>Display Human-Readable Text Label</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Right Preview -->
+            <div class="glass-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 320px;">
+              <span class="card-title" style="margin-bottom: 1.5rem;"><i data-lucide="eye" style="width: 18px;"></i> Live Barcode Preview</span>
+              <div style="background: #ffffff; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); max-width: 100%; overflow-x: auto;">
+                <canvas id="barcode-canvas" style="display: block; max-width: 100%;"></canvas>
+              </div>
+              <span class="text-secondary" style="font-size: 0.78rem; margin-top: 1.25rem;">Scannable with standard 1D Laser & Camera Barcode Readers</span>
+            </div>
           </div>
         </section>
 

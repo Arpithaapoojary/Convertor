@@ -34,9 +34,10 @@ const TOOLS_REGISTRY = [
   { id: 'data-encode', title: 'Base64 & URL Encoder', category: 'Data & Format', icon: 'shield', desc: 'Encode and decode Base64, URL components, and HTML entities.' },
   { id: 'data-hash-uuid', title: 'Hash & UUID Generator', category: 'Data & Format', icon: 'hash', desc: 'Generate MD5, SHA-256 hashes and bulk UUID v4 strings.' },
 
-  // QR Studio
+  // QR & Barcode Studio
   { id: 'qr-generator', title: 'QR Code Generator', category: 'QR & Barcode', icon: 'qr-code', desc: 'Create custom QR codes for URLs, WiFi, contacts, and text.' },
-  { id: 'qr-scanner', title: 'QR Code Scanner', category: 'QR & Barcode', icon: 'scan', desc: 'Scan and decode QR codes directly from uploaded images.' }
+  { id: 'qr-scanner', title: 'QR Code Scanner', category: 'QR & Barcode', icon: 'scan', desc: 'Scan and decode QR codes directly from uploaded images.' },
+  { id: 'barcode-generator', title: 'Barcode 128 Studio', category: 'QR & Barcode', icon: 'barcode', desc: 'Generate Code 128 barcodes with custom dimensions and SVG export.' }
 ];
 
 class OmniDocApp {
