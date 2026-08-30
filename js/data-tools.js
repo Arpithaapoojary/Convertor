@@ -1028,14 +1028,214 @@ function initJwtDebugger() {
   parseAndRenderJwt();
 }
 
+/* ==========================================================================
+   7. Color Studio & Format Converter (HEX, RGB, HSL, CMYK & Harmonies)
+   ========================================================================== */
+
+function initColorStudio() {
+  const pickerInput = document.getElementById('color-picker-wheel');
+  const hexInput = document.getElementById('color-hex-input');
+  const rgbInput = document.getElementById('color-rgb-input');
+  const hslInput = document.getElementById('color-hsl-input');
+  const cmykInput = document.getElementById('color-cmyk-input');
+  const previewBox = document.getElementById('color-preview-box');
+  const alphaSlider = document.getElementById('color-alpha-slider');
+  const alphaVal = document.getElementById('color-alpha-val');
+  const harmoniesContainer = document.getElementById('color-harmonies-container');
+  const shadesContainer = document.getElementById('color-shades-container');
+
+  if (!pickerInput) return;
+
+  function hexToRgb(hex) {
+    let clean = hex.replace('#', '').trim();
+    if (clean.length === 3) clean = clean.split('').map(c => c + c).join('');
+    const num = parseInt(clean, 16);
+    if (isNaN(num) || clean.length < 6) return null;
+    return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+  }
+
+  function rgbToHex(r, g, b) {
+    return '#' + [r, g, b].map(x => Math.round(x).toString(16).padStart(2, '0')).join('');
+  }
+
+  function rgbToHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+
+    if (max === min) {
+      h = s = 0;
+    } else {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+    return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+  }
+
+  function hslToRgb(h, s, l) {
+    h /= 360; s /= 100; l /= 100;
+    let r, g, b;
+    if (s === 0) {
+      r = g = b = l;
+    } else {
+      const hue2rgb = (p, q, t) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      };
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+    }
+    return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
+  }
+
+  function rgbToCmyk(r, g, b) {
+    const rRel = r / 255, gRel = g / 255, bRel = b / 255;
+    const k = 1 - Math.max(rRel, gRel, bRel);
+    if (k === 1) return { c: 0, m: 0, y: 0, k: 100 };
+    const c = (1 - rRel - k) / (1 - k);
+    const m = (1 - gRel - k) / (1 - k);
+    const y = (1 - bRel - k) / (1 - k);
+    return {
+      c: Math.round(c * 100),
+      m: Math.round(m * 100),
+      y: Math.round(y * 100),
+      k: Math.round(k * 100)
+    };
+  }
+
+  function updateAllFromRgb(r, g, b, alpha = 1) {
+    const hex = rgbToHex(r, g, b);
+    const hsl = rgbToHsl(r, g, b);
+    const cmyk = rgbToCmyk(r, g, b);
+
+    if (pickerInput) pickerInput.value = hex;
+    if (hexInput) hexInput.value = alpha < 1 ? `${hex}${Math.round(alpha * 255).toString(16).padStart(2, '0')}` : hex;
+    if (rgbInput) rgbInput.value = alpha < 1 ? `rgba(${r}, ${g}, ${b}, ${alpha})` : `rgb(${r}, ${g}, ${b})`;
+    if (hslInput) hslInput.value = alpha < 1 ? `hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%, ${alpha})` : `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+    if (cmykInput) cmykInput.value = `cmyk(${cmyk.c}%, ${cmyk.m}%, ${cmyk.y}%, ${cmyk.k}%)`;
+
+    if (previewBox) {
+      previewBox.style.backgroundColor = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    // Render Harmonies
+    if (harmoniesContainer) {
+      const harmonies = [
+        { label: 'Primary', h: hsl.h },
+        { label: 'Complement', h: (hsl.h + 180) % 360 },
+        { label: 'Analogous L', h: (hsl.h + 330) % 360 },
+        { label: 'Analogous R', h: (hsl.h + 30) % 360 },
+        { label: 'Triadic 1', h: (hsl.h + 120) % 360 },
+        { label: 'Triadic 2', h: (hsl.h + 240) % 360 }
+      ];
+
+      harmoniesContainer.innerHTML = harmonies.map(item => {
+        const rgbH = hslToRgb(item.h, hsl.s, hsl.l);
+        const hexH = rgbToHex(rgbH.r, rgbH.g, rgbH.b);
+        return `
+          <div class="color-swatch-card" style="cursor: pointer;" onclick="document.getElementById('color-hex-input').value='${hexH}'; document.getElementById('color-hex-input').dispatchEvent(new Event('input'));">
+            <div class="color-swatch-fill" style="background-color: ${hexH};"></div>
+            <div class="color-swatch-meta">
+              <span class="color-swatch-label">${item.label}</span>
+              <span class="color-swatch-hex">${hexH}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Render Shades
+    if (shadesContainer) {
+      const shades = [15, 30, 45, 60, 75, 90];
+      shadesContainer.innerHTML = shades.map(l => {
+        const rgbS = hslToRgb(hsl.h, hsl.s, l);
+        const hexS = rgbToHex(rgbS.r, rgbS.g, rgbS.b);
+        return `
+          <div class="color-swatch-card" style="cursor: pointer;" onclick="document.getElementById('color-hex-input').value='${hexS}'; document.getElementById('color-hex-input').dispatchEvent(new Event('input'));">
+            <div class="color-swatch-fill" style="background-color: ${hexS};"></div>
+            <div class="color-swatch-meta">
+              <span class="color-swatch-label">${l}% Light</span>
+              <span class="color-swatch-hex">${hexS}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  pickerInput.addEventListener('input', (e) => {
+    const rgb = hexToRgb(e.target.value);
+    const alpha = alphaSlider ? parseFloat(alphaSlider.value) : 1;
+    if (rgb) updateAllFromRgb(rgb.r, rgb.g, rgb.b, alpha);
+  });
+
+  if (hexInput) {
+    hexInput.addEventListener('input', (e) => {
+      const rgb = hexToRgb(e.target.value);
+      const alpha = alphaSlider ? parseFloat(alphaSlider.value) : 1;
+      if (rgb) updateAllFromRgb(rgb.r, rgb.g, rgb.b, alpha);
+    });
+  }
+
+  if (alphaSlider && alphaVal) {
+    alphaSlider.addEventListener('input', (e) => {
+      alphaVal.textContent = `${Math.round(e.target.value * 100)}%`;
+      const rgb = hexToRgb(pickerInput.value);
+      if (rgb) updateAllFromRgb(rgb.r, rgb.g, rgb.b, parseFloat(e.target.value));
+    });
+  }
+
+  // Copy buttons
+  document.querySelectorAll('[data-copy-color]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-copy-color');
+      const inputEl = document.getElementById(targetId);
+      if (inputEl && inputEl.value) {
+        copyToClipboard(inputEl.value, `Copied ${inputEl.value}!`);
+      }
+    });
+  });
+
+  // Random color button
+  const randomBtn = document.getElementById('btn-random-color');
+  if (randomBtn) {
+    randomBtn.addEventListener('click', () => {
+      const r = Math.floor(Math.random() * 256);
+      const g = Math.floor(Math.random() * 256);
+      const b = Math.floor(Math.random() * 256);
+      const alpha = alphaSlider ? parseFloat(alphaSlider.value) : 1;
+      updateAllFromRgb(r, g, b, alpha);
+      showToast('Generated random vibrant color!', 'success');
+    });
+  }
+
+  // Initial render with primary brand color #6366f1
+  updateAllFromRgb(99, 102, 241, 1);
+}
+
 function initAllDataTools() {
   initCsvJsonConverter();
   initJsonStudio();
   initJwtDebugger();
+  initColorStudio();
   initMarkdownEditor();
   initEncodersDecoders();
   initHashAndUuid();
 }
 
 window.addEventListener('DOMContentLoaded', initAllDataTools);
+
 

@@ -25,6 +25,7 @@ const TOOLS_REGISTRY = [
 
   // Data & Code
   { id: 'data-csv-json', title: 'CSV ↔ JSON', category: 'Data & Format', icon: 'table', desc: 'Convert CSV to JSON and JSON to CSV with live table preview.' },
+  { id: 'data-color', title: 'Color Studio & Converter', category: 'Data & Format', icon: 'palette', desc: 'HEX, RGB, HSL, CMYK converter, harmony generator & color shades.' },
   { id: 'data-json-beautifier', title: 'JSON Studio', category: 'Data & Format', icon: 'braces', desc: 'Format, minify, repair syntax, and validate JSON data structures.' },
   { id: 'data-jwt', title: 'JWT Inspector', category: 'Data & Format', icon: 'key-round', desc: 'Decode, inspect, and validate JSON Web Tokens with timestamp checks.' },
   { id: 'data-markdown', title: 'Markdown Live Editor', category: 'Data & Format', icon: 'file-code', desc: 'Real-time Markdown editor with rendered HTML preview.' },
