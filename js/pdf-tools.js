@@ -967,6 +967,123 @@ function initPdfRotator() {
   }
 }
 
+/* ==========================================================================
+   7. PDF Metadata & Property Inspector Implementation
+   ========================================================================== */
+
+function initPdfMetadataInspector() {
+  const dropzone = document.getElementById('pdf-meta-dropzone');
+  const fileInput = document.getElementById('pdf-meta-file-input');
+  const resultCard = document.getElementById('pdf-meta-result-card');
+  const tableBody = document.getElementById('pdf-meta-table-body');
+  const exportBtn = document.getElementById('btn-export-pdf-meta-json');
+  const clearBtn = document.getElementById('btn-clear-pdf-meta');
+
+  let currentMeta = null;
+
+  if (!dropzone || !fileInput) return;
+
+  setupDropzone(dropzone, fileInput, async (files) => {
+    const file = files[0];
+    if (!file || !file.name.toLowerCase().endsWith('.pdf')) {
+      showToast('Please upload a valid PDF document', 'error');
+      return;
+    }
+
+    try {
+      showToast('Extracting PDF document metadata...', 'info');
+      const arrayBuffer = await readFileAsArrayBuffer(file);
+      const PDFDocument = window.PDFLib ? window.PDFLib.PDFDocument : null;
+      if (!PDFDocument) throw new Error('PDF-Lib engine not loaded');
+
+      const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+      const pages = pdfDoc.getPages();
+      const firstPage = pages[0];
+      const { width, height } = firstPage ? firstPage.getSize() : { width: 0, height: 0 };
+
+      // Dimensions in mm and inches (72 points = 1 inch = 25.4 mm)
+      const widthIn = (width / 72).toFixed(2);
+      const heightIn = (height / 72).toFixed(2);
+      const widthMm = Math.round(width * 25.4 / 72);
+      const heightMm = Math.round(height * 25.4 / 72);
+
+      let standardSize = 'Custom';
+      if (Math.abs(widthMm - 210) < 6 && Math.abs(heightMm - 297) < 6) standardSize = 'A4 (210 x 297 mm)';
+      else if (Math.abs(widthIn - 8.5) < 0.2 && Math.abs(heightIn - 11) < 0.2) standardSize = 'US Letter (8.5 x 11 in)';
+      else if (Math.abs(widthIn - 8.5) < 0.2 && Math.abs(heightIn - 14) < 0.2) standardSize = 'US Legal (8.5 x 14 in)';
+
+      currentMeta = {
+        fileName: file.name,
+        fileSizeBytes: file.size,
+        fileSizeFormatted: formatBytes(file.size),
+        pageCount: pages.length,
+        title: pdfDoc.getTitle() || '—',
+        author: pdfDoc.getAuthor() || '—',
+        subject: pdfDoc.getSubject() || '—',
+        keywords: pdfDoc.getKeywords() || '—',
+        creator: pdfDoc.getCreator() || '—',
+        producer: pdfDoc.getProducer() || '—',
+        creationDate: pdfDoc.getCreationDate() ? pdfDoc.getCreationDate().toLocaleString() : '—',
+        modificationDate: pdfDoc.getModificationDate() ? pdfDoc.getModificationDate().toLocaleString() : '—',
+        pageDimensions: `${Math.round(width)} x ${Math.round(height)} pt (${widthMm} x ${heightMm} mm / ${standardSize})`
+      };
+
+      renderMetadataTable(currentMeta);
+      if (resultCard) resultCard.style.display = 'block';
+      showToast(`Analyzed ${file.name} successfully!`, 'success');
+    } catch (e) {
+      showToast('Error reading PDF metadata: ' + e.message, 'error');
+    }
+  });
+
+  function renderMetadataTable(meta) {
+    if (!tableBody) return;
+    const fields = [
+      { label: 'File Name', val: meta.fileName, key: 'fileName' },
+      { label: 'File Size', val: meta.fileSizeFormatted, key: 'fileSize' },
+      { label: 'Total Pages', val: `${meta.pageCount} page(s)`, key: 'pages' },
+      { label: 'Page Dimensions', val: meta.pageDimensions, key: 'dimensions' },
+      { label: 'Title', val: meta.title, key: 'title' },
+      { label: 'Author', val: meta.author, key: 'author' },
+      { label: 'Subject', val: meta.subject, key: 'subject' },
+      { label: 'Keywords', val: meta.keywords, key: 'keywords' },
+      { label: 'Creator Application', val: meta.creator, key: 'creator' },
+      { label: 'PDF Producer', val: meta.producer, key: 'producer' },
+      { label: 'Created Date', val: meta.creationDate, key: 'created' },
+      { label: 'Modified Date', val: meta.modificationDate, key: 'modified' }
+    ];
+
+    tableBody.innerHTML = fields.map(f => `
+      <tr>
+        <td style="font-weight: 700; color: var(--text-secondary); width: 220px;">${f.label}</td>
+        <td style="font-family: var(--font-mono); font-size: 0.85rem;">${f.val}</td>
+        <td style="text-align: right; width: 80px;">
+          ${f.val !== '—' ? `<button class="btn btn-secondary btn-sm" onclick="copyToClipboard('${f.val.replace(/'/g, "\\'")}', 'Copied ${f.label}!')"><i data-lucide="copy" style="width: 12px; height: 12px;"></i></button>` : ''}
+        </td>
+      </tr>
+    `).join('');
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  if (exportBtn) {
+    exportBtn.addEventListener('click', () => {
+      if (!currentMeta) return showToast('No metadata to export', 'warning');
+      downloadTextFile(JSON.stringify(currentMeta, null, 2), `${currentMeta.fileName}_metadata.json`, 'application/json');
+      showToast('Exported PDF metadata JSON!', 'success');
+    });
+  }
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      currentMeta = null;
+      if (resultCard) resultCard.style.display = 'none';
+      if (fileInput) fileInput.value = '';
+      showToast('Cleared PDF inspector', 'info');
+    });
+  }
+}
+
 // Master PDF init helper
 function initAllPdfTools() {
   initPdfMerge();
@@ -975,6 +1092,8 @@ function initAllPdfTools() {
   initTextToPdf();
   initPdfToImages();
   initPdfRotator();
+  initPdfMetadataInspector();
 }
 
 window.addEventListener('DOMContentLoaded', initAllPdfTools);
+

@@ -11,6 +11,7 @@ const TOOLS_REGISTRY = [
   { id: 'text-to-pdf', title: 'Text to PDF', category: 'PDF Tools', icon: 'file-text', desc: 'Convert formatted notes and text into clean PDF documents.' },
   { id: 'pdf-to-img', title: 'PDF to Images', category: 'PDF Tools', icon: 'image', desc: 'Render and extract high-resolution PNG or JPG pages from PDF.' },
   { id: 'pdf-rotate', title: 'Rotate PDF', category: 'PDF Tools', icon: 'rotate-cw', desc: 'Rotate individual or all pages in a PDF document.' },
+  { id: 'pdf-metadata', title: 'PDF Metadata Inspector', category: 'PDF Tools', icon: 'file-search', desc: 'Inspect PDF document metadata, page dimensions, creator, and security.' },
 
   // Image Studio
   { id: 'img-compress', title: 'Image Compressor', category: 'Image Studio', icon: 'minimize-2', desc: 'Compress JPG, PNG, and WebP images with live quality slider.' },

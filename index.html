@@ -60,7 +60,7 @@
         <div>
           <div class="nav-category-title">
             <span>PDF Suite</span>
-            <span class="nav-category-count">6</span>
+            <span class="nav-category-count">7</span>
           </div>
           <ul class="nav-list">
             <li class="nav-item active" data-tool-target="pdf-merge">
@@ -86,6 +86,10 @@
             <li class="nav-item" data-tool-target="pdf-rotate">
               <span class="nav-item-icon"><i data-lucide="rotate-cw"></i></span>
               <span>Rotate PDF</span>
+            </li>
+            <li class="nav-item" data-tool-target="pdf-metadata">
+              <span class="nav-item-icon"><i data-lucide="file-search"></i></span>
+              <span>PDF Metadata</span>
             </li>
           </ul>
         </div>
@@ -528,7 +532,52 @@
         </section>
 
         <!-- ==========================================
-             7. IMAGE COMPRESSOR PANEL
+             7. PDF METADATA INSPECTOR PANEL
+             ========================================== -->
+        <section class="tool-panel" id="panel-pdf-metadata">
+          <div class="tool-view-header">
+            <div>
+              <h1 class="tool-view-title"><i data-lucide="file-search" style="color: var(--accent-cyan);"></i> PDF Metadata Inspector</h1>
+              <p class="tool-view-subtitle">Inspect document properties, creator software, author, creation timestamp, page dimensions, and encryption status.</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-secondary" id="btn-export-pdf-meta-json">
+                <i data-lucide="download" style="width: 14px;"></i> Export JSON
+              </button>
+              <button class="btn btn-outline" id="btn-clear-pdf-meta">Clear</button>
+            </div>
+          </div>
+
+          <div class="dropzone" id="pdf-meta-dropzone">
+            <div class="dropzone-icon-box">
+              <i data-lucide="file-search" style="width: 32px; height: 32px; color: var(--accent-cyan);"></i>
+            </div>
+            <div class="dropzone-title">Upload a PDF document to inspect</div>
+            <div class="dropzone-subtitle">Extracts embedded metadata and page dimension specs instantly.</div>
+            <input type="file" id="pdf-meta-file-input" class="hidden-file-input" accept="application/pdf,.pdf">
+          </div>
+
+          <div id="pdf-meta-result-card" class="glass-card" style="display: none; margin-top: 1.5rem;">
+            <div class="card-header">
+              <span class="card-title"><i data-lucide="file-text" style="width: 18px;"></i> Document Properties</span>
+            </div>
+            <div class="csv-table-wrap">
+              <table class="csv-preview-table">
+                <thead>
+                  <tr>
+                    <th>Property</th>
+                    <th>Value</th>
+                    <th style="text-align: right;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="pdf-meta-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             8. IMAGE COMPRESSOR PANEL
              ========================================== -->
         <section class="tool-panel" id="panel-img-compress">
           <div class="tool-view-header">
