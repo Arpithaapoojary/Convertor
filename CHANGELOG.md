@@ -5,6 +5,17 @@ All notable changes to the **OmniDoc Studio (Convertor)** project will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2026-09-02
+
+### Added
+- **SVG Studio & Vector Optimizer**: Interactive SVG vector editor and live rendering canvas with one-click XML minification (strip comments, DOCTYPE, editor namespaces, metadata), color recoloring, and multi-format export (optimized SVG, 1x/2x/4x high-res PNG, Base64 Data URI, CSS snippet).
+- **Regex Studio & Visual Matcher**: Live regular expression testbench featuring real-time syntax error validation, interactive highlight overlay, capture group inspector table, live `$1`/`$2` replace engine, and multi-language code snippets for JavaScript, Python, PHP, and Go.
+- **Timestamp & Unix Epoch Studio**: Live Unix epoch ticker clock with Pause/Resume, bidirectional converter (Epoch ↔ ISO 8601, UTC, Local, RFC 2822, Relative time), date duration & business day calculator, and live world timezone matrix (London, New York, San Francisco, Berlin, Tokyo, Mumbai, Sydney, Dubai).
+
+### Enhanced
+- Expanded total suite capacity to **28+ client-side tools**.
+- Updated navigation counts, tool registry, command palette indexing (`Ctrl + K`), and responsive view layouts.
+
 ## [2.4.0] - 2026-08-30
 
 ### Added

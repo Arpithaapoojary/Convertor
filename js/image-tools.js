@@ -689,6 +689,315 @@ function initImageInspector() {
   });
 }
 
+/* ==========================================================================
+   6. SVG Studio & Vector Optimizer Implementation
+   ========================================================================== */
+
+function initSvgStudio() {
+  const codeInput = document.getElementById('svg-code-input');
+  const previewViewport = document.getElementById('svg-preview-viewport');
+  const dropzone = document.getElementById('svg-upload-dropzone');
+  const fileInput = document.getElementById('svg-file-input');
+
+  const statOrigSize = document.getElementById('svg-stat-orig-size');
+  const statOptSize = document.getElementById('svg-stat-opt-size');
+  const statSavings = document.getElementById('svg-stat-savings');
+  const statElements = document.getElementById('svg-stat-elements');
+
+  const btnOptimize = document.getElementById('btn-run-svg-optimize');
+  const btnCopySvg = document.getElementById('btn-copy-svg-code');
+  const btnDownloadSvg = document.getElementById('btn-download-svg-file');
+  const btnDownloadPng = document.getElementById('btn-download-svg-png');
+  const btnCopyDataUri = document.getElementById('btn-copy-svg-datauri');
+  const btnCopyCss = document.getElementById('btn-copy-svg-css');
+  const btnApplyFill = document.getElementById('btn-apply-svg-fill');
+  const recolorInput = document.getElementById('svg-color-recolor');
+  const scaleSelect = document.getElementById('svg-png-scale');
+
+  const optComments = document.getElementById('svg-opt-comments');
+  const optDoctype = document.getElementById('svg-opt-doctype');
+  const optMetadata = document.getElementById('svg-opt-metadata');
+  const optWhitespace = document.getElementById('svg-opt-whitespace');
+
+  if (!codeInput || !previewViewport) return;
+
+  const SAMPLE_SVGS = {
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Gradient Background -->
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+  </defs>
+  <rect width="100" height="100" rx="24" fill="url(#g1)"/>
+  <path d="M50 20 L58 38 L78 41 L63 56 L67 76 L50 66 L33 76 L37 56 L22 41 L42 38 Z" fill="#ffffff"/>
+</svg>`,
+    badge: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <circle cx="60" cy="60" r="50" fill="#10b981" stroke="#047857" stroke-width="4"/>
+  <path d="M40 60 L54 74 L82 46" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`,
+    wave: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" width="200" height="80">
+  <path d="M0 40 Q 50 10, 100 40 T 200 40 L 200 80 L 0 80 Z" fill="#06b6d4"/>
+  <path d="M0 50 Q 50 25, 100 50 T 200 50 L 200 80 L 0 80 Z" fill="#3b82f6" opacity="0.6"/>
+</svg>`
+  };
+
+  let originalBytes = 0;
+
+  function renderSvgPreview(svgString) {
+    if (!svgString.trim()) {
+      previewViewport.innerHTML = '<p class="text-secondary" style="font-size: 0.85rem;">SVG preview will render here...</p>';
+      if (statElements) statElements.textContent = '0';
+      return;
+    }
+
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(svgString, 'image/svg+xml');
+      const parserError = doc.querySelector('parsererror');
+      if (parserError) {
+        previewViewport.innerHTML = `<p class="badge-error" style="padding: 0.5rem 1rem; border-radius: var(--radius-sm); font-size: 0.82rem;">Invalid SVG XML syntax: ${parserError.textContent.slice(0, 80)}...</p>`;
+        return;
+      }
+
+      const svgEl = doc.querySelector('svg');
+      if (!svgEl) {
+        previewViewport.innerHTML = '<p class="text-secondary" style="font-size: 0.85rem;">No &lt;svg&gt; root node detected.</p>';
+        return;
+      }
+
+      previewViewport.innerHTML = '';
+      const importedNode = document.importNode(svgEl, true);
+      previewViewport.appendChild(importedNode);
+
+      const nodeCount = importedNode.querySelectorAll('*').length + 1;
+      if (statElements) statElements.textContent = nodeCount;
+    } catch (err) {
+      previewViewport.innerHTML = `<p class="badge-error">${err.message}</p>`;
+    }
+  }
+
+  function updateSizeStats(rawText) {
+    const bytes = new Blob([rawText]).size;
+    if (!originalBytes || originalBytes === 0) originalBytes = bytes;
+    if (statOrigSize) statOrigSize.textContent = formatBytes(originalBytes);
+    if (statOptSize) statOptSize.textContent = formatBytes(bytes);
+
+    if (statSavings && originalBytes > 0) {
+      const diff = originalBytes - bytes;
+      const pct = Math.max(0, Math.round((diff / originalBytes) * 100));
+      statSavings.textContent = `${pct}%`;
+      statSavings.style.color = pct > 0 ? 'var(--accent-emerald)' : 'var(--text-secondary)';
+    }
+  }
+
+  function optimizeSvg(svgStr) {
+    let clean = svgStr;
+
+    // 1. Comments
+    if (!optComments || optComments.checked) {
+      clean = clean.replace(/<!--[\s\S]*?-->/g, '');
+    }
+
+    // 2. XML Declaration & DOCTYPE
+    if (!optDoctype || optDoctype.checked) {
+      clean = clean.replace(/<\?xml[\s\S]*?\?>/gi, '');
+      clean = clean.replace(/<!DOCTYPE[\s\S]*?>/gi, '');
+    }
+
+    // 3. Metadata & Editor Namespaces
+    if (!optMetadata || optMetadata.checked) {
+      clean = clean.replace(/<metadata[\s\S]*?<\/metadata>/gi, '');
+      clean = clean.replace(/<desc[\s\S]*?<\/desc>/gi, '');
+      clean = clean.replace(/<title[\s\S]*?<\/title>/gi, '');
+      clean = clean.replace(/\s*(xmlns:(inkscape|sodipodi|illustrator|vectornator|sketch|figma)|inkscape:[a-z0-9_-]+|sodipodi:[a-z0-9_-]+|figma:[a-z0-9_-]+)="[^"]*"/gi, '');
+    }
+
+    // 4. Whitespace minification
+    if (!optWhitespace || optWhitespace.checked) {
+      clean = clean.replace(/>\s+</g, '><');
+      clean = clean.replace(/\s{2,}/g, ' ');
+      clean = clean.trim();
+    }
+
+    return clean;
+  }
+
+  codeInput.addEventListener('input', () => {
+    const raw = codeInput.value;
+    originalBytes = new Blob([raw]).size;
+    renderSvgPreview(raw);
+    updateSizeStats(raw);
+  });
+
+  if (btnOptimize) {
+    btnOptimize.addEventListener('click', () => {
+      const current = codeInput.value;
+      if (!current.trim()) {
+        showToast('Please insert or upload SVG markup first', 'warning');
+        return;
+      }
+      const beforeBytes = new Blob([current]).size;
+      originalBytes = beforeBytes;
+      const optimized = optimizeSvg(current);
+      codeInput.value = optimized;
+      renderSvgPreview(optimized);
+      updateSizeStats(optimized);
+      const afterBytes = new Blob([optimized]).size;
+      const saved = beforeBytes - afterBytes;
+      showToast(`Optimized SVG! Reduced by ${formatBytes(saved)} (${Math.round((saved/beforeBytes)*100)}%)`, 'success');
+      playSuccessSound();
+    });
+  }
+
+  // Sample buttons
+  const btnSample1 = document.getElementById('btn-svg-sample-1');
+  const btnSample2 = document.getElementById('btn-svg-sample-2');
+  const btnSample3 = document.getElementById('btn-svg-sample-3');
+
+  if (btnSample1) {
+    btnSample1.addEventListener('click', () => {
+      codeInput.value = SAMPLE_SVGS.icon;
+      originalBytes = new Blob([SAMPLE_SVGS.icon]).size;
+      renderSvgPreview(SAMPLE_SVGS.icon);
+      updateSizeStats(SAMPLE_SVGS.icon);
+      showToast('Loaded sample Vector Icon', 'info');
+    });
+  }
+  if (btnSample2) {
+    btnSample2.addEventListener('click', () => {
+      codeInput.value = SAMPLE_SVGS.badge;
+      originalBytes = new Blob([SAMPLE_SVGS.badge]).size;
+      renderSvgPreview(SAMPLE_SVGS.badge);
+      updateSizeStats(SAMPLE_SVGS.badge);
+      showToast('Loaded sample Verified Badge', 'info');
+    });
+  }
+  if (btnSample3) {
+    btnSample3.addEventListener('click', () => {
+      codeInput.value = SAMPLE_SVGS.wave;
+      originalBytes = new Blob([SAMPLE_SVGS.wave]).size;
+      renderSvgPreview(SAMPLE_SVGS.wave);
+      updateSizeStats(SAMPLE_SVGS.wave);
+      showToast('Loaded sample Geometric Wave', 'info');
+    });
+  }
+
+  // Dropzone
+  if (dropzone && fileInput) {
+    setupDropzone(dropzone, fileInput, (files) => {
+      const file = files[0];
+      if (!file) return;
+      if (!file.name.endsWith('.svg') && file.type !== 'image/svg+xml') {
+        showToast('Please upload a valid .svg vector file', 'error');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        codeInput.value = e.target.result;
+        originalBytes = file.size;
+        renderSvgPreview(e.target.result);
+        updateSizeStats(e.target.result);
+        showToast(`Loaded ${file.name} (${formatBytes(file.size)})`, 'success');
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  // Recolor Fill
+  if (btnApplyFill && recolorInput) {
+    btnApplyFill.addEventListener('click', () => {
+      const color = recolorInput.value;
+      const current = codeInput.value;
+      if (!current.trim()) return;
+      const updated = current.replace(/fill="[^"]*"/gi, `fill="${color}"`);
+      codeInput.value = updated;
+      renderSvgPreview(updated);
+      updateSizeStats(updated);
+      showToast(`Applied fill color ${color}`, 'success');
+    });
+  }
+
+  // Copy SVG Code
+  if (btnCopySvg) {
+    btnCopySvg.addEventListener('click', () => {
+      if (!codeInput.value.trim()) return;
+      copyToClipboard(codeInput.value, 'SVG code copied to clipboard!');
+    });
+  }
+
+  // Copy Data URI
+  if (btnCopyDataUri) {
+    btnCopyDataUri.addEventListener('click', () => {
+      if (!codeInput.value.trim()) return;
+      const b64 = btoa(unescape(encodeURIComponent(codeInput.value)));
+      const dataUri = `data:image/svg+xml;base64,${b64}`;
+      copyToClipboard(dataUri, 'SVG Base64 Data URI copied!');
+    });
+  }
+
+  // Copy CSS Background
+  if (btnCopyCss) {
+    btnCopyCss.addEventListener('click', () => {
+      if (!codeInput.value.trim()) return;
+      const b64 = btoa(unescape(encodeURIComponent(codeInput.value)));
+      const css = `background-image: url('data:image/svg+xml;base64,${b64}');\nbackground-repeat: no-repeat;\nbackground-size: contain;`;
+      copyToClipboard(css, 'CSS background-image snippet copied!');
+    });
+  }
+
+  // Download SVG
+  if (btnDownloadSvg) {
+    btnDownloadSvg.addEventListener('click', () => {
+      if (!codeInput.value.trim()) return;
+      const blob = new Blob([codeInput.value], { type: 'image/svg+xml;charset=utf-8' });
+      saveAs(blob, 'omnidoc-vector.svg');
+      showToast('Downloaded optimized SVG file', 'success');
+      playSuccessSound();
+    });
+  }
+
+  // Export as Raster PNG
+  if (btnDownloadPng) {
+    btnDownloadPng.addEventListener('click', () => {
+      const svgMarkup = codeInput.value;
+      if (!svgMarkup.trim()) return;
+
+      const scale = parseInt(scaleSelect ? scaleSelect.value : '2', 10) || 2;
+      const blob = new Blob([svgMarkup], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const w = (img.naturalWidth || 300) * scale;
+        const h = (img.naturalHeight || 300) * scale;
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+
+        canvas.toBlob((pngBlob) => {
+          if (pngBlob) {
+            saveAs(pngBlob, `omnidoc-vector-${scale}x.png`);
+            showToast(`Exported ${scale}x High-Resolution PNG (${w}×${h}px)!`, 'success');
+            playSuccessSound();
+          }
+        }, 'image/png');
+      };
+      img.src = url;
+    });
+  }
+
+  // Load initial sample
+  codeInput.value = SAMPLE_SVGS.icon;
+  originalBytes = new Blob([SAMPLE_SVGS.icon]).size;
+  renderSvgPreview(SAMPLE_SVGS.icon);
+  updateSizeStats(SAMPLE_SVGS.icon);
+}
+
 // Master Image Tools Init
 function initAllImageTools() {
   initImageCompressor();
@@ -696,7 +1005,9 @@ function initAllImageTools() {
   initImageBase64();
   initPaletteAndFilters();
   initImageInspector();
+  initSvgStudio();
 }
 
 window.addEventListener('DOMContentLoaded', initAllImageTools);
+
 

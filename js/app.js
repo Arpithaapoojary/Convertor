@@ -19,11 +19,13 @@ const TOOLS_REGISTRY = [
   { id: 'img-b64', title: 'Image to Base64', category: 'Image Studio', icon: 'binary', desc: 'Encode images to Base64 Data URI strings or decode Base64 to image.' },
   { id: 'img-palette', title: 'Palette & Filters', category: 'Image Studio', icon: 'palette', desc: 'Extract dominant color palettes and apply visual image filters.' },
   { id: 'img-inspect', title: 'Image Inspector & Ratio', category: 'Image Studio', icon: 'maximize', desc: 'Inspect dimensions, aspect ratios, megapixels, and calculate scaling.' },
+  { id: 'img-svg', title: 'SVG Studio & Optimizer', category: 'Image Studio', icon: 'sparkles', desc: 'Minify SVG vector code, recolor, scale, and export as crisp PNG/WebP.' },
 
   // Text & Content
   { id: 'text-transform', title: 'Text Transformer', category: 'Text & Content', icon: 'type', desc: 'Case conversion, line cleaning, sorting, and text formatting.' },
   { id: 'text-diff', title: 'Text Compare & Diff', category: 'Text & Content', icon: 'git-compare', desc: 'Find differences between two texts side-by-side.' },
   { id: 'text-password', title: 'Password Generator', category: 'Text & Content', icon: 'lock', desc: 'Generate secure random passwords and passphrases with entropy score.' },
+  { id: 'text-regex', title: 'Regex Tester & Matcher', category: 'Text & Content', icon: 'code-2', desc: 'Interactive regular expression playground with live match highlights and capture groups.' },
 
   // Data & Code
   { id: 'data-csv-json', title: 'CSV ↔ JSON', category: 'Data & Format', icon: 'table', desc: 'Convert CSV to JSON and JSON to CSV with live table preview.' },
@@ -33,6 +35,7 @@ const TOOLS_REGISTRY = [
   { id: 'data-markdown', title: 'Markdown Live Editor', category: 'Data & Format', icon: 'file-code', desc: 'Real-time Markdown editor with rendered HTML preview.' },
   { id: 'data-encode', title: 'Base64 & URL Encoder', category: 'Data & Format', icon: 'shield', desc: 'Encode and decode Base64, URL components, and HTML entities.' },
   { id: 'data-hash-uuid', title: 'Hash & UUID Generator', category: 'Data & Format', icon: 'hash', desc: 'Generate MD5, SHA-256 hashes and bulk UUID v4 strings.' },
+  { id: 'data-timestamp', title: 'Timestamp & Epoch Studio', category: 'Data & Format', icon: 'clock', desc: 'Unix timestamp converter, world timezone clock matrix, and date duration calculator.' },
 
   // QR & Barcode Studio
   { id: 'qr-generator', title: 'QR Code Generator', category: 'QR & Barcode', icon: 'qr-code', desc: 'Create custom QR codes for URLs, WiFi, contacts, and text.' },

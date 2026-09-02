@@ -504,11 +504,359 @@ function initPasswordGenerator() {
   updatePasswordUI();
 }
 
+/* ==========================================================================
+   4. Regex Studio & Visual Matcher Implementation
+   ========================================================================== */
+
+function initRegexStudio() {
+  const patternInput = document.getElementById('regex-pattern-input');
+  const testInput = document.getElementById('regex-test-input');
+  const highlightBackdrop = document.getElementById('regex-highlight-backdrop');
+
+  const flagG = document.getElementById('regex-flag-g');
+  const flagI = document.getElementById('regex-flag-i');
+  const flagM = document.getElementById('regex-flag-m');
+  const flagS = document.getElementById('regex-flag-s');
+  const flagU = document.getElementById('regex-flag-u');
+
+  const statMatches = document.getElementById('regex-stat-matches');
+  const statGroups = document.getElementById('regex-stat-groups');
+  const statStatus = document.getElementById('regex-stat-status');
+  const matchesList = document.getElementById('regex-matches-list');
+
+  const replaceTemplate = document.getElementById('regex-replace-template');
+  const replaceOutput = document.getElementById('regex-replace-output');
+
+  const langSelect = document.getElementById('regex-lang-select');
+  const codeOutput = document.getElementById('regex-code-output');
+
+  const btnTabMatches = document.getElementById('btn-regex-tab-matches');
+  const btnTabReplace = document.getElementById('btn-regex-tab-replace');
+  const btnTabCode = document.getElementById('btn-regex-tab-code');
+  const viewMatches = document.getElementById('regex-view-matches');
+  const viewReplace = document.getElementById('regex-view-replace');
+  const viewCode = document.getElementById('regex-view-code');
+
+  const btnCopyPattern = document.getElementById('btn-copy-regex-pattern');
+  const btnCopyMatches = document.getElementById('btn-copy-regex-matches');
+  const btnCopyReplaced = document.getElementById('btn-copy-regex-replaced');
+  const btnCopyCode = document.getElementById('btn-copy-regex-code');
+  const btnSampleText = document.getElementById('btn-regex-sample-text');
+
+  if (!patternInput || !testInput) return;
+
+  const REGEX_PRESETS = {
+    email: '([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})',
+    url: 'https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&//=]*)',
+    ipv4: '\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b',
+    phone: '(?:\\+?1[-. ]?)?\\(?([0-9]{3})\\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})',
+    date: '\\b(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])\\b',
+    hex: '#(?:[a-fA-F0-9]{6}|[a-fA-F0-9]{3})\\b',
+    html: '<([a-zA-Z][a-zA-Z0-9]*)\\b[^>]*>(.*?)<\\/\\1>',
+    uuid: '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}',
+    slug: '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+  };
+
+  let extractedMatches = [];
+
+  function getActiveFlags() {
+    let flags = '';
+    if (flagG && flagG.checked) flags += 'g';
+    if (flagI && flagI.checked) flags += 'i';
+    if (flagM && flagM.checked) flags += 'm';
+    if (flagS && flagS.checked) flags += 's';
+    if (flagU && flagU.checked) flags += 'u';
+    return flags;
+  }
+
+  function escapeHtmlChars(str) {
+    return (str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function updateRegexEngine() {
+    const patternStr = patternInput.value;
+    const testText = testInput.value;
+    const flags = getActiveFlags();
+
+    extractedMatches = [];
+
+    if (!patternStr) {
+      if (statStatus) {
+        statStatus.textContent = 'Empty Pattern';
+        statStatus.style.color = 'var(--text-muted)';
+      }
+      if (statMatches) statMatches.textContent = '0';
+      if (statGroups) statGroups.textContent = '0';
+      if (highlightBackdrop) highlightBackdrop.innerHTML = escapeHtmlChars(testText);
+      if (matchesList) matchesList.innerHTML = '<p class="text-secondary" style="font-size: 0.85rem; padding: 1rem; text-align: center;">Enter a regex pattern to see matches.</p>';
+      if (replaceOutput) replaceOutput.value = testText;
+      updateCodeSnippet(patternStr, flags);
+      return;
+    }
+
+    let regex;
+    try {
+      regex = new RegExp(patternStr, flags);
+      if (statStatus) {
+        statStatus.textContent = 'Valid Pattern';
+        statStatus.style.color = 'var(--accent-emerald)';
+      }
+    } catch (e) {
+      if (statStatus) {
+        statStatus.textContent = 'Syntax Error';
+        statStatus.style.color = 'var(--accent-rose)';
+      }
+      if (statMatches) statMatches.textContent = '0';
+      if (statGroups) statGroups.textContent = '0';
+      if (highlightBackdrop) highlightBackdrop.innerHTML = escapeHtmlChars(testText);
+      if (matchesList) matchesList.innerHTML = `<p class="badge-error" style="padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.82rem;">${e.message}</p>`;
+      return;
+    }
+
+    // Extract all matches
+    let match;
+    let totalGroups = 0;
+    let matchItems = [];
+
+    if (flags.includes('g')) {
+      let loopGuard = 0;
+      while ((match = regex.exec(testText)) !== null && loopGuard < 1000) {
+        loopGuard++;
+        matchItems.push({
+          index: match.index,
+          length: match[0].length,
+          value: match[0],
+          groups: match.slice(1)
+        });
+        if (match[0].length === 0) {
+          regex.lastIndex++;
+        }
+      }
+    } else {
+      match = regex.exec(testText);
+      if (match) {
+        matchItems.push({
+          index: match.index,
+          length: match[0].length,
+          value: match[0],
+          groups: match.slice(1)
+        });
+      }
+    }
+
+    extractedMatches = matchItems.map(m => m.value);
+
+    if (statMatches) statMatches.textContent = matchItems.length;
+    if (statGroups) {
+      totalGroups = matchItems.reduce((acc, m) => Math.max(acc, m.groups.length), 0);
+      statGroups.textContent = totalGroups;
+    }
+
+    // Build Highlight Backdrop HTML
+    if (highlightBackdrop) {
+      if (matchItems.length === 0) {
+        highlightBackdrop.innerHTML = escapeHtmlChars(testText);
+      } else {
+        let highlightedHtml = '';
+        let lastIndex = 0;
+
+        matchItems.forEach((m) => {
+          highlightedHtml += escapeHtmlChars(testText.substring(lastIndex, m.index));
+          highlightedHtml += `<mark class="regex-match-mark">${escapeHtmlChars(m.value)}</mark>`;
+          lastIndex = m.index + m.length;
+        });
+
+        highlightedHtml += escapeHtmlChars(testText.substring(lastIndex));
+        highlightBackdrop.innerHTML = highlightedHtml;
+      }
+    }
+
+    // Render Match Breakdown Cards
+    if (matchesList) {
+      if (matchItems.length === 0) {
+        matchesList.innerHTML = '<p class="text-secondary" style="font-size: 0.85rem; padding: 1rem; text-align: center;">No matches found in test string.</p>';
+      } else {
+        matchesList.innerHTML = matchItems.map((m, idx) => {
+          const groupsHtml = m.groups.length > 0
+            ? `<div style="margin-top: 0.4rem; padding-top: 0.35rem; border-top: 1px dashed var(--border-subtle); display: flex; flex-direction: column; gap: 0.2rem;">
+                ${m.groups.map((g, gIdx) => `
+                  <div style="font-size: 0.76rem; color: var(--text-secondary);">
+                    <strong style="color: var(--primary);">$${gIdx + 1}:</strong> "${escapeHtmlChars(g || 'undefined')}"
+                  </div>
+                `).join('')}
+              </div>`
+            : '';
+
+          return `
+            <div class="regex-match-card">
+              <div style="flex: 1; overflow: hidden;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+                  <span style="font-weight: 700; color: var(--primary);">Match #${idx + 1}</span>
+                  <span style="font-size: 0.72rem; color: var(--text-muted);">Index: ${m.index}..${m.index + m.length}</span>
+                </div>
+                <div style="font-weight: 600; color: var(--text-primary); word-break: break-all;">"${escapeHtmlChars(m.value)}"</div>
+                ${groupsHtml}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // Replace Preview
+    if (replaceOutput && replaceTemplate) {
+      try {
+        const rep = regex ? testText.replace(regex, replaceTemplate.value) : testText;
+        replaceOutput.value = rep;
+      } catch {
+        replaceOutput.value = testText;
+      }
+    }
+
+    // Code Snippet Generator
+    updateCodeSnippet(patternStr, flags);
+  }
+
+  function updateCodeSnippet(pattern, flags) {
+    if (!codeOutput) return;
+    const lang = langSelect ? langSelect.value : 'js';
+
+    switch (lang) {
+      case 'js':
+        codeOutput.value = `// JavaScript Regex Matching\nconst pattern = /${pattern}/${flags};\nconst str = "your test string";\n\n// Find all matches\nconst matches = [...str.matchAll(pattern)];\nmatches.forEach(m => console.log(m[0], m.groups));\n\n// Replace\nconst replaced = str.replace(pattern, "replacement");`;
+        break;
+      case 'python':
+        codeOutput.value = `# Python Regex Matching\nimport re\n\npattern = r"${pattern}"\ntext = "your test string"\n\n# Find all matches\nmatches = re.findall(pattern, text${flags.includes('i') ? ', re.IGNORECASE' : ''})\nprint("Matches:", matches)\n\n# Replace\nresult = re.sub(pattern, "replacement", text)`;
+        break;
+      case 'php':
+        codeOutput.value = `<?php\n// PHP PCRE Matching\n$pattern = '/${pattern.replace(/'/g, "\\'")}/${flags}';\n$text = 'your test string';\n\nif (preg_match_all($pattern, $text, $matches)) {\n    print_r($matches[0]);\n}\n\n$replaced = preg_replace($pattern, 'replacement', $text);`;
+        break;
+      case 'go':
+        codeOutput.value = `package main\n\nimport (\n\t"fmt"\n\t"regexp"\n)\n\nfunc main() {\n\tre := regexp.MustCompile(\`${pattern}\`)\n\ttext := "your test string"\n\n\tmatches := re.FindAllString(text, -1)\n\tfmt.Println("Matches:", matches)\n}`;
+        break;
+    }
+  }
+
+  // Scroll synchronization between textarea and backdrop
+  testInput.addEventListener('scroll', () => {
+    if (highlightBackdrop) {
+      highlightBackdrop.scrollTop = testInput.scrollTop;
+      highlightBackdrop.scrollLeft = testInput.scrollLeft;
+    }
+  });
+
+  patternInput.addEventListener('input', updateRegexEngine);
+  testInput.addEventListener('input', updateRegexEngine);
+  if (replaceTemplate) replaceTemplate.addEventListener('input', updateRegexEngine);
+
+  [flagG, flagI, flagM, flagS, flagU].forEach(f => {
+    if (f) f.addEventListener('change', updateRegexEngine);
+  });
+
+  if (langSelect) {
+    langSelect.addEventListener('change', () => updateCodeSnippet(patternInput.value, getActiveFlags()));
+  }
+
+  // Tabs
+  if (btnTabMatches && btnTabReplace && btnTabCode) {
+    btnTabMatches.addEventListener('click', () => {
+      btnTabMatches.classList.add('active');
+      btnTabReplace.classList.remove('active');
+      btnTabCode.classList.remove('active');
+      if (viewMatches) viewMatches.style.display = 'block';
+      if (viewReplace) viewReplace.style.display = 'none';
+      if (viewCode) viewCode.style.display = 'none';
+    });
+
+    btnTabReplace.addEventListener('click', () => {
+      btnTabReplace.classList.add('active');
+      btnTabMatches.classList.remove('active');
+      btnTabCode.classList.remove('active');
+      if (viewMatches) viewMatches.style.display = 'none';
+      if (viewReplace) viewReplace.style.display = 'block';
+      if (viewCode) viewCode.style.display = 'none';
+    });
+
+    btnTabCode.addEventListener('click', () => {
+      btnTabCode.classList.add('active');
+      btnTabMatches.classList.remove('active');
+      btnTabReplace.classList.remove('active');
+      if (viewMatches) viewMatches.style.display = 'none';
+      if (viewReplace) viewReplace.style.display = 'none';
+      if (viewCode) viewCode.style.display = 'block';
+    });
+  }
+
+  // Presets
+  document.querySelectorAll('[data-regex-preset]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const presetKey = btn.getAttribute('data-regex-preset');
+      const presetVal = REGEX_PRESETS[presetKey];
+      if (presetVal) {
+        patternInput.value = presetVal;
+        updateRegexEngine();
+        showToast(`Loaded ${btn.textContent} Regex preset!`, 'info');
+      }
+    });
+  });
+
+  // Sample Text
+  if (btnSampleText) {
+    btnSampleText.addEventListener('click', () => {
+      testInput.value = `Welcome to OmniDoc Studio! For support, contact support@omnidoc.dev or sales@enterprise-apps.io. Visit https://omnidoc.dev/portal for updates. Phone: (800) 555-0199. IPv4 server: 192.168.1.1. Date created: 2026-09-02.`;
+      updateRegexEngine();
+      showToast('Inserted comprehensive test sample!', 'info');
+    });
+  }
+
+  // Copy Buttons
+  if (btnCopyPattern) {
+    btnCopyPattern.addEventListener('click', () => {
+      const full = `/${patternInput.value}/${getActiveFlags()}`;
+      copyToClipboard(full, `Copied regex ${full}!`);
+    });
+  }
+
+  if (btnCopyMatches) {
+    btnCopyMatches.addEventListener('click', () => {
+      if (extractedMatches.length === 0) {
+        showToast('No matches to copy', 'warning');
+        return;
+      }
+      copyToClipboard(extractedMatches.join('\n'), `Copied ${extractedMatches.length} matches!`);
+    });
+  }
+
+  if (btnCopyReplaced) {
+    btnCopyReplaced.addEventListener('click', () => {
+      if (!replaceOutput || !replaceOutput.value) return;
+      copyToClipboard(replaceOutput.value, 'Replaced text copied to clipboard!');
+    });
+  }
+
+  if (btnCopyCode) {
+    btnCopyCode.addEventListener('click', () => {
+      if (!codeOutput || !codeOutput.value) return;
+      copyToClipboard(codeOutput.value, 'Code snippet copied to clipboard!');
+    });
+  }
+
+  // Initial trigger
+  updateRegexEngine();
+}
+
 function initAllTextTools() {
   initTextTransformer();
   initTextDiff();
   initPasswordGenerator();
+  initRegexStudio();
 }
 
 window.addEventListener('DOMContentLoaded', initAllTextTools);
+
 

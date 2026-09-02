@@ -1226,6 +1226,309 @@ function initColorStudio() {
   updateAllFromRgb(99, 102, 241, 1);
 }
 
+/* ==========================================================================
+   8. Timestamp & Unix Epoch Studio Implementation
+   ========================================================================== */
+
+function initTimestampStudio() {
+  const liveSecondsEl = document.getElementById('epoch-live-seconds');
+  const liveDotEl = document.getElementById('epoch-live-dot');
+  const btnPauseResume = document.getElementById('btn-epoch-pause-resume');
+  const btnCopyNow = document.getElementById('btn-epoch-copy-now');
+
+  const tsInput = document.getElementById('ts-convert-input');
+  const btnTsNow = document.getElementById('btn-ts-to-date-now');
+  const outIso = document.getElementById('ts-out-iso');
+  const outUtc = document.getElementById('ts-out-utc');
+  const outLocal = document.getElementById('ts-out-local');
+  const outRelative = document.getElementById('ts-out-relative');
+
+  const dateInput = document.getElementById('date-convert-input');
+  const btnDateNow = document.getElementById('btn-date-to-ts-now');
+  const outSec = document.getElementById('date-out-sec');
+  const outMs = document.getElementById('date-out-ms');
+  const outUs = document.getElementById('date-out-us');
+  const outNs = document.getElementById('date-out-ns');
+
+  const durationStart = document.getElementById('duration-start-date');
+  const durationEnd = document.getElementById('duration-end-date');
+  const statDays = document.getElementById('duration-stat-days');
+  const statHours = document.getElementById('duration-stat-hours');
+  const statMins = document.getElementById('duration-stat-mins');
+  const statBiz = document.getElementById('duration-stat-biz');
+
+  const tzContainer = document.getElementById('timezone-grid-container');
+
+  if (!liveSecondsEl || !tsInput) return;
+
+  let isTickerPaused = false;
+  let tickerTimer = null;
+
+  const TIMEZONES = [
+    { city: 'UTC / GMT', zone: 'UTC', label: 'Universal' },
+    { city: 'London', zone: 'Europe/London', label: 'GMT / BST' },
+    { city: 'New York', zone: 'America/New_York', label: 'EST / EDT' },
+    { city: 'San Francisco', zone: 'America/Los_Angeles', label: 'PST / PDT' },
+    { city: 'Berlin / Paris', zone: 'Europe/Berlin', label: 'CET / CEST' },
+    { city: 'Tokyo', zone: 'Asia/Tokyo', label: 'JST' },
+    { city: 'Mumbai / Delhi', zone: 'Asia/Kolkata', label: 'IST' },
+    { city: 'Sydney', zone: 'Australia/Sydney', label: 'AEST / AEDT' },
+    { city: 'Dubai', zone: 'Asia/Dubai', label: 'GST' }
+  ];
+
+  function getRelativeTime(timestampMs) {
+    const diffSec = Math.round((timestampMs - Date.now()) / 1000);
+    const absSec = Math.abs(diffSec);
+
+    const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+    if (absSec < 60) return rtf.format(diffSec, 'second');
+    if (absSec < 3600) return rtf.format(Math.round(diffSec / 60), 'minute');
+    if (absSec < 86400) return rtf.format(Math.round(diffSec / 3600), 'hour');
+    if (absSec < 2592000) return rtf.format(Math.round(diffSec / 86400), 'day');
+    if (absSec < 31536000) return rtf.format(Math.round(diffSec / 2592000), 'month');
+    return rtf.format(Math.round(diffSec / 31536000), 'year');
+  }
+
+  function updateWorldTimezones() {
+    if (!tzContainer) return;
+    const now = new Date();
+
+    tzContainer.innerHTML = TIMEZONES.map(item => {
+      try {
+        const timeStr = now.toLocaleTimeString('en-US', { timeZone: item.zone, hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const dateStr = now.toLocaleDateString('en-US', { timeZone: item.zone, weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+        return `
+          <div class="timezone-card" style="cursor: pointer;" onclick="copyToClipboard('${timeStr} (${item.city})', 'Copied ${item.city} time!')">
+            <div class="timezone-city">
+              <span>${item.city}</span>
+              <span class="badge badge-muted" style="font-size: 0.7rem; padding: 0.1rem 0.35rem;">${item.label}</span>
+            </div>
+            <div class="timezone-time">${timeStr}</div>
+            <div class="timezone-date">${dateStr}</div>
+          </div>
+        `;
+      } catch {
+        return '';
+      }
+    }).join('');
+  }
+
+  function updateLiveTicker() {
+    if (isTickerPaused) return;
+    const nowSec = Math.floor(Date.now() / 1000);
+    if (liveSecondsEl) liveSecondsEl.textContent = nowSec;
+    updateWorldTimezones();
+  }
+
+  tickerTimer = setInterval(updateLiveTicker, 1000);
+  updateLiveTicker();
+
+  // Pause / Resume Live Ticker
+  if (btnPauseResume) {
+    btnPauseResume.addEventListener('click', () => {
+      isTickerPaused = !isTickerPaused;
+      if (isTickerPaused) {
+        btnPauseResume.innerHTML = `<i data-lucide="play" style="width: 14px;"></i> Resume`;
+        if (liveDotEl) liveDotEl.style.backgroundColor = 'var(--accent-amber)';
+        showToast('Epoch clock paused', 'info');
+      } else {
+        btnPauseResume.innerHTML = `<i data-lucide="pause" style="width: 14px;"></i> Pause`;
+        if (liveDotEl) liveDotEl.style.backgroundColor = 'var(--accent-emerald)';
+        updateLiveTicker();
+        showToast('Epoch clock resumed', 'info');
+      }
+      if (window.lucide) lucide.createIcons();
+    });
+  }
+
+  // Copy Live Now
+  if (btnCopyNow) {
+    btnCopyNow.addEventListener('click', () => {
+      const nowSec = Math.floor(Date.now() / 1000).toString();
+      copyToClipboard(nowSec, `Copied Unix timestamp: ${nowSec}`);
+    });
+  }
+
+  // Convert Timestamp -> Date
+  function convertTimestampToDate(val) {
+    if (!val || isNaN(val)) {
+      if (outIso) outIso.textContent = '—';
+      if (outUtc) outUtc.textContent = '—';
+      if (outLocal) outLocal.textContent = '—';
+      if (outRelative) outRelative.textContent = '—';
+      return;
+    }
+
+    let num = Number(val);
+    // If entered in seconds (10 digits approx), convert to ms
+    if (num < 100000000000) {
+      num = num * 1000;
+    }
+
+    const d = new Date(num);
+    if (isNaN(d.getTime())) {
+      if (outIso) outIso.textContent = 'Invalid timestamp value';
+      return;
+    }
+
+    const iso = d.toISOString();
+    const utc = d.toUTCString();
+    const local = d.toLocaleString(undefined, { 
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', 
+      hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' 
+    });
+    const relative = `${getRelativeTime(num)} (${d.toLocaleDateString(undefined, { weekday: 'long' })})`;
+
+    if (outIso) outIso.textContent = iso;
+    if (outUtc) outUtc.textContent = utc;
+    if (outLocal) outLocal.textContent = local;
+    if (outRelative) outRelative.textContent = relative;
+  }
+
+  tsInput.addEventListener('input', (e) => convertTimestampToDate(e.target.value.trim()));
+
+  if (btnTsNow) {
+    btnTsNow.addEventListener('click', () => {
+      const sec = Math.floor(Date.now() / 1000);
+      tsInput.value = sec;
+      convertTimestampToDate(sec);
+      showToast('Set to current timestamp', 'info');
+    });
+  }
+
+  // Timestamp Modifiers
+  document.querySelectorAll('[data-ts-mod]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mod = btn.getAttribute('data-ts-mod');
+      let currentVal = Number(tsInput.value) || Math.floor(Date.now() / 1000);
+      if (currentVal < 100000000000) currentVal = currentVal * 1000;
+
+      const d = new Date(currentVal);
+      switch (mod) {
+        case '+1h': d.setHours(d.getHours() + 1); break;
+        case '+1d': d.setDate(d.getDate() + 1); break;
+        case '+1w': d.setDate(d.getDate() + 7); break;
+        case '+1m': d.setMonth(d.getMonth() + 1); break;
+        case '-1d': d.setDate(d.getDate() - 1); break;
+        case 'start-day': d.setHours(0, 0, 0, 0); break;
+      }
+
+      const newSec = Math.floor(d.getTime() / 1000);
+      tsInput.value = newSec;
+      convertTimestampToDate(newSec);
+    });
+  });
+
+  // Convert Date -> Timestamp
+  function convertDateToTimestamp(dateVal) {
+    if (!dateVal) {
+      if (outSec) outSec.textContent = '—';
+      if (outMs) outMs.textContent = '—';
+      if (outUs) outUs.textContent = '—';
+      if (outNs) outNs.textContent = '—';
+      return;
+    }
+
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return;
+
+    const ms = d.getTime();
+    const sec = Math.floor(ms / 1000);
+    const us = `${ms}000`;
+    const ns = `${ms}000000`;
+
+    if (outSec) outSec.textContent = sec;
+    if (outMs) outMs.textContent = ms;
+    if (outUs) outUs.textContent = us;
+    if (outNs) outNs.textContent = ns;
+  }
+
+  if (dateInput) {
+    dateInput.addEventListener('input', (e) => convertDateToTimestamp(e.target.value));
+  }
+
+  if (btnDateNow && dateInput) {
+    btnDateNow.addEventListener('click', () => {
+      const now = new Date();
+      const localIso = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+      dateInput.value = localIso;
+      convertDateToTimestamp(dateInput.value);
+      showToast('Set to current local time', 'info');
+    });
+  }
+
+  // Duration Calculator
+  function calculateDateDuration() {
+    if (!durationStart || !durationEnd || !durationStart.value || !durationEnd.value) return;
+
+    const d1 = new Date(durationStart.value);
+    const d2 = new Date(durationEnd.value);
+    if (isNaN(d1.getTime()) || isNaN(d2.getTime())) return;
+
+    const diffMs = Math.abs(d2.getTime() - d1.getTime());
+    const totalSecs = Math.floor(diffMs / 1000);
+    const totalMins = Math.floor(totalSecs / 60);
+    const totalHours = Math.floor(totalMins / 60);
+    const totalDays = Math.floor(totalHours / 24);
+
+    // Business days count (Mon-Fri)
+    let bizDays = 0;
+    const cur = new Date(Math.min(d1.getTime(), d2.getTime()));
+    const end = new Date(Math.max(d1.getTime(), d2.getTime()));
+    cur.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+
+    while (cur < end) {
+      cur.setDate(cur.getDate() + 1);
+      const dayOfWeek = cur.getDay();
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+        bizDays++;
+      }
+    }
+
+    if (statDays) statDays.textContent = totalDays;
+    if (statHours) statHours.textContent = totalHours;
+    if (statMins) statMins.textContent = totalMins;
+    if (statBiz) statBiz.textContent = bizDays;
+  }
+
+  if (durationStart && durationEnd) {
+    durationStart.addEventListener('input', calculateDateDuration);
+    durationEnd.addEventListener('input', calculateDateDuration);
+  }
+
+  // Clickable outputs to copy
+  [outIso, outUtc, outLocal, outRelative, outSec, outMs, outUs, outNs].forEach(el => {
+    if (el) {
+      el.addEventListener('click', () => {
+        const text = el.textContent;
+        if (text && text !== '—' && !text.startsWith('Invalid')) {
+          copyToClipboard(text, `Copied: ${text}`);
+        }
+      });
+    }
+  });
+
+  // Initial values setup
+  const now = new Date();
+  const currentSec = Math.floor(now.getTime() / 1000);
+  tsInput.value = currentSec;
+  convertTimestampToDate(currentSec);
+
+  const localIsoNow = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+  if (dateInput) {
+    dateInput.value = localIsoNow;
+    convertDateToTimestamp(localIsoNow);
+  }
+
+  if (durationStart && durationEnd) {
+    durationStart.value = localIsoNow;
+    const nextWeek = new Date(now.getTime() + 7 * 86400000 - (now.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+    durationEnd.value = nextWeek;
+    calculateDateDuration();
+  }
+}
+
 function initAllDataTools() {
   initCsvJsonConverter();
   initJsonStudio();
@@ -1234,8 +1537,10 @@ function initAllDataTools() {
   initMarkdownEditor();
   initEncodersDecoders();
   initHashAndUuid();
+  initTimestampStudio();
 }
 
 window.addEventListener('DOMContentLoaded', initAllDataTools);
+
 
 

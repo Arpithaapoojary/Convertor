@@ -98,7 +98,7 @@
         <div>
           <div class="nav-category-title">
             <span>Image Studio</span>
-            <span class="nav-category-count">5</span>
+            <span class="nav-category-count">6</span>
           </div>
           <ul class="nav-list">
             <li class="nav-item" data-tool-target="img-compress">
@@ -121,6 +121,10 @@
               <span class="nav-item-icon"><i data-lucide="maximize"></i></span>
               <span>Image Inspector</span>
             </li>
+            <li class="nav-item" data-tool-target="img-svg">
+              <span class="nav-item-icon"><i data-lucide="sparkles"></i></span>
+              <span>SVG Studio & Optimizer</span>
+            </li>
           </ul>
         </div>
 
@@ -128,7 +132,7 @@
         <div>
           <div class="nav-category-title">
             <span>Text & Content</span>
-            <span class="nav-category-count">3</span>
+            <span class="nav-category-count">4</span>
           </div>
           <ul class="nav-list">
             <li class="nav-item" data-tool-target="text-transform">
@@ -143,6 +147,10 @@
               <span class="nav-item-icon"><i data-lucide="lock"></i></span>
               <span>Password Generator</span>
             </li>
+            <li class="nav-item" data-tool-target="text-regex">
+              <span class="nav-item-icon"><i data-lucide="code-2"></i></span>
+              <span>Regex Studio</span>
+            </li>
           </ul>
         </div>
 
@@ -150,7 +158,7 @@
         <div>
           <div class="nav-category-title">
             <span>Data & Code</span>
-            <span class="nav-category-count">7</span>
+            <span class="nav-category-count">8</span>
           </div>
           <ul class="nav-list">
             <li class="nav-item" data-tool-target="data-csv-json">
@@ -180,6 +188,10 @@
             <li class="nav-item" data-tool-target="data-hash-uuid">
               <span class="nav-item-icon"><i data-lucide="hash"></i></span>
               <span>Hash & UUID Gen</span>
+            </li>
+            <li class="nav-item" data-tool-target="data-timestamp">
+              <span class="nav-item-icon"><i data-lucide="clock"></i></span>
+              <span>Timestamp & Epoch</span>
             </li>
           </ul>
         </div>
@@ -964,6 +976,134 @@
         </section>
 
         <!-- ==========================================
+             11B. SVG STUDIO & OPTIMIZER PANEL
+             ========================================== -->
+        <section class="tool-panel" id="panel-img-svg">
+          <div class="tool-view-header">
+            <div>
+              <h1 class="tool-view-title"><i data-lucide="sparkles" style="color: var(--primary);"></i> SVG Studio & Vector Optimizer</h1>
+              <p class="tool-view-subtitle">Inspect, minify, clean XML bloat, recolor vector paths, and rasterize crisp PNG/WebP assets locally.</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button class="btn btn-secondary" id="btn-copy-svg-code">
+                <i data-lucide="copy" style="width: 14px;"></i> Copy SVG
+              </button>
+              <button class="btn btn-secondary" id="btn-download-svg-file">
+                <i data-lucide="file-code" style="width: 14px;"></i> Download SVG
+              </button>
+              <button class="btn btn-primary" id="btn-download-svg-png">
+                <i data-lucide="download" style="width: 14px;"></i> Export PNG
+              </button>
+            </div>
+          </div>
+
+          <!-- Optimization Stats Banner -->
+          <div class="stats-grid" id="svg-stats-grid" style="margin-bottom: 1.5rem;">
+            <div class="stat-widget">
+              <div class="stat-val" id="svg-stat-orig-size">0 B</div>
+              <div class="stat-label">Original Size</div>
+            </div>
+            <div class="stat-widget">
+              <div class="stat-val" id="svg-stat-opt-size">0 B</div>
+              <div class="stat-label">Optimized Size</div>
+            </div>
+            <div class="stat-widget">
+              <div class="stat-val" id="svg-stat-savings" style="color: var(--accent-emerald);">0%</div>
+              <div class="stat-label">Size Savings</div>
+            </div>
+            <div class="stat-widget">
+              <div class="stat-val" id="svg-stat-elements">0</div>
+              <div class="stat-label">Vector Nodes</div>
+            </div>
+          </div>
+
+          <div class="tool-grid-2col">
+            <!-- Left: Source Editor & Optimizer Controls -->
+            <div class="glass-card">
+              <div class="card-header">
+                <span class="card-title"><i data-lucide="code" style="width: 18px;"></i> SVG Source Markup</span>
+                <div style="display: flex; gap: 0.35rem;">
+                  <button class="btn btn-secondary btn-sm" id="btn-svg-sample-1">Icon</button>
+                  <button class="btn btn-secondary btn-sm" id="btn-svg-sample-2">Badge</button>
+                  <button class="btn btn-secondary btn-sm" id="btn-svg-sample-3">Wave</button>
+                </div>
+              </div>
+
+              <div class="dropzone" id="svg-upload-dropzone" style="padding: 1.25rem 1rem; margin-bottom: 1rem;">
+                <i data-lucide="upload-cloud" style="width: 22px; height: 22px; color: var(--primary);"></i>
+                <div class="dropzone-title" style="font-size: 0.9rem;">Drop .svg file or click to upload</div>
+                <input type="file" id="svg-file-input" class="hidden-file-input" accept=".svg,image/svg+xml">
+              </div>
+
+              <div class="form-group">
+                <textarea id="svg-code-input" class="form-textarea" style="min-height: 200px; font-family: var(--font-mono); font-size: 0.8rem;" placeholder="<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>...</svg>"></textarea>
+              </div>
+
+              <!-- Optimization Toggles -->
+              <div style="border-top: 1px solid var(--border-subtle); padding-top: 1rem; display: flex; flex-direction: column; gap: 0.6rem;">
+                <span style="font-size: 0.82rem; font-weight: 700;">Optimization Flags</span>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="svg-opt-comments" checked>
+                  <span>Strip XML comments (<!-- ... -->)</span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="svg-opt-doctype" checked>
+                  <span>Remove XML declaration & DOCTYPE</span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="svg-opt-metadata" checked>
+                  <span>Strip editor metadata (Inkscape, Illustrator, Figma attributes)</span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="svg-opt-whitespace" checked>
+                  <span>Minify tags & collapse redundant whitespace</span>
+                </label>
+              </div>
+
+              <div style="margin-top: 1rem;">
+                <button class="btn btn-primary btn-sm" id="btn-run-svg-optimize" style="width: 100%;">
+                  <i data-lucide="sparkles" style="width: 14px;"></i> Minify & Optimize SVG
+                </button>
+              </div>
+            </div>
+
+            <!-- Right: Preview, Recolor & Multi-Format Export -->
+            <div class="glass-card">
+              <div class="card-header">
+                <span class="card-title"><i data-lucide="eye" style="width: 18px;"></i> Live Vector Preview</span>
+                <div style="display: flex; gap: 0.4rem; align-items: center;">
+                  <button class="btn btn-secondary btn-sm" id="btn-copy-svg-datauri" title="Copy Base64 Data URI">Data URI</button>
+                  <button class="btn btn-secondary btn-sm" id="btn-copy-svg-css" title="Copy CSS background-image">CSS</button>
+                </div>
+              </div>
+
+              <div class="svg-preview-stage" id="svg-preview-viewport">
+                <p class="text-secondary" style="font-size: 0.85rem;">SVG preview will render here...</p>
+              </div>
+
+              <!-- Recolor & Dimensions -->
+              <div style="margin-top: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" for="svg-color-recolor">Recolor Fill</label>
+                  <div class="color-picker-group">
+                    <input type="color" id="svg-color-recolor" class="color-picker-input" value="#6366f1">
+                    <button class="btn btn-secondary btn-sm" id="btn-apply-svg-fill" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">Apply Fill</button>
+                  </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" for="svg-png-scale">PNG Export Scale</label>
+                  <select id="svg-png-scale" class="form-select">
+                    <option value="1">1x Standard</option>
+                    <option value="2" selected>2x High-DPI</option>
+                    <option value="4">4x Ultra-HD</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
              12. TEXT TRANSFORMER PANEL
              ========================================== -->
         <section class="tool-panel" id="panel-text-transform">
@@ -1185,6 +1325,155 @@
                   </div>
                 </div>
                 <textarea id="pass-bulk-output" class="form-textarea" style="min-height: 120px; font-family: var(--font-mono); font-size: 0.82rem;" readonly></textarea>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             13B. REGEX TESTER & MATCHER PANEL
+             ========================================== -->
+        <section class="tool-panel" id="panel-text-regex">
+          <div class="tool-view-header">
+            <div>
+              <h1 class="tool-view-title"><i data-lucide="code-2" style="color: var(--accent-purple);"></i> Regex Studio & Visual Matcher</h1>
+              <p class="tool-view-subtitle">Interactive regular expression playground with real-time visual highlights, capture group analysis, replace engine, and multi-language snippets.</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button class="btn btn-secondary" id="btn-copy-regex-pattern">
+                <i data-lucide="copy" style="width: 14px;"></i> Copy Regex
+              </button>
+              <button class="btn btn-primary" id="btn-copy-regex-matches">
+                <i data-lucide="check" style="width: 14px;"></i> Copy Matches
+              </button>
+            </div>
+          </div>
+
+          <!-- Regex Pattern & Flags Bar -->
+          <div class="regex-pattern-bar" style="margin-bottom: 1.25rem;">
+            <span class="regex-slash">/</span>
+            <input type="text" id="regex-pattern-input" class="regex-input" placeholder="Enter regular expression..." value="([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})">
+            <span class="regex-slash">/</span>
+
+            <div class="regex-flags-wrap">
+              <label class="regex-flag-chip" title="Global match">
+                <input type="checkbox" id="regex-flag-g" checked>
+                <span>g</span>
+              </label>
+              <label class="regex-flag-chip" title="Case insensitive">
+                <input type="checkbox" id="regex-flag-i" checked>
+                <span>i</span>
+              </label>
+              <label class="regex-flag-chip" title="Multiline mode">
+                <input type="checkbox" id="regex-flag-m" checked>
+                <span>m</span>
+              </label>
+              <label class="regex-flag-chip" title="Dot matches all (newline)">
+                <input type="checkbox" id="regex-flag-s">
+                <span>s</span>
+              </label>
+              <label class="regex-flag-chip" title="Unicode mode">
+                <input type="checkbox" id="regex-flag-u">
+                <span>u</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Regex Presets Quick Bar -->
+          <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Presets:</span>
+            <button class="qr-preset-btn" data-regex-preset="email">Email Address</button>
+            <button class="qr-preset-btn" data-regex-preset="url">URL / Domain</button>
+            <button class="qr-preset-btn" data-regex-preset="ipv4">IPv4 Address</button>
+            <button class="qr-preset-btn" data-regex-preset="phone">US Phone Number</button>
+            <button class="qr-preset-btn" data-regex-preset="date">ISO Date (YYYY-MM-DD)</button>
+            <button class="qr-preset-btn" data-regex-preset="hex">Hex Color</button>
+            <button class="qr-preset-btn" data-regex-preset="html">HTML Tag</button>
+            <button class="qr-preset-btn" data-regex-preset="uuid">UUID v4</button>
+            <button class="qr-preset-btn" data-regex-preset="slug">Alphanumeric Slug</button>
+          </div>
+
+          <!-- Live Match Stats Banner -->
+          <div class="stats-grid" style="margin-bottom: 1.5rem;">
+            <div class="stat-widget">
+              <div class="stat-val" id="regex-stat-matches" style="color: var(--primary);">0</div>
+              <div class="stat-label">Total Matches</div>
+            </div>
+            <div class="stat-widget">
+              <div class="stat-val" id="regex-stat-groups">0</div>
+              <div class="stat-label">Capture Groups</div>
+            </div>
+            <div class="stat-widget">
+              <div class="stat-val" id="regex-stat-status" style="color: var(--accent-emerald);">Valid Pattern</div>
+              <div class="stat-label">Regex Syntax</div>
+            </div>
+          </div>
+
+          <div class="tool-grid-2col">
+            <!-- Left: Test String Editor with Realtime Highlight Backdrop -->
+            <div class="glass-card">
+              <div class="card-header">
+                <span class="card-title"><i data-lucide="file-text" style="width: 18px;"></i> Test Text Input</span>
+                <button class="btn btn-secondary btn-sm" id="btn-regex-sample-text">Insert Sample</button>
+              </div>
+
+              <div class="regex-highlight-container">
+                <div class="regex-backdrop" id="regex-highlight-backdrop"></div>
+                <textarea id="regex-test-input" placeholder="Paste or type test string here to match against regex...">Welcome to OmniDoc Studio! For support, contact support@omnidoc.dev or sales@enterprise-apps.io. Visit https://omnidoc.dev/portal for updates.</textarea>
+              </div>
+            </div>
+
+            <!-- Right: Match Breakdown & Replace Studio -->
+            <div class="glass-card">
+              <div class="card-header">
+                <span class="card-title"><i data-lucide="layers" style="width: 18px;"></i> Match Details & Replacement</span>
+                <div style="display: flex; gap: 0.35rem;">
+                  <button class="btn btn-secondary btn-sm active" id="btn-regex-tab-matches">Matches</button>
+                  <button class="btn btn-secondary btn-sm" id="btn-regex-tab-replace">Replace</button>
+                  <button class="btn btn-secondary btn-sm" id="btn-regex-tab-code">Code</button>
+                </div>
+              </div>
+
+              <!-- Tab 1: Matches View -->
+              <div id="regex-view-matches">
+                <div id="regex-matches-list" style="max-height: 280px; overflow-y: auto;">
+                  <p class="text-secondary" style="font-size: 0.85rem; padding: 1rem; text-align: center;">Matches will be highlighted here.</p>
+                </div>
+              </div>
+
+              <!-- Tab 2: Replace View -->
+              <div id="regex-view-replace" style="display: none;">
+                <div class="form-group">
+                  <label class="form-label" for="regex-replace-template">Replacement String ($1, $2, etc.)</label>
+                  <input type="text" id="regex-replace-template" class="form-input" placeholder="e.g. [EMAIL: $1@$2]" value="[CONTACT: $1 at domain $2]">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <label class="form-label" style="margin-bottom: 0;">Replaced Output</label>
+                    <button class="btn btn-secondary btn-sm" id="btn-copy-regex-replaced" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;">Copy Output</button>
+                  </div>
+                  <textarea id="regex-replace-output" class="form-textarea" style="min-height: 140px; font-family: var(--font-mono); font-size: 0.82rem;" readonly></textarea>
+                </div>
+              </div>
+
+              <!-- Tab 3: Code Snippets View -->
+              <div id="regex-view-code" style="display: none;">
+                <div class="form-group" style="margin-bottom: 0.5rem;">
+                  <label class="form-label" for="regex-lang-select">Programming Language</label>
+                  <select id="regex-lang-select" class="form-select">
+                    <option value="js" selected>JavaScript (ES6)</option>
+                    <option value="python">Python 3 (re)</option>
+                    <option value="php">PHP (preg_match_all)</option>
+                    <option value="go">Go (regexp)</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <label class="form-label" style="margin-bottom: 0;">Code Snippet</label>
+                    <button class="btn btn-secondary btn-sm" id="btn-copy-regex-code" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;">Copy Snippet</button>
+                  </div>
+                  <textarea id="regex-code-output" class="form-textarea" style="min-height: 140px; font-family: var(--font-mono); font-size: 0.8rem;" readonly></textarea>
+                </div>
               </div>
             </div>
           </div>
@@ -1657,6 +1946,160 @@ Welcome to the **OmniDoc Markdown Editor**!
                 <textarea id="uuid-output-area" class="form-textarea" style="min-height: 220px;" readonly></textarea>
               </div>
             </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             16B. TIMESTAMP & UNIX EPOCH STUDIO PANEL
+             ========================================== -->
+        <section class="tool-panel" id="panel-data-timestamp">
+          <div class="tool-view-header">
+            <div>
+              <h1 class="tool-view-title"><i data-lucide="clock" style="color: var(--accent-cyan);"></i> Timestamp & Unix Epoch Studio</h1>
+              <p class="tool-view-subtitle">Bidirectional Unix epoch timestamp conversion, world timezone clock matrix, and date duration math calculator.</p>
+            </div>
+          </div>
+
+          <!-- Live Epoch Banner -->
+          <div class="epoch-live-banner">
+            <div>
+              <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Current Unix Epoch Time</span>
+              <div class="epoch-live-val">
+                <span class="epoch-pulse-dot" id="epoch-live-dot"></span>
+                <span id="epoch-live-seconds">1772635200</span>
+                <span style="font-size: 1rem; color: var(--text-secondary); font-weight: 500;">sec</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <button class="btn btn-secondary btn-sm" id="btn-epoch-pause-resume">
+                <i data-lucide="pause" style="width: 14px;"></i> Pause
+              </button>
+              <button class="btn btn-primary btn-sm" id="btn-epoch-copy-now">
+                <i data-lucide="copy" style="width: 14px;"></i> Copy Timestamp
+              </button>
+            </div>
+          </div>
+
+          <div class="tool-grid-2col">
+            <!-- Left: Timestamp to Date -->
+            <div class="glass-card">
+              <div class="card-header">
+                <span class="card-title"><i data-lucide="arrow-right-circle" style="width: 18px;"></i> Epoch to Human Date</span>
+                <button class="btn btn-secondary btn-sm" id="btn-ts-to-date-now">Use Now</button>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="ts-convert-input">Unix Timestamp (Seconds or Milliseconds)</label>
+                <input type="text" id="ts-convert-input" class="form-input" style="font-family: var(--font-mono); font-weight: 700;" placeholder="e.g. 1772635200">
+              </div>
+
+              <!-- Quick Time Modifiers -->
+              <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+                <button class="qr-preset-btn" data-ts-mod="+1h">+1 Hour</button>
+                <button class="qr-preset-btn" data-ts-mod="+1d">+1 Day</button>
+                <button class="qr-preset-btn" data-ts-mod="+1w">+1 Week</button>
+                <button class="qr-preset-btn" data-ts-mod="+1m">+1 Month</button>
+                <button class="qr-preset-btn" data-ts-mod="-1d">-1 Day</button>
+                <button class="qr-preset-btn" data-ts-mod="start-day">Day Start</button>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+                <div>
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.2rem;">ISO 8601 (UTC)</div>
+                  <div class="form-input hash-val-display" id="ts-out-iso" style="font-family: var(--font-mono); font-size: 0.82rem; cursor: pointer;">—</div>
+                </div>
+                <div>
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.2rem;">UTC String</div>
+                  <div class="form-input hash-val-display" id="ts-out-utc" style="font-family: var(--font-mono); font-size: 0.82rem; cursor: pointer;">—</div>
+                </div>
+                <div>
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.2rem;">Local Date & Time</div>
+                  <div class="form-input hash-val-display" id="ts-out-local" style="font-family: var(--font-mono); font-size: 0.82rem; cursor: pointer;">—</div>
+                </div>
+                <div>
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.2rem;">Relative Time & Day</div>
+                  <div class="form-input hash-val-display" id="ts-out-relative" style="font-family: var(--font-mono); font-size: 0.82rem; cursor: pointer;">—</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Date to Timestamp -->
+            <div class="glass-card">
+              <div class="card-header">
+                <span class="card-title"><i data-lucide="arrow-left-circle" style="width: 18px;"></i> Human Date to Epoch</span>
+                <button class="btn btn-secondary btn-sm" id="btn-date-to-ts-now">Set Current</button>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="date-convert-input">Select Date & Time</label>
+                <input type="datetime-local" id="date-convert-input" class="form-input" style="font-family: var(--font-mono);">
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 0.65rem; margin-top: 1.5rem;">
+                <div>
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.2rem;">Seconds (Unix Timestamp)</div>
+                  <div class="form-input hash-val-display" id="date-out-sec" style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; cursor: pointer;">—</div>
+                </div>
+                <div>
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.2rem;">Milliseconds (JS Timestamp)</div>
+                  <div class="form-input hash-val-display" id="date-out-ms" style="font-family: var(--font-mono); font-size: 0.85rem; cursor: pointer;">—</div>
+                </div>
+                <div>
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.2rem;">Microseconds (µs)</div>
+                  <div class="form-input hash-val-display" id="date-out-us" style="font-family: var(--font-mono); font-size: 0.85rem; cursor: pointer;">—</div>
+                </div>
+                <div>
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.2rem;">Nanoseconds (ns)</div>
+                  <div class="form-input hash-val-display" id="date-out-ns" style="font-family: var(--font-mono); font-size: 0.85rem; cursor: pointer;">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Date Duration & Interval Calculator -->
+          <div class="glass-card" style="margin-top: 1.5rem;">
+            <div class="card-header">
+              <span class="card-title"><i data-lucide="calendar-range" style="width: 18px;"></i> Date Difference & Duration Calculator</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" for="duration-start-date">Start Date & Time</label>
+                <input type="datetime-local" id="duration-start-date" class="form-input">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" for="duration-end-date">End Date & Time</label>
+                <input type="datetime-local" id="duration-end-date" class="form-input">
+              </div>
+            </div>
+
+            <div class="stats-grid" style="margin-top: 1.25rem;">
+              <div class="stat-widget">
+                <div class="stat-val" id="duration-stat-days">0</div>
+                <div class="stat-label">Total Days</div>
+              </div>
+              <div class="stat-widget">
+                <div class="stat-val" id="duration-stat-hours">0</div>
+                <div class="stat-label">Total Hours</div>
+              </div>
+              <div class="stat-widget">
+                <div class="stat-val" id="duration-stat-mins">0</div>
+                <div class="stat-label">Total Minutes</div>
+              </div>
+              <div class="stat-widget">
+                <div class="stat-val" id="duration-stat-biz">0</div>
+                <div class="stat-label">Business Days</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- World Timezone Matrix -->
+          <div class="glass-card" style="margin-top: 1.5rem;">
+            <div class="card-header">
+              <span class="card-title"><i data-lucide="globe" style="width: 18px;"></i> World Timezone Clock Matrix</span>
+              <span class="text-secondary" style="font-size: 0.8rem;">Live sync across international cities</span>
+            </div>
+            <div class="timezone-grid" id="timezone-grid-container"></div>
           </div>
         </section>
 
