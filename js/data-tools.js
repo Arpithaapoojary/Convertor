@@ -260,6 +260,58 @@ function initEncodersDecoders() {
       copyToClipboard(outputEl.value, 'Result copied to clipboard!');
     });
   }
+
+  // CSS Unit Converter
+  const baseFontInput = document.getElementById('css-unit-base-font');
+  const inputPx = document.getElementById('unit-val-px');
+  const inputRem = document.getElementById('unit-val-rem');
+  const inputEm = document.getElementById('unit-val-em');
+  const inputVw = document.getElementById('unit-val-vw');
+  const inputVh = document.getElementById('unit-val-vh');
+  const inputPt = document.getElementById('unit-val-pt');
+  const inputPct = document.getElementById('unit-val-pct');
+
+  if (inputPx && baseFontInput) {
+    const vpW = window.innerWidth || 1920;
+    const vpH = window.innerHeight || 1080;
+
+    function updateFromPx(pxVal, excludeId) {
+      const base = parseFloat(baseFontInput.value) || 16;
+      const px = parseFloat(pxVal) || 0;
+
+      if (excludeId !== 'unit-val-px' && inputPx) inputPx.value = parseFloat(px.toFixed(4));
+      if (excludeId !== 'unit-val-rem' && inputRem) inputRem.value = parseFloat((px / base).toFixed(4));
+      if (excludeId !== 'unit-val-em' && inputEm) inputEm.value = parseFloat((px / base).toFixed(4));
+      if (excludeId !== 'unit-val-vw' && inputVw) inputVw.value = parseFloat(((px / vpW) * 100).toFixed(4));
+      if (excludeId !== 'unit-val-vh' && inputVh) inputVh.value = parseFloat(((px / vpH) * 100).toFixed(4));
+      if (excludeId !== 'unit-val-pt' && inputPt) inputPt.value = parseFloat((px * 0.75).toFixed(4));
+      if (excludeId !== 'unit-val-pct' && inputPct) inputPct.value = parseFloat(((px / base) * 100).toFixed(2));
+    }
+
+    inputPx.addEventListener('input', (e) => updateFromPx(e.target.value, 'unit-val-px'));
+    inputRem.addEventListener('input', (e) => {
+      const base = parseFloat(baseFontInput.value) || 16;
+      updateFromPx((parseFloat(e.target.value) || 0) * base, 'unit-val-rem');
+    });
+    inputEm.addEventListener('input', (e) => {
+      const base = parseFloat(baseFontInput.value) || 16;
+      updateFromPx((parseFloat(e.target.value) || 0) * base, 'unit-val-em');
+    });
+    inputVw.addEventListener('input', (e) => {
+      updateFromPx(((parseFloat(e.target.value) || 0) / 100) * vpW, 'unit-val-vw');
+    });
+    inputVh.addEventListener('input', (e) => {
+      updateFromPx(((parseFloat(e.target.value) || 0) / 100) * vpH, 'unit-val-vh');
+    });
+    inputPt.addEventListener('input', (e) => {
+      updateFromPx((parseFloat(e.target.value) || 0) / 0.75, 'unit-val-pt');
+    });
+    inputPct.addEventListener('input', (e) => {
+      const base = parseFloat(baseFontInput.value) || 16;
+      updateFromPx(((parseFloat(e.target.value) || 0) / 100) * base, 'unit-val-pct');
+    });
+    baseFontInput.addEventListener('input', () => updateFromPx(inputPx.value, ''));
+  }
 }
 
 /* ==========================================================================
