@@ -42,9 +42,9 @@ OmniDoc Studio is a privacy-first, zero-telemetry web application featuring **28
 - **JSON Studio**: Comprehensive JSON formatter (2 spaces, 4 spaces, Tabs), minifier, deep key sorting, schema validator with live byte size and depth calculation, and auto-repair for common JSON syntax mistakes.
 - **JWT Inspector & Debugger**: Real-time JSON Web Token decoder for Header, Payload claims, and Signature with colorized string breakdown, live expiration countdown timer, and standard claims dictionary.
 - **Live Markdown Editor**: Split-screen Markdown editor with real-time rendered HTML preview and sanitized export.
-- **Base64 & URL Codec**: Encode and decode Base64, URL parameters, and HTML entities.
+- **Base64 & URL Codec & CSS Units**: Encode and decode Base64, URL parameters, HTML entities, and convert between responsive CSS units (`px`, `rem`, `em`, `vw`, `vh`, `pt`, `%`).
 - **Hash & UUID Generator**: Compute MD5, SHA-1, SHA-256, and SHA-512 cryptographic hashes and generate bulk RFC 4122 UUID v4 strings.
-- **Timestamp & Epoch Studio**: Real-time Unix timestamp ticker, human date to epoch converter, date duration & business days calculator, and live world timezone matrix.
+- **Timestamp & Epoch Studio**: Real-time Unix timestamp ticker, human date to epoch converter, batch multi-line timestamp processor, date duration & business days calculator, and live world timezone matrix.
 
 ### 📱 5. QR & Barcode Studio (3 Tools)
 - **QR Generator**: Create custom QR codes for Website URLs, WiFi Credentials (with Hidden SSID support), vCards, Email, and Phone numbers.
@@ -61,8 +61,8 @@ OmniDoc Studio is a privacy-first, zero-telemetry web application featuring **28
 | **`Ctrl + Shift + T`** | Instantly toggle Dark / Light theme |
 | **`Shift + Z`** | Toggle Fullscreen Zen Mode (distraction-free layout) |
 | **`Alt + 1`** ... **`Alt + 5`** | Quick jump between PDF, Image, Text, Data, and QR Suites |
-| **`?`** | Display keyboard shortcuts hint banner |
-| **`Esc`** | Close Command Palette, active modal, or exit Zen Mode |
+| **`?`** | Open interactive Keyboard Shortcuts Cheatsheet Modal |
+| **`Esc`** | Close active modal, search palette, or exit Zen Mode |
 
 ---
 

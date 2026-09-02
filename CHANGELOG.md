@@ -5,6 +5,14 @@ All notable changes to the **OmniDoc Studio (Convertor)** project will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2026-09-02
+
+### Added
+- **Batch Multi-Line Timestamp Processor**: Paste multiple Unix epoch timestamps or ISO dates to convert in bulk into formatted CSV with UTC, ISO 8601, and localized datetime strings.
+- **Interactive Keyboard Shortcuts Cheatsheet Modal**: Dedicated visual cheat-sheet modal triggered by `?` key or header help button covering navigation, workspace, view controls, and palette triggers.
+- **Responsive CSS Unit Converter**: Real-time bidirectional converter between `px`, `rem`, `em`, `vw`, `vh`, `pt`, and `%` with customizable root base font size.
+- **Print & PDF Export Stylesheet**: Clean `@media print` rules hiding navigation bars, dropzones, and floating controls for distraction-free document printing and PDF reporting.
+
 ## [2.5.0] - 2026-09-02
 
 ### Added
