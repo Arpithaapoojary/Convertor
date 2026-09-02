@@ -2093,6 +2093,29 @@ Welcome to the **OmniDoc Markdown Editor**!
             </div>
           </div>
 
+          <!-- Batch Multi-Line Timestamp Converter -->
+          <div class="glass-card" style="margin-top: 1.5rem;">
+            <div class="card-header">
+              <span class="card-title"><i data-lucide="list" style="width: 18px;"></i> Batch Multi-Line Timestamp Processor</span>
+              <div style="display: flex; gap: 0.4rem;">
+                <button class="btn btn-secondary btn-sm" id="btn-batch-ts-sample">Sample</button>
+                <button class="btn btn-primary btn-sm" id="btn-batch-ts-convert">Convert All</button>
+                <button class="btn btn-secondary btn-sm" id="btn-batch-ts-copy">Copy CSV</button>
+              </div>
+            </div>
+            <p class="text-secondary" style="font-size: 0.82rem; margin-bottom: 0.8rem;">Paste one Unix timestamp or ISO date string per line to convert in batch.</p>
+            <div class="tool-grid-2col">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" for="batch-ts-input">Input Timestamps / Dates</label>
+                <textarea id="batch-ts-input" class="form-textarea" style="min-height: 140px; font-family: var(--font-mono); font-size: 0.82rem;" placeholder="1772635200&#10;1772721600&#10;1772808000"></textarea>
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" for="batch-ts-output">Converted Table (CSV format)</label>
+                <textarea id="batch-ts-output" class="form-textarea" style="min-height: 140px; font-family: var(--font-mono); font-size: 0.82rem;" readonly placeholder="Timestamp, ISO 8601, UTC String, Local String"></textarea>
+              </div>
+            </div>
+          </div>
+
           <!-- World Timezone Matrix -->
           <div class="glass-card" style="margin-top: 1.5rem;">
             <div class="card-header">

@@ -1521,6 +1521,71 @@ function initTimestampStudio() {
     convertDateToTimestamp(localIsoNow);
   }
 
+  // Batch Processor
+  const batchInput = document.getElementById('batch-ts-input');
+  const batchOutput = document.getElementById('batch-ts-output');
+  const btnBatchConvert = document.getElementById('btn-batch-ts-convert');
+  const btnBatchSample = document.getElementById('btn-batch-ts-sample');
+  const btnBatchCopy = document.getElementById('btn-batch-ts-copy');
+
+  if (btnBatchSample && batchInput) {
+    btnBatchSample.addEventListener('click', () => {
+      const base = Math.floor(Date.now() / 1000);
+      batchInput.value = [
+        base,
+        base - 3600,
+        base - 86400,
+        base + 86400,
+        base + 604800,
+        '2026-12-31T23:59:59Z'
+      ].join('\n');
+      if (btnBatchConvert) btnBatchConvert.click();
+      showToast('Loaded batch sample timestamps', 'info');
+    });
+  }
+
+  if (btnBatchConvert && batchInput && batchOutput) {
+    btnBatchConvert.addEventListener('click', () => {
+      const lines = batchInput.value.split('\n').map(l => l.trim()).filter(Boolean);
+      if (lines.length === 0) {
+        showToast('Please enter timestamps or dates to convert', 'warning');
+        return;
+      }
+
+      const rows = ['Unix_Seconds,ISO_8601,UTC_String,Local_String'];
+      lines.forEach(line => {
+        let d;
+        if (!isNaN(line)) {
+          let n = Number(line);
+          if (n < 100000000000) n = n * 1000;
+          d = new Date(n);
+        } else {
+          d = new Date(line);
+        }
+
+        if (!isNaN(d.getTime())) {
+          const sec = Math.floor(d.getTime() / 1000);
+          const iso = d.toISOString();
+          const utc = `"${d.toUTCString()}"`;
+          const local = `"${d.toLocaleString()}"`;
+          rows.push(`${sec},${iso},${utc},${local}`);
+        } else {
+          rows.push(`${line},INVALID_DATE,,`);
+        }
+      });
+
+      batchOutput.value = rows.join('\n');
+      showToast(`Converted ${lines.length} timestamps!`, 'success');
+    });
+  }
+
+  if (btnBatchCopy && batchOutput) {
+    btnBatchCopy.addEventListener('click', () => {
+      if (!batchOutput.value) return;
+      copyToClipboard(batchOutput.value, 'Batch CSV copied to clipboard!');
+    });
+  }
+
   if (durationStart && durationEnd) {
     durationStart.value = localIsoNow;
     const nextWeek = new Date(now.getTime() + 7 * 86400000 - (now.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
