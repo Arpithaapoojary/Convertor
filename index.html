@@ -269,6 +269,9 @@
           <button class="icon-action-btn" id="btn-toggle-sound" title="Toggle Sound Effects">
             <i data-lucide="volume-2" style="width: 18px; height: 18px;"></i>
           </button>
+          <button class="icon-action-btn" id="btn-toggle-shortcuts" title="Keyboard Shortcuts (?)">
+            <i data-lucide="help-circle" style="width: 18px; height: 18px;"></i>
+          </button>
           <button class="icon-action-btn" id="btn-toggle-theme" title="Toggle Theme (Ctrl+Shift+T)">
             <i data-lucide="sun" style="width: 18px; height: 18px;"></i>
           </button>
@@ -2394,6 +2397,81 @@ Welcome to the **OmniDoc Markdown Editor**!
       <div class="palette-footer">
         <span>Use <strong style="color: var(--text-primary);">↑</strong> <strong style="color: var(--text-primary);">↓</strong> to navigate, <strong style="color: var(--text-primary);">Enter</strong> to select</span>
         <span><strong style="color: var(--text-primary);">ESC</strong> to close</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts Modal (?) -->
+  <div class="palette-overlay" id="shortcuts-modal-overlay" style="display: none; align-items: center; justify-content: center;">
+    <div class="shortcuts-modal">
+      <div class="shortcuts-header">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <i data-lucide="keyboard" style="color: var(--primary); width: 20px; height: 20px;"></i>
+          <span style="font-weight: 800; font-size: 1.1rem;">Keyboard Shortcuts</span>
+        </div>
+        <button class="icon-action-btn" id="btn-close-shortcuts" aria-label="Close shortcuts">
+          <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+        </button>
+      </div>
+
+      <div class="shortcuts-grid">
+        <!-- Navigation -->
+        <div>
+          <div class="shortcut-group-title"><i data-lucide="compass" style="width: 14px;"></i> Navigation</div>
+          <div class="shortcut-row">
+            <span>Command Palette</span>
+            <div class="shortcut-keys"><span class="kbd-badge">Ctrl</span><span class="kbd-badge">K</span></div>
+          </div>
+          <div class="shortcut-row">
+            <span>Close Modal / Exit</span>
+            <div class="shortcut-keys"><span class="kbd-badge">Esc</span></div>
+          </div>
+          <div class="shortcut-row">
+            <span>PDF Suite</span>
+            <div class="shortcut-keys"><span class="kbd-badge">Alt</span><span class="kbd-badge">1</span></div>
+          </div>
+          <div class="shortcut-row">
+            <span>Image Studio</span>
+            <div class="shortcut-keys"><span class="kbd-badge">Alt</span><span class="kbd-badge">2</span></div>
+          </div>
+          <div class="shortcut-row">
+            <span>Text Studio</span>
+            <div class="shortcut-keys"><span class="kbd-badge">Alt</span><span class="kbd-badge">3</span></div>
+          </div>
+          <div class="shortcut-row">
+            <span>Data & Code</span>
+            <div class="shortcut-keys"><span class="kbd-badge">Alt</span><span class="kbd-badge">4</span></div>
+          </div>
+          <div class="shortcut-row">
+            <span>QR Studio</span>
+            <div class="shortcut-keys"><span class="kbd-badge">Alt</span><span class="kbd-badge">5</span></div>
+          </div>
+        </div>
+
+        <!-- Interface & Workspace -->
+        <div>
+          <div class="shortcut-group-title"><i data-lucide="layout" style="width: 14px;"></i> Workspace & Views</div>
+          <div class="shortcut-row">
+            <span>Zen Mode (Fullscreen)</span>
+            <div class="shortcut-keys"><span class="kbd-badge">Shift</span><span class="kbd-badge">Z</span></div>
+          </div>
+          <div class="shortcut-row">
+            <span>Toggle Theme</span>
+            <div class="shortcut-keys"><span class="kbd-badge">Ctrl</span><span class="kbd-badge">Shift</span><span class="kbd-badge">T</span></div>
+          </div>
+          <div class="shortcut-row">
+            <span>Show Shortcuts</span>
+            <div class="shortcut-keys"><span class="kbd-badge">?</span></div>
+          </div>
+          <div class="shortcut-row">
+            <span>Drag & Reorder</span>
+            <span style="font-size: 0.78rem; color: var(--text-muted);">Mouse Drag</span>
+          </div>
+          <div class="shortcut-row">
+            <span>Copy Swatches / Output</span>
+            <span style="font-size: 0.78rem; color: var(--text-muted);">1-Click Copy</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -273,6 +273,45 @@ class OmniDocApp {
     if (searchTrigger) {
       searchTrigger.addEventListener('click', () => this.openPalette());
     }
+
+    const shortcutsBtn = document.getElementById('btn-toggle-shortcuts');
+    const shortcutsOverlay = document.getElementById('shortcuts-modal-overlay');
+    const closeShortcutsBtn = document.getElementById('btn-close-shortcuts');
+
+    if (shortcutsBtn) {
+      shortcutsBtn.addEventListener('click', () => this.toggleShortcutsModal());
+    }
+    if (closeShortcutsBtn) {
+      closeShortcutsBtn.addEventListener('click', () => this.closeShortcutsModal());
+    }
+    if (shortcutsOverlay) {
+      shortcutsOverlay.addEventListener('click', (e) => {
+        if (e.target === shortcutsOverlay) this.closeShortcutsModal();
+      });
+    }
+  }
+
+  toggleShortcutsModal() {
+    const overlay = document.getElementById('shortcuts-modal-overlay');
+    if (!overlay) return;
+    if (overlay.style.display === 'flex') {
+      this.closeShortcutsModal();
+    } else {
+      this.openShortcutsModal();
+    }
+  }
+
+  openShortcutsModal() {
+    const overlay = document.getElementById('shortcuts-modal-overlay');
+    if (overlay) {
+      overlay.style.display = 'flex';
+      if (window.lucide) lucide.createIcons();
+    }
+  }
+
+  closeShortcutsModal() {
+    const overlay = document.getElementById('shortcuts-modal-overlay');
+    if (overlay) overlay.style.display = 'none';
   }
 
   // Command Palette (Ctrl + K) & Global Shortcuts
@@ -280,12 +319,14 @@ class OmniDocApp {
     const overlay = document.getElementById('command-palette-overlay');
     const input = document.getElementById('palette-input-box');
     const list = document.getElementById('palette-results-container');
+    const shortcutsOverlay = document.getElementById('shortcuts-modal-overlay');
 
     // Global shortcut listeners
     window.addEventListener('keydown', (e) => {
       // Ctrl+K / Cmd+K -> Command palette
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
+        this.closeShortcutsModal();
         this.togglePalette();
       } 
       // Ctrl+Shift+T -> Toggle Theme
@@ -311,13 +352,15 @@ class OmniDocApp {
         };
         if (categoryMap[e.key]) this.navigateTo(categoryMap[e.key]);
       }
-      // ? -> Show shortcut help
+      // ? -> Show shortcut help modal
       else if (e.key === '?' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
         e.preventDefault();
-        showToast('Shortcuts: Ctrl+K (Search), Shift+Z (Zen), Ctrl+Shift+T (Theme), Alt+1-5 (Suites)', 'info', 4000);
+        this.toggleShortcutsModal();
       }
       else if (e.key === 'Escape') {
-        if (overlay && overlay.classList.contains('open')) {
+        if (shortcutsOverlay && shortcutsOverlay.style.display === 'flex') {
+          this.closeShortcutsModal();
+        } else if (overlay && overlay.classList.contains('open')) {
           this.closePalette();
         } else if (document.body.classList.contains('zen-mode')) {
           this.toggleZenMode();
