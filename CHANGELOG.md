@@ -5,6 +5,20 @@ All notable changes to the **OmniDoc Studio (Convertor)** project will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2026-09-03
+
+### Added
+- **Markdown Table Studio & Multi-Format Converter**: Interactive visual matrix table builder with dynamic column/row add-remove controls, column alignment selectors (Left, Center, Right), CSV/TSV paste parser, and real-time multi-format export to GitHub Flavored Markdown tables, semantic HTML `<table>` markup, JSON Array of objects, and CSV.
+- **HTML & XML Studio (Formatter, Minifier & Entity Codec)**: Code beautifier and formatter with customizable indent spacing (2 spaces, 4 spaces, tabs), comment preservation toggle, minifier engine with whitespace collapsing, comprehensive HTML entity encoder/decoder (special characters, symbols, unicode), live size compression metrics, and sandboxed rendered iframe preview.
+- **Image Watermark & EXIF Privacy Sanitizer**: HTML5 Canvas watermarking engine supporting custom text, high-DPI font scaling, opacity transparency, continuous diagonal tile grid repetition, custom angles (-90° to 90°), placement presets, and one-click EXIF/GPS/device metadata stripping for 100% client-side privacy.
+- **Tool Favorites Bookmark System**: Pin and bookmark favorite tools with persistent `localStorage` support, dedicated Starred Favorites sidebar category, 1-click star toggles across navigation and Command Palette (`Ctrl + K`), and `#fav` quick filter query.
+
+### Enhanced
+- Expanded total suite capacity to **31+ client-side tools**.
+- Enhanced Command Palette (`Ctrl + K`) with favorite tool starring and `#fav` / `star` search shortcuts.
+- Added custom slider and range control styling with dynamic accent glow.
+- Polished table matrix and watermark canvas responsive layouts for mobile viewports.
+
 ## [2.6.0] - 2026-09-02
 
 ### Added
