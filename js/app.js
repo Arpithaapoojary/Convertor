@@ -33,6 +33,7 @@ const TOOLS_REGISTRY = [
   { id: 'data-color', title: 'Color Studio & Converter', category: 'Data & Format', icon: 'palette', desc: 'HEX, RGB, HSL, CMYK converter, harmony generator & color shades.' },
   { id: 'data-json-beautifier', title: 'JSON Studio', category: 'Data & Format', icon: 'braces', desc: 'Format, minify, repair syntax, and validate JSON data structures.' },
   { id: 'data-jwt', title: 'JWT Inspector', category: 'Data & Format', icon: 'key-round', desc: 'Decode, inspect, and validate JSON Web Tokens with timestamp checks.' },
+  { id: 'data-html-xml', title: 'HTML & XML Studio', category: 'Data & Format', icon: 'file-code-2', desc: 'Beautify, format, minify HTML/XML, encode entities, and preview rendered HTML.' },
   { id: 'data-markdown', title: 'Markdown Live Editor', category: 'Data & Format', icon: 'file-code', desc: 'Real-time Markdown editor with rendered HTML preview.' },
   { id: 'data-encode', title: 'Base64 & URL Encoder', category: 'Data & Format', icon: 'shield', desc: 'Encode and decode Base64, URL components, and HTML entities.' },
   { id: 'data-hash-uuid', title: 'Hash & UUID Generator', category: 'Data & Format', icon: 'hash', desc: 'Generate MD5, SHA-256 hashes and bulk UUID v4 strings.' },

@@ -1646,11 +1646,400 @@ function initTimestampStudio() {
   }
 }
 
+/* ==========================================================================
+   9. HTML & XML Studio (Formatter, Minifier & Entity Codec)
+   ========================================================================== */
+
+function initHtmlXmlStudio() {
+  const inputRaw = document.getElementById('html-input-raw');
+  const outputCode = document.getElementById('html-output-code');
+  const previewFrame = document.getElementById('html-preview-frame');
+  const indentSelect = document.getElementById('html-indent-select');
+  const preserveCommentsCheck = document.getElementById('html-preserve-comments');
+
+  const btnFormat = document.getElementById('btn-html-format');
+  const btnMinify = document.getElementById('btn-html-minify');
+  const btnEncode = document.getElementById('btn-html-encode-entities');
+  const btnDecode = document.getElementById('btn-html-decode-entities');
+  const btnClear = document.getElementById('btn-html-clear');
+  const btnSampleHtml = document.getElementById('btn-html-sample-html');
+  const btnSampleXml = document.getElementById('btn-html-sample-xml');
+  const btnCopyHeader = document.getElementById('btn-html-copy-output');
+  const btnCopyCode = document.getElementById('btn-html-copy-code-btn');
+  const btnDownload = document.getElementById('btn-html-download-file');
+
+  const tabCode = document.getElementById('btn-html-tab-code');
+  const tabPreview = document.getElementById('btn-html-tab-preview');
+  const viewCode = document.getElementById('html-view-code');
+  const viewPreview = document.getElementById('html-view-preview');
+
+  const statOrig = document.getElementById('html-stat-orig-size');
+  const statOut = document.getElementById('html-stat-out-size');
+  const statSavings = document.getElementById('html-stat-savings');
+  const statTags = document.getElementById('html-stat-tags');
+
+  if (!inputRaw || !outputCode) return;
+
+  const SAMPLE_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OmniDoc Studio Demo</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; color: #f8fafc; padding: 2rem; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.5rem; max-width: 500px; margin: 0 auto; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+    h1 { font-size: 1.4rem; color: #38bdf8; margin-top: 0; }
+    p { font-size: 0.95rem; line-height: 1.5; color: #cbd5e1; }
+    .badge { display: inline-block; background: #6366f1; color: #fff; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 9999px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="badge">100% Client-Side</span>
+    <h1>OmniDoc Studio &amp; Utilities</h1>
+    <p>Ultra-fast document, image, and code tools running completely in your browser with zero data leakage &mdash; Fast, Secure &amp; Free &copy; 2026.</p>
+  </div>
+</body>
+</html>`;
+
+  const SAMPLE_XML = `<?xml version="1.0" encoding="UTF-8"?>
+<catalog xmlns:doc="http://example.com/doc">
+  <product id="omnidoc-01" status="active">
+    <name>OmniDoc Studio</name>
+    <category>Developer Tools</category>
+    <version>2.7.0</version>
+    <license type="MIT">Open Source</license>
+    <pricing currency="USD" fee="0.00">100% Free</pricing>
+    <description><![CDATA[Ultra-fast, 100% client-side document, PDF, image, text, and data utility suite.]]></description>
+    <modules>
+      <module name="PDF Suite" count="7" />
+      <module name="Image Studio" count="7" />
+      <module name="Text &amp; Content" count="5" />
+      <module name="Data &amp; Code" count="9" />
+    </modules>
+  </product>
+</catalog>`;
+
+  function getIndentUnit() {
+    const val = indentSelect ? indentSelect.value : '2';
+    if (val === '4') return '    ';
+    if (val === 'tab') return '\t';
+    return '  ';
+  }
+
+  function formatMarkup(rawText) {
+    if (!rawText.trim()) return '';
+
+    const indentStr = getIndentUnit();
+    const preserveComments = preserveCommentsCheck ? preserveCommentsCheck.checked : true;
+
+    // Void elements that do not require closing tags in HTML
+    const voidTags = new Set([
+      'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
+      'link', 'meta', 'param', 'source', 'track', 'wbr', '!doctype', '?xml'
+    ]);
+
+    // Tokenize tags and text
+    const tokens = [];
+    let i = 0;
+    const len = rawText.length;
+
+    while (i < len) {
+      if (rawText.substr(i, 4) === '<!--') {
+        const end = rawText.indexOf('-->', i + 4);
+        const comment = end !== -1 ? rawText.slice(i, end + 3) : rawText.slice(i);
+        if (preserveComments) tokens.push({ type: 'comment', value: comment.trim() });
+        i = end !== -1 ? end + 3 : len;
+      } else if (rawText.substr(i, 9).toUpperCase() === '<![CDATA[') {
+        const end = rawText.indexOf(']]>', i + 9);
+        const cdata = end !== -1 ? rawText.slice(i, end + 3) : rawText.slice(i);
+        tokens.push({ type: 'cdata', value: cdata.trim() });
+        i = end !== -1 ? end + 3 : len;
+      } else if (rawText[i] === '<') {
+        const end = rawText.indexOf('>', i);
+        if (end !== -1) {
+          const tagContent = rawText.slice(i, end + 1).trim();
+          tokens.push({ type: 'tag', value: tagContent });
+          i = end + 1;
+        } else {
+          tokens.push({ type: 'text', value: rawText.slice(i).trim() });
+          i = len;
+        }
+      } else {
+        const nextTag = rawText.indexOf('<', i);
+        const text = nextTag !== -1 ? rawText.slice(i, nextTag) : rawText.slice(i);
+        const trimmed = text.trim();
+        if (trimmed) {
+          tokens.push({ type: 'text', value: trimmed });
+        }
+        i = nextTag !== -1 ? nextTag : len;
+      }
+    }
+
+    let indentLevel = 0;
+    const outputLines = [];
+
+    tokens.forEach(tok => {
+      if (tok.type === 'tag') {
+        const tag = tok.value;
+        const isClosing = tag.startsWith('</');
+        const isSelfClosing = tag.endsWith('/>') || tag.startsWith('<?') || tag.toUpperCase().startsWith('<!DOCTYPE');
+        const tagNameMatch = tag.match(/^<\\?\/?([a-zA-Z0-9:-]+)/);
+        const tagName = tagNameMatch ? tagNameMatch[1].toLowerCase() : '';
+        const isVoid = voidTags.has(tagName);
+
+        if (isClosing) {
+          indentLevel = Math.max(indentLevel - 1, 0);
+          outputLines.push(indentStr.repeat(indentLevel) + tag);
+        } else if (isSelfClosing || isVoid) {
+          outputLines.push(indentStr.repeat(indentLevel) + tag);
+        } else {
+          outputLines.push(indentStr.repeat(indentLevel) + tag);
+          indentLevel++;
+        }
+      } else if (tok.type === 'comment' || tok.type === 'cdata') {
+        outputLines.push(indentStr.repeat(indentLevel) + tok.value);
+      } else if (tok.type === 'text') {
+        outputLines.push(indentStr.repeat(indentLevel) + tok.value);
+      }
+    });
+
+    return outputLines.join('\n');
+  }
+
+  function minifyMarkup(rawText) {
+    if (!rawText.trim()) return '';
+    let result = rawText;
+
+    const preserveComments = preserveCommentsCheck ? preserveCommentsCheck.checked : false;
+    if (!preserveComments) {
+      // Remove HTML / XML comments
+      result = result.replace(/<!--[\s\S]*?-->/g, '');
+    }
+
+    // Collapse whitespace between tags
+    result = result
+      .replace(/>\s+</g, '><')
+      .replace(/\s{2,}/g, ' ')
+      .replace(/^\s+|\s+$/gm, '')
+      .trim();
+
+    return result;
+  }
+
+  function encodeHtmlEntities(text) {
+    const entityMap = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+      '©': '&copy;',
+      '®': '&reg;',
+      '™': '&trade;',
+      '€': '&euro;',
+      '£': '&pound;',
+      '¥': '&yen;',
+      '¢': '&cent;',
+      '•': '&bull;',
+      '…': '&hellip;',
+      '—': '&mdash;',
+      '–': '&ndash;',
+      '→': '&rarr;',
+      '←': '&larr;',
+      '↑': '&uarr;',
+      '↓': '&darr;',
+      '★': '&#9733;',
+      '♥': '&#9829;'
+    };
+
+    return text.replace(/[&<>"'©®™€£¥¢•…—–→←↑↓★♥]/g, (char) => entityMap[char] || `&#${char.charCodeAt(0)};`);
+  }
+
+  function decodeHtmlEntities(text) {
+    const doc = new DOMParser().parseFromString(text, 'text/html');
+    return doc.body.textContent || '';
+  }
+
+  function updateMetrics(input, output) {
+    const origBytes = new Blob([input]).size;
+    const outBytes = new Blob([output]).size;
+
+    if (statOrig) statOrig.textContent = formatBytes(origBytes);
+    if (statOut) statOut.textContent = formatBytes(outBytes);
+
+    if (statSavings) {
+      if (origBytes > 0 && outBytes < origBytes) {
+        const savings = (((origBytes - outBytes) / origBytes) * 100).toFixed(1);
+        statSavings.textContent = `-${savings}%`;
+        statSavings.style.color = 'var(--accent-emerald)';
+      } else if (origBytes > 0 && outBytes > origBytes) {
+        const increase = (((outBytes - origBytes) / origBytes) * 100).toFixed(1);
+        statSavings.textContent = `+${increase}%`;
+        statSavings.style.color = 'var(--accent-amber)';
+      } else {
+        statSavings.textContent = '0%';
+        statSavings.style.color = 'var(--text-secondary)';
+      }
+    }
+
+    if (statTags) {
+      const tagMatches = (input.match(/<[a-zA-Z0-9:-]+(\s|>|\/)/g) || []).length;
+      statTags.textContent = tagMatches;
+    }
+
+    // Update iframe preview if rendered
+    if (previewFrame) {
+      previewFrame.srcdoc = output;
+    }
+  }
+
+  // Button actions
+  if (btnFormat) {
+    btnFormat.addEventListener('click', () => {
+      const input = inputRaw.value;
+      if (!input.trim()) {
+        showToast('Please enter or paste markup first', 'info');
+        return;
+      }
+      const formatted = formatMarkup(input);
+      outputCode.value = formatted;
+      updateMetrics(input, formatted);
+      showToast('Markup formatted and prettified!', 'success');
+    });
+  }
+
+  if (btnMinify) {
+    btnMinify.addEventListener('click', () => {
+      const input = inputRaw.value;
+      if (!input.trim()) {
+        showToast('Please enter or paste markup first', 'info');
+        return;
+      }
+      const minified = minifyMarkup(input);
+      outputCode.value = minified;
+      updateMetrics(input, minified);
+      showToast('Markup minified!', 'success');
+    });
+  }
+
+  if (btnEncode) {
+    btnEncode.addEventListener('click', () => {
+      const input = inputRaw.value;
+      if (!input) {
+        showToast('Please enter text to encode', 'info');
+        return;
+      }
+      const encoded = encodeHtmlEntities(input);
+      outputCode.value = encoded;
+      updateMetrics(input, encoded);
+      showToast('HTML entities encoded!', 'success');
+    });
+  }
+
+  if (btnDecode) {
+    btnDecode.addEventListener('click', () => {
+      const input = inputRaw.value;
+      if (!input) {
+        showToast('Please enter text to decode', 'info');
+        return;
+      }
+      const decoded = decodeHtmlEntities(input);
+      outputCode.value = decoded;
+      updateMetrics(input, decoded);
+      showToast('HTML entities decoded!', 'success');
+    });
+  }
+
+  if (btnClear) {
+    btnClear.addEventListener('click', () => {
+      inputRaw.value = '';
+      outputCode.value = '';
+      if (previewFrame) previewFrame.srcdoc = '';
+      updateMetrics('', '');
+      showToast('Cleared editors', 'info');
+    });
+  }
+
+  if (btnSampleHtml) {
+    btnSampleHtml.addEventListener('click', () => {
+      inputRaw.value = SAMPLE_HTML;
+      const formatted = formatMarkup(SAMPLE_HTML);
+      outputCode.value = formatted;
+      updateMetrics(SAMPLE_HTML, formatted);
+      showToast('Sample HTML loaded!', 'success');
+    });
+  }
+
+  if (btnSampleXml) {
+    btnSampleXml.addEventListener('click', () => {
+      inputRaw.value = SAMPLE_XML;
+      const formatted = formatMarkup(SAMPLE_XML);
+      outputCode.value = formatted;
+      updateMetrics(SAMPLE_XML, formatted);
+      showToast('Sample XML loaded!', 'success');
+    });
+  }
+
+  if (btnCopyHeader) {
+    btnCopyHeader.addEventListener('click', () => {
+      if (!outputCode.value) return;
+      copyToClipboard(outputCode.value, 'Output copied to clipboard!');
+    });
+  }
+
+  if (btnCopyCode) {
+    btnCopyCode.addEventListener('click', () => {
+      if (!outputCode.value) return;
+      copyToClipboard(outputCode.value, 'Code copied to clipboard!');
+    });
+  }
+
+  if (btnDownload) {
+    btnDownload.addEventListener('click', () => {
+      const code = outputCode.value;
+      if (!code) return;
+      const isXml = code.trim().startsWith('<?xml') || code.trim().startsWith('<catalog') || code.trim().startsWith('<root');
+      const ext = isXml ? 'xml' : 'html';
+      const mime = isXml ? 'application/xml' : 'text/html';
+      downloadTextFile(code, `document.${ext}`, mime);
+      showToast(`Downloaded document.${ext}`, 'success');
+    });
+  }
+
+  // Tabs
+  if (tabCode && tabPreview && viewCode && viewPreview) {
+    tabCode.addEventListener('click', () => {
+      tabCode.classList.add('active');
+      tabPreview.classList.remove('active');
+      viewCode.style.display = 'block';
+      viewPreview.style.display = 'none';
+    });
+
+    tabPreview.addEventListener('click', () => {
+      tabPreview.classList.add('active');
+      tabCode.classList.remove('active');
+      viewCode.style.display = 'none';
+      viewPreview.style.display = 'block';
+      if (previewFrame) {
+        previewFrame.srcdoc = outputCode.value || inputRaw.value;
+      }
+    });
+  }
+
+  // Auto-format sample on initial load
+  inputRaw.value = SAMPLE_HTML;
+  const initFormatted = formatMarkup(SAMPLE_HTML);
+  outputCode.value = initFormatted;
+  updateMetrics(SAMPLE_HTML, initFormatted);
+}
+
 function initAllDataTools() {
   initCsvJsonConverter();
   initJsonStudio();
   initJwtDebugger();
   initColorStudio();
+  initHtmlXmlStudio();
   initMarkdownEditor();
   initEncodersDecoders();
   initHashAndUuid();
