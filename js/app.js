@@ -61,6 +61,7 @@ class OmniDocApp {
     this.theme = localStorage.getItem('omnidoc_theme') || 'dark';
     this.accent = localStorage.getItem('omnidoc_accent') || 'indigo';
     this.recentTools = JSON.parse(localStorage.getItem('omnidoc_recent_tools') || '[]');
+    this.favoriteTools = new Set(JSON.parse(localStorage.getItem('omnidoc_favorite_tools') || '["pdf-merge", "img-compress", "text-transform", "data-csv-json", "qr-generator"]'));
     this.paletteSelectedIndex = 0;
     this.filteredPaletteTools = [...TOOLS_REGISTRY];
   }
@@ -69,11 +70,109 @@ class OmniDocApp {
     this.applyTheme(this.theme);
     this.applyAccent(this.accent);
     this.bindNavigation();
+    this.renderFavoritesSection();
+    this.injectNavStarButtons();
     this.bindHeaderActions();
     this.bindCommandPalette();
     this.handleInitialRoute();
 
     // Re-render Lucide icons
+    if (window.lucide) lucide.createIcons();
+  }
+
+  // Favorites Management
+  toggleFavorite(toolId, e) {
+    if (e) e.stopPropagation();
+    const tool = TOOLS_REGISTRY.find(t => t.id === toolId);
+    const title = tool ? tool.title : 'Tool';
+
+    if (this.favoriteTools.has(toolId)) {
+      this.favoriteTools.delete(toolId);
+      showToast(`Removed "${title}" from Favorites`, 'info');
+    } else {
+      this.favoriteTools.add(toolId);
+      showToast(`Pinned "${title}" to Favorites! ⭐`, 'success');
+    }
+
+    localStorage.setItem('omnidoc_favorite_tools', JSON.stringify(Array.from(this.favoriteTools)));
+    this.renderFavoritesSection();
+    this.updateNavStarButtons();
+    if (window.lucide) lucide.createIcons();
+  }
+
+  renderFavoritesSection() {
+    const list = document.getElementById('sidebar-favorites-list');
+    const countBadge = document.getElementById('sidebar-fav-count');
+    if (!list) return;
+
+    list.innerHTML = '';
+    const favArr = Array.from(this.favoriteTools)
+      .map(id => TOOLS_REGISTRY.find(t => t.id === id))
+      .filter(Boolean);
+
+    if (countBadge) countBadge.textContent = favArr.length;
+
+    if (favArr.length === 0) {
+      list.innerHTML = `<li style="padding: 0.5rem 0.75rem; font-size: 0.75rem; color: var(--text-muted); font-style: italic;">Click ⭐ on any tool to pin here</li>`;
+      return;
+    }
+
+    favArr.forEach(tool => {
+      const li = document.createElement('li');
+      li.className = `nav-item ${tool.id === this.activeToolId ? 'active' : ''}`;
+      li.setAttribute('data-tool-target', tool.id);
+      li.innerHTML = `
+        <span class="nav-item-icon"><i data-lucide="${tool.icon}"></i></span>
+        <span>${tool.title}</span>
+        <button class="nav-fav-star-btn active" title="Remove from favorites" data-fav-target="${tool.id}">
+          <i data-lucide="star" style="width: 14px; height: 14px; fill: #f59e0b; color: #f59e0b;"></i>
+        </button>
+      `;
+
+      li.addEventListener('click', (e) => {
+        if (e.target.closest('.nav-fav-star-btn')) return;
+        this.navigateTo(tool.id);
+      });
+
+      const starBtn = li.querySelector('.nav-fav-star-btn');
+      if (starBtn) {
+        starBtn.addEventListener('click', (e) => this.toggleFavorite(tool.id, e));
+      }
+
+      list.appendChild(li);
+    });
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  injectNavStarButtons() {
+    document.querySelectorAll('.sidebar-nav div:not(#sidebar-favorites-section) .nav-item').forEach(item => {
+      const toolId = item.getAttribute('data-tool-target');
+      if (!toolId || item.querySelector('.nav-fav-star-btn')) return;
+
+      const isFav = this.favoriteTools.has(toolId);
+      const starBtn = document.createElement('button');
+      starBtn.className = `nav-fav-star-btn ${isFav ? 'active' : ''}`;
+      starBtn.title = isFav ? 'Remove from favorites' : 'Add to favorites';
+      starBtn.setAttribute('data-fav-target', toolId);
+      starBtn.innerHTML = `<i data-lucide="star" style="width: 14px; height: 14px; ${isFav ? 'fill: #f59e0b; color: #f59e0b;' : ''}"></i>`;
+
+      starBtn.addEventListener('click', (e) => this.toggleFavorite(toolId, e));
+      item.appendChild(starBtn);
+    });
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  updateNavStarButtons() {
+    document.querySelectorAll('.nav-fav-star-btn').forEach(btn => {
+      const toolId = btn.getAttribute('data-fav-target');
+      if (!toolId) return;
+      const isFav = this.favoriteTools.has(toolId);
+      btn.classList.toggle('active', isFav);
+      btn.title = isFav ? 'Remove from favorites' : 'Add to favorites';
+      btn.innerHTML = `<i data-lucide="star" style="width: 14px; height: 14px; ${isFav ? 'fill: #f59e0b; color: #f59e0b;' : ''}"></i>`;
+    });
     if (window.lucide) lucide.createIcons();
   }
 
@@ -380,11 +479,15 @@ class OmniDocApp {
     if (input) {
       input.addEventListener('input', (e) => {
         const q = e.target.value.toLowerCase().trim();
-        this.filteredPaletteTools = TOOLS_REGISTRY.filter(t => 
-          t.title.toLowerCase().includes(q) || 
-          t.category.toLowerCase().includes(q) || 
-          t.desc.toLowerCase().includes(q)
-        );
+        if (q === '#fav' || q === 'fav' || q === 'favorites' || q === 'starred') {
+          this.filteredPaletteTools = TOOLS_REGISTRY.filter(t => this.favoriteTools.has(t.id));
+        } else {
+          this.filteredPaletteTools = TOOLS_REGISTRY.filter(t => 
+            t.title.toLowerCase().includes(q) || 
+            t.category.toLowerCase().includes(q) || 
+            t.desc.toLowerCase().includes(q)
+          );
+        }
         this.paletteSelectedIndex = 0;
         this.renderPaletteResults();
       });
@@ -447,6 +550,7 @@ class OmniDocApp {
     }
 
     this.filteredPaletteTools.forEach((tool, idx) => {
+      const isFav = this.favoriteTools.has(tool.id);
       const item = document.createElement('div');
       item.className = `palette-item ${idx === this.paletteSelectedIndex ? 'selected' : ''}`;
       item.innerHTML = `
@@ -457,12 +561,25 @@ class OmniDocApp {
           <div class="palette-item-title">${tool.title}</div>
           <div class="palette-item-cat">${tool.category} — ${tool.desc}</div>
         </div>
+        <button class="palette-fav-star-btn ${isFav ? 'active' : ''}" title="${isFav ? 'Remove from favorites' : 'Pin to favorites'}">
+          <i data-lucide="star" style="width: 15px; height: 15px; ${isFav ? 'fill: #f59e0b; color: #f59e0b;' : ''}"></i>
+        </button>
       `;
 
-      item.addEventListener('click', () => {
+      item.addEventListener('click', (e) => {
+        if (e.target.closest('.palette-fav-star-btn')) return;
         this.navigateTo(tool.id);
         this.closePalette();
       });
+
+      const starBtn = item.querySelector('.palette-fav-star-btn');
+      if (starBtn) {
+        starBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.toggleFavorite(tool.id);
+          this.renderPaletteResults();
+        });
+      }
 
       list.appendChild(item);
     });
