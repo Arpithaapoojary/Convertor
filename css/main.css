@@ -423,6 +423,51 @@ body.zen-mode .top-header {
   color: var(--primary);
 }
 
+.nav-fav-star-btn {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  padding: 0.2rem;
+  color: var(--text-muted);
+  opacity: 0;
+  cursor: pointer;
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.nav-item:hover .nav-fav-star-btn,
+.nav-fav-star-btn.active {
+  opacity: 1;
+}
+
+.nav-fav-star-btn:hover {
+  transform: scale(1.2);
+  color: #f59e0b;
+}
+
+.palette-fav-star-btn {
+  background: transparent;
+  border: none;
+  padding: 0.35rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.palette-fav-star-btn:hover {
+  transform: scale(1.2);
+  color: #f59e0b;
+}
+
 .sidebar-footer {
   padding: 1rem 1.25rem;
   border-top: 1px solid var(--border-subtle);

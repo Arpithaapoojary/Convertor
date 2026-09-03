@@ -1289,3 +1289,26 @@
   color: var(--text-primary);
 }
 
+/* Watermark & EXIF Studio */
+#watermark-canvas {
+  transition: all var(--transition-normal);
+  background-color: var(--bg-surface);
+  background-image: 
+    linear-gradient(45deg, var(--bg-surface-hover) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--bg-surface-hover) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--bg-surface-hover) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--bg-surface-hover) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+}
+
+@media (max-width: 768px) {
+  .table-th-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .table-matrix-th, .table-matrix-td {
+    min-width: 120px;
+  }
+}
+
