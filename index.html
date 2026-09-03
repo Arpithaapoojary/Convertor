@@ -98,7 +98,7 @@
         <div>
           <div class="nav-category-title">
             <span>Image Studio</span>
-            <span class="nav-category-count">6</span>
+            <span class="nav-category-count">7</span>
           </div>
           <ul class="nav-list">
             <li class="nav-item" data-tool-target="img-compress">
@@ -124,6 +124,10 @@
             <li class="nav-item" data-tool-target="img-svg">
               <span class="nav-item-icon"><i data-lucide="sparkles"></i></span>
               <span>SVG Studio & Optimizer</span>
+            </li>
+            <li class="nav-item" data-tool-target="img-watermark">
+              <span class="nav-item-icon"><i data-lucide="stamp"></i></span>
+              <span>Watermark & Privacy</span>
             </li>
           </ul>
         </div>
@@ -1108,6 +1112,138 @@
                     <option value="2" selected>2x High-DPI</option>
                     <option value="4">4x Ultra-HD</option>
                   </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             11C. IMAGE WATERMARK & PRIVACY SANITIZER
+             ========================================== -->
+        <section class="tool-panel" id="panel-img-watermark">
+          <div class="tool-view-header">
+            <div>
+              <h1 class="tool-view-title"><i data-lucide="stamp" style="color: var(--accent-rose);"></i> Image Watermark &amp; EXIF Privacy Studio</h1>
+              <p class="tool-view-subtitle">Add custom text &amp; tile watermarks, adjust opacity &amp; angles, and strip all EXIF metadata (GPS location, camera serial, date/time) for 100% privacy.</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button class="btn btn-secondary" id="btn-watermark-strip-only">
+                <i data-lucide="shield-check" style="width: 14px;"></i> Strip EXIF Only
+              </button>
+              <button class="btn btn-primary" id="btn-watermark-download">
+                <i data-lucide="download" style="width: 14px;"></i> Download Clean Image
+              </button>
+            </div>
+          </div>
+
+          <!-- Upload Dropzone -->
+          <div class="dropzone" id="watermark-upload-dropzone" style="margin-bottom: 1.5rem;">
+            <i data-lucide="upload-cloud" class="dropzone-icon"></i>
+            <div class="dropzone-title">Drop image to watermark or sanitize</div>
+            <div class="dropzone-desc">Supports PNG, JPG, WebP, GIF, SVG, BMP</div>
+            <input type="file" id="watermark-file-input" class="hidden-file-input" accept="image/*">
+          </div>
+
+          <!-- Two-Column Workspace: Controls (Left) & Canvas Preview (Right) -->
+          <div class="tool-grid-2col" id="watermark-workspace" style="display: none;">
+            <!-- Left: Watermark Options & Metadata Sanitizer -->
+            <div class="glass-card">
+              <div class="card-header">
+                <span class="card-title"><i data-lucide="sliders" style="width: 18px;"></i> Watermark Configuration</span>
+                <span class="badge badge-success" id="watermark-privacy-badge"><i data-lucide="shield" style="width: 12px;"></i> EXIF Scrubbed</span>
+              </div>
+
+              <!-- Watermark Text -->
+              <div class="form-group">
+                <label class="form-label" for="watermark-text-input">Watermark Text</label>
+                <input type="text" id="watermark-text-input" class="form-input" placeholder="e.g. CONFIDENTIAL / © 2026 My Brand" value="CONFIDENTIAL • OMNIDOC STUDIO">
+              </div>
+
+              <!-- Placement Mode / Position -->
+              <div class="form-group">
+                <label class="form-label">Placement Pattern</label>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem;">
+                  <button class="btn btn-secondary btn-sm" data-wm-pos="top-left">Top-Left</button>
+                  <button class="btn btn-secondary btn-sm" data-wm-pos="top-center">Top-Center</button>
+                  <button class="btn btn-secondary btn-sm" data-wm-pos="top-right">Top-Right</button>
+                  <button class="btn btn-secondary btn-sm" data-wm-pos="center">Center</button>
+                  <button class="btn btn-secondary btn-sm" data-wm-pos="bottom-left">Bottom-Left</button>
+                  <button class="btn btn-secondary btn-sm" data-wm-pos="bottom-right">Bottom-Right</button>
+                </div>
+                <button class="btn btn-secondary btn-sm active" id="btn-wm-tile" style="width: 100%; margin-top: 0.4rem;">
+                  <i data-lucide="grid" style="width: 13px;"></i> Repeating Diagonal Tile Grid
+                </button>
+              </div>
+
+              <!-- Sliders: Font Size, Opacity, Rotation -->
+              <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 0.35rem;">
+                    <span>Font Size</span>
+                    <strong id="wm-size-val">32 px</strong>
+                  </div>
+                  <input type="range" id="wm-size-slider" min="12" max="120" value="32" class="form-range" style="width: 100%;">
+                </div>
+
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 0.35rem;">
+                    <span>Opacity Transparency</span>
+                    <strong id="wm-opacity-val">35%</strong>
+                  </div>
+                  <input type="range" id="wm-opacity-slider" min="5" max="100" value="35" class="form-range" style="width: 100%;">
+                </div>
+
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 0.35rem;">
+                    <span>Rotation Angle</span>
+                    <strong id="wm-angle-val">-30°</strong>
+                  </div>
+                  <input type="range" id="wm-angle-slider" min="-90" max="90" value="-30" class="form-range" style="width: 100%;">
+                </div>
+              </div>
+
+              <!-- Color & Export Format -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.25rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" for="wm-color-picker">Text Color</label>
+                  <input type="color" id="wm-color-picker" class="color-picker-input" value="#ffffff" style="width: 100%; height: 38px;">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" for="wm-export-format">Export Format</label>
+                  <select id="wm-export-format" class="form-select">
+                    <option value="image/png" selected>PNG (Lossless)</option>
+                    <option value="image/jpeg">JPG (Clean)</option>
+                    <option value="image/webp">WebP (Modern)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Privacy Sanitizer Info Banner -->
+              <div style="margin-top: 1.25rem; padding: 0.85rem; border-radius: var(--radius-md); background: var(--bg-surface); border: 1px solid var(--border-subtle); display: flex; align-items: flex-start; gap: 0.65rem;">
+                <i data-lucide="shield-check" style="color: var(--accent-emerald); width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px;"></i>
+                <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.45;">
+                  <strong style="color: var(--text-primary);">Privacy Guaranteed:</strong> EXIF metadata (GPS coordinates, camera model, lens serial, date/time timestamps) is automatically stripped on canvas export.
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Live Canvas Preview & Dimension readout -->
+            <div class="glass-card">
+              <div class="card-header">
+                <span class="card-title"><i data-lucide="eye" style="width: 18px;"></i> Live Watermarked Output</span>
+                <span class="badge badge-subtle" id="wm-dim-badge">0 × 0 px</span>
+              </div>
+
+              <div style="background: var(--bg-input); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); padding: 1rem; display: flex; align-items: center; justify-content: center; min-height: 360px; overflow: hidden;">
+                <canvas id="watermark-canvas" style="max-width: 100%; max-height: 380px; object-fit: contain; border-radius: var(--radius-sm); box-shadow: var(--shadow-md);"></canvas>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                <span style="font-size: 0.8rem; color: var(--text-muted);" id="wm-size-readout">0 KB</span>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button class="btn btn-secondary btn-sm" id="btn-watermark-copy-b64"><i data-lucide="copy" style="width: 13px;"></i> Copy Base64</button>
+                  <button class="btn btn-primary btn-sm" id="btn-watermark-download-bottom"><i data-lucide="download" style="width: 13px;"></i> Save Image</button>
                 </div>
               </div>
             </div>

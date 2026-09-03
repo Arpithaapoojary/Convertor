@@ -20,6 +20,7 @@ const TOOLS_REGISTRY = [
   { id: 'img-palette', title: 'Palette & Filters', category: 'Image Studio', icon: 'palette', desc: 'Extract dominant color palettes and apply visual image filters.' },
   { id: 'img-inspect', title: 'Image Inspector & Ratio', category: 'Image Studio', icon: 'maximize', desc: 'Inspect dimensions, aspect ratios, megapixels, and calculate scaling.' },
   { id: 'img-svg', title: 'SVG Studio & Optimizer', category: 'Image Studio', icon: 'sparkles', desc: 'Minify SVG vector code, recolor, scale, and export as crisp PNG/WebP.' },
+  { id: 'img-watermark', title: 'Watermark & Privacy', category: 'Image Studio', icon: 'stamp', desc: 'Add customizable text/tile watermarks and strip all camera/EXIF metadata.' },
 
   // Text & Content
   { id: 'text-transform', title: 'Text Transformer', category: 'Text & Content', icon: 'type', desc: 'Case conversion, line cleaning, sorting, and text formatting.' },

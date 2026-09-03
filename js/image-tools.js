@@ -998,6 +998,296 @@ function initSvgStudio() {
   updateSizeStats(SAMPLE_SVGS.icon);
 }
 
+/* ==========================================================================
+   7. Image Watermark & Privacy Sanitizer Studio Implementation
+   ========================================================================== */
+
+function initImageWatermarkStudio() {
+  const dropzone = document.getElementById('watermark-upload-dropzone');
+  const fileInput = document.getElementById('watermark-file-input');
+  const workspace = document.getElementById('watermark-workspace');
+  const canvas = document.getElementById('watermark-canvas');
+
+  const textInput = document.getElementById('watermark-text-input');
+  const sizeSlider = document.getElementById('wm-size-slider');
+  const sizeVal = document.getElementById('wm-size-val');
+  const opacitySlider = document.getElementById('wm-opacity-slider');
+  const opacityVal = document.getElementById('wm-opacity-val');
+  const angleSlider = document.getElementById('wm-angle-slider');
+  const angleVal = document.getElementById('wm-angle-val');
+  const colorPicker = document.getElementById('wm-color-picker');
+  const formatSelect = document.getElementById('wm-export-format');
+  const btnTile = document.getElementById('btn-wm-tile');
+
+  const dimBadge = document.getElementById('wm-dim-badge');
+  const sizeReadout = document.getElementById('wm-size-readout');
+
+  const btnStripOnly = document.getElementById('btn-watermark-strip-only');
+  const btnDownloadTop = document.getElementById('btn-watermark-download');
+  const btnDownloadBottom = document.getElementById('btn-watermark-download-bottom');
+  const btnCopyB64 = document.getElementById('btn-watermark-copy-b64');
+
+  if (!dropzone || !fileInput || !canvas) return;
+
+  let loadedImage = null;
+  let currentPosition = 'tile'; // 'tile' | 'center' | 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-right'
+  let fileName = 'watermarked-image';
+
+  function createSampleImage() {
+    const sampleCanvas = document.createElement('canvas');
+    sampleCanvas.width = 900;
+    sampleCanvas.height = 600;
+    const ctx = sampleCanvas.getContext('2d');
+
+    // Gradient background
+    const grad = ctx.createLinearGradient(0, 0, 900, 600);
+    grad.addColorStop(0, '#1e1b4b');
+    grad.addColorStop(0.5, '#312e81');
+    grad.addColorStop(1, '#0f172a');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 900, 600);
+
+    // Decorative circle
+    ctx.beginPath();
+    ctx.arc(450, 300, 180, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(99, 102, 241, 0.25)';
+    ctx.fill();
+
+    // Text banner
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = 'bold 36px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('OmniDoc Studio Preview Image', 450, 280);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '20px -apple-system, sans-serif';
+    ctx.fillText('Upload any image to customize watermarks & sanitize EXIF', 450, 330);
+
+    const img = new Image();
+    img.onload = () => {
+      loadedImage = img;
+      if (workspace) workspace.style.display = 'grid';
+      renderWatermarkedCanvas();
+    };
+    img.src = sampleCanvas.toDataURL('image/png');
+  }
+
+  function renderWatermarkedCanvas() {
+    if (!loadedImage) return;
+    const ctx = canvas.getContext('2d');
+    const width = loadedImage.naturalWidth || loadedImage.width || 800;
+    const height = loadedImage.naturalHeight || loadedImage.height || 600;
+
+    canvas.width = width;
+    canvas.height = height;
+
+    // Draw base clean image (scrubs all metadata)
+    ctx.clearRect(0, 0, width, height);
+    ctx.drawImage(loadedImage, 0, 0, width, height);
+
+    const text = textInput ? textInput.value.trim() : '';
+    if (!text) {
+      updateCanvasMetadata(width, height);
+      return;
+    }
+
+    const fontSize = parseInt(sizeSlider ? sizeSlider.value : '32', 10);
+    const opacity = parseInt(opacitySlider ? opacitySlider.value : '35', 10) / 100;
+    const angle = parseInt(angleSlider ? angleSlider.value : '-30', 10);
+    const color = colorPicker ? colorPicker.value : '#ffffff';
+
+    ctx.save();
+    ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    ctx.fillStyle = color;
+    ctx.globalAlpha = opacity;
+    ctx.textBaseline = 'middle';
+
+    const angleRad = (angle * Math.PI) / 180;
+
+    if (currentPosition === 'tile') {
+      const textMetrics = ctx.measureText(text);
+      const textWidth = textMetrics.width;
+      const stepX = textWidth + fontSize * 3.5;
+      const stepY = fontSize * 4.5;
+
+      ctx.translate(width / 2, height / 2);
+      ctx.rotate(angleRad);
+      ctx.translate(-width / 2, -height / 2);
+
+      const diagonal = Math.sqrt(width * width + height * height);
+      const startX = -diagonal;
+      const endX = width + diagonal;
+      const startY = -diagonal;
+      const endY = height + diagonal;
+
+      ctx.textAlign = 'center';
+      for (let y = startY; y < endY; y += stepY) {
+        for (let x = startX; x < endX; x += stepX) {
+          ctx.fillText(text, x, y);
+        }
+      }
+    } else {
+      ctx.textAlign = 'left';
+      let posX = 40;
+      let posY = 40;
+
+      if (currentPosition === 'center') {
+        posX = width / 2;
+        posY = height / 2;
+        ctx.textAlign = 'center';
+      } else if (currentPosition === 'top-left') {
+        posX = 40;
+        posY = 40 + fontSize / 2;
+        ctx.textAlign = 'left';
+      } else if (currentPosition === 'top-center') {
+        posX = width / 2;
+        posY = 40 + fontSize / 2;
+        ctx.textAlign = 'center';
+      } else if (currentPosition === 'top-right') {
+        posX = width - 40;
+        posY = 40 + fontSize / 2;
+        ctx.textAlign = 'right';
+      } else if (currentPosition === 'bottom-left') {
+        posX = 40;
+        posY = height - 40 - fontSize / 2;
+        ctx.textAlign = 'left';
+      } else if (currentPosition === 'bottom-right') {
+        posX = width - 40;
+        posY = height - 40 - fontSize / 2;
+        ctx.textAlign = 'right';
+      }
+
+      ctx.translate(posX, posY);
+      ctx.rotate(angleRad);
+      ctx.fillText(text, 0, 0);
+    }
+
+    ctx.restore();
+    updateCanvasMetadata(width, height);
+  }
+
+  function updateCanvasMetadata(width, height) {
+    if (dimBadge) dimBadge.textContent = `${width} × ${height} px`;
+    const format = formatSelect ? formatSelect.value : 'image/png';
+    canvas.toBlob(blob => {
+      if (blob && sizeReadout) {
+        sizeReadout.textContent = `Clean Output: ${formatBytes(blob.size)}`;
+      }
+    }, format, 0.92);
+  }
+
+  function handleFileSelected(files) {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    if (!file.type.startsWith('image/')) {
+      showToast('Please select a valid image file', 'error');
+      return;
+    }
+
+    fileName = file.name.replace(/\.[^/.]+$/, '');
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        loadedImage = img;
+        if (workspace) workspace.style.display = 'grid';
+        renderWatermarkedCanvas();
+        showToast(`Loaded ${file.name} (${img.width}×${img.height})`, 'success');
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  setupDropzone(dropzone, fileInput, handleFileSelected);
+
+  // Sliders and Inputs listeners
+  if (textInput) textInput.addEventListener('input', debounce(renderWatermarkedCanvas, 50));
+  if (sizeSlider) {
+    sizeSlider.addEventListener('input', (e) => {
+      if (sizeVal) sizeVal.textContent = `${e.target.value} px`;
+      renderWatermarkedCanvas();
+    });
+  }
+  if (opacitySlider) {
+    opacitySlider.addEventListener('input', (e) => {
+      if (opacityVal) opacityVal.textContent = `${e.target.value}%`;
+      renderWatermarkedCanvas();
+    });
+  }
+  if (angleSlider) {
+    angleSlider.addEventListener('input', (e) => {
+      if (angleVal) angleVal.textContent = `${e.target.value}°`;
+      renderWatermarkedCanvas();
+    });
+  }
+  if (colorPicker) colorPicker.addEventListener('input', renderWatermarkedCanvas);
+  if (formatSelect) formatSelect.addEventListener('change', renderWatermarkedCanvas);
+
+  // Position Buttons
+  document.querySelectorAll('[data-wm-pos]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-wm-pos]').forEach(b => b.classList.remove('active'));
+      if (btnTile) btnTile.classList.remove('active');
+      btn.classList.add('active');
+      currentPosition = btn.getAttribute('data-wm-pos');
+      renderWatermarkedCanvas();
+    });
+  });
+
+  if (btnTile) {
+    btnTile.addEventListener('click', () => {
+      document.querySelectorAll('[data-wm-pos]').forEach(b => b.classList.remove('active'));
+      btnTile.classList.add('active');
+      currentPosition = 'tile';
+      renderWatermarkedCanvas();
+    });
+  }
+
+  // Export / Download handlers
+  function downloadCanvasImage() {
+    if (!loadedImage) {
+      showToast('No image loaded', 'info');
+      return;
+    }
+    const format = formatSelect ? formatSelect.value : 'image/png';
+    const ext = format === 'image/jpeg' ? 'jpg' : format === 'image/webp' ? 'webp' : 'png';
+    canvas.toBlob(blob => {
+      if (blob) {
+        downloadBlob(blob, `${fileName}-watermarked.${ext}`);
+        showToast(`Downloaded clean sanitized ${fileName}-watermarked.${ext}`, 'success');
+      }
+    }, format, 0.92);
+  }
+
+  if (btnDownloadTop) btnDownloadTop.addEventListener('click', downloadCanvasImage);
+  if (btnDownloadBottom) btnDownloadBottom.addEventListener('click', downloadCanvasImage);
+
+  if (btnStripOnly) {
+    btnStripOnly.addEventListener('click', () => {
+      if (!loadedImage) {
+        showToast('Please upload an image first', 'info');
+        return;
+      }
+      if (textInput) textInput.value = '';
+      renderWatermarkedCanvas();
+      downloadCanvasImage();
+      showToast('Stripped all EXIF & device metadata!', 'success');
+    });
+  }
+
+  if (btnCopyB64) {
+    btnCopyB64.addEventListener('click', () => {
+      const format = formatSelect ? formatSelect.value : 'image/png';
+      const dataUri = canvas.toDataURL(format, 0.92);
+      copyToClipboard(dataUri, 'Image Base64 Data URI copied!');
+    });
+  }
+
+  // Initialize sample
+  createSampleImage();
+}
+
 // Master Image Tools Init
 function initAllImageTools() {
   initImageCompressor();
@@ -1006,6 +1296,7 @@ function initAllImageTools() {
   initPaletteAndFilters();
   initImageInspector();
   initSvgStudio();
+  initImageWatermarkStudio();
 }
 
 window.addEventListener('DOMContentLoaded', initAllImageTools);
