@@ -132,7 +132,7 @@
         <div>
           <div class="nav-category-title">
             <span>Text & Content</span>
-            <span class="nav-category-count">4</span>
+            <span class="nav-category-count">5</span>
           </div>
           <ul class="nav-list">
             <li class="nav-item" data-tool-target="text-transform">
@@ -150,6 +150,10 @@
             <li class="nav-item" data-tool-target="text-regex">
               <span class="nav-item-icon"><i data-lucide="code-2"></i></span>
               <span>Regex Studio</span>
+            </li>
+            <li class="nav-item" data-tool-target="text-table">
+              <span class="nav-item-icon"><i data-lucide="table-2"></i></span>
+              <span>Markdown Table Studio</span>
             </li>
           </ul>
         </div>
@@ -1476,6 +1480,100 @@
                     <button class="btn btn-secondary btn-sm" id="btn-copy-regex-code" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;">Copy Snippet</button>
                   </div>
                   <textarea id="regex-code-output" class="form-textarea" style="min-height: 140px; font-family: var(--font-mono); font-size: 0.8rem;" readonly></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             13C. MARKDOWN TABLE STUDIO & CSV CONVERTER
+             ========================================== -->
+        <section class="tool-panel" id="panel-text-table">
+          <div class="tool-view-header">
+            <div>
+              <h1 class="tool-view-title"><i data-lucide="table-2" style="color: var(--primary);"></i> Markdown Table Studio</h1>
+              <p class="tool-view-subtitle">Interactive visual grid builder with dynamic columns, alignments, CSV/TSV data import, and multi-format export (Markdown, HTML &lt;table&gt;, JSON, CSV).</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button class="btn btn-secondary" id="btn-table-sample">
+                <i data-lucide="sparkles" style="width: 14px;"></i> Load Sample
+              </button>
+              <button class="btn btn-secondary" id="btn-table-import-modal">
+                <i data-lucide="file-input" style="width: 14px;"></i> Import CSV / TSV
+              </button>
+              <button class="btn btn-primary" id="btn-copy-table-md">
+                <i data-lucide="copy" style="width: 14px;"></i> Copy Markdown
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Actions & Dimension Controls -->
+          <div class="glass-card" style="margin-bottom: 1.5rem; padding: 1rem 1.25rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+              <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);">Table Grid:</span>
+                <button class="btn btn-secondary btn-sm" id="btn-table-add-row"><i data-lucide="plus" style="width: 13px;"></i> Add Row</button>
+                <button class="btn btn-secondary btn-sm" id="btn-table-remove-row"><i data-lucide="minus" style="width: 13px;"></i> Remove Row</button>
+                <button class="btn btn-secondary btn-sm" id="btn-table-add-col"><i data-lucide="plus" style="width: 13px;"></i> Add Column</button>
+                <button class="btn btn-secondary btn-sm" id="btn-table-remove-col"><i data-lucide="minus" style="width: 13px;"></i> Remove Column</button>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <span class="badge badge-subtle" id="table-dimensions-badge">3 cols × 4 rows</span>
+                <button class="btn btn-secondary btn-sm" id="btn-table-clear" style="color: var(--accent-rose);"><i data-lucide="trash-2" style="width: 13px;"></i> Clear</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- CSV/TSV Import Tray (Hidden by default, expandable) -->
+          <div id="table-import-tray" class="glass-card" style="display: none; margin-bottom: 1.5rem; border-color: var(--primary);">
+            <div class="card-header">
+              <span class="card-title"><i data-lucide="file-spreadsheet" style="width: 18px;"></i> Import CSV / Tab-Separated Data</span>
+              <button class="icon-action-btn" id="btn-close-table-import"><i data-lucide="x" style="width: 16px;"></i></button>
+            </div>
+            <textarea id="table-import-raw" class="form-textarea" style="min-height: 100px; font-family: var(--font-mono); font-size: 0.82rem;" placeholder="Paste comma, semicolon or tab-delimited text here... e.g.:
+Product, Category, Price, Rating
+OmniDoc Studio, Productivity, Free, 5.0
+PDF Splitter, Utility, Free, 4.9"></textarea>
+            <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.75rem;">
+              <button class="btn btn-secondary btn-sm" id="btn-table-import-cancel">Cancel</button>
+              <button class="btn btn-primary btn-sm" id="btn-table-import-parse"><i data-lucide="check" style="width: 14px;"></i> Parse into Grid</button>
+            </div>
+          </div>
+
+          <!-- Two-Column Workspace: Matrix Editor (Left) & Code Exporter (Right) -->
+          <div class="tool-grid-2col">
+            <!-- Left: Interactive Editable Grid -->
+            <div class="glass-card">
+              <div class="card-header">
+                <span class="card-title"><i data-lucide="edit-3" style="width: 18px;"></i> Interactive Visual Grid</span>
+                <span style="font-size: 0.78rem; color: var(--text-muted);">Click any cell or alignment button to edit</span>
+              </div>
+              <div id="table-studio-grid-wrap" style="overflow-x: auto; max-height: 480px; padding: 0.25rem;"></div>
+            </div>
+
+            <!-- Right: Multi-Format Code Output & Tabs -->
+            <div class="glass-card">
+              <div class="card-header">
+                <span class="card-title"><i data-lucide="code" style="width: 18px;"></i> Exported Table Code</span>
+                <div style="display: flex; gap: 0.3rem;">
+                  <button class="btn btn-secondary btn-sm active" id="btn-table-tab-md">Markdown</button>
+                  <button class="btn btn-secondary btn-sm" id="btn-table-tab-html">HTML</button>
+                  <button class="btn btn-secondary btn-sm" id="btn-table-tab-json">JSON</button>
+                  <button class="btn btn-secondary btn-sm" id="btn-table-tab-csv">CSV</button>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 0.75rem;">
+                <textarea id="table-output-code" class="form-textarea" style="min-height: 290px; font-family: var(--font-mono); font-size: 0.82rem; white-space: pre;" readonly></textarea>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <span style="font-size: 0.78rem; color: var(--text-muted);" id="table-code-stats">Gfm Markdown compliant</span>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button class="btn btn-secondary btn-sm" id="btn-table-download-code"><i data-lucide="download" style="width: 13px;"></i> Download</button>
+                  <button class="btn btn-primary btn-sm" id="btn-table-copy-active-code"><i data-lucide="copy" style="width: 13px;"></i> Copy Code</button>
                 </div>
               </div>
             </div>

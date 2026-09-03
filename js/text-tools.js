@@ -850,11 +850,448 @@ function initRegexStudio() {
   updateRegexEngine();
 }
 
+/* ==========================================================================
+   5. Markdown Table Studio & CSV Converter Implementation
+   ========================================================================== */
+
+function initMarkdownTableStudio() {
+  const gridWrap = document.getElementById('table-studio-grid-wrap');
+  const codeOutput = document.getElementById('table-output-code');
+  const dimBadge = document.getElementById('table-dimensions-badge');
+  const codeStats = document.getElementById('table-code-stats');
+
+  const btnAddRow = document.getElementById('btn-table-add-row');
+  const btnRemoveRow = document.getElementById('btn-table-remove-row');
+  const btnAddCol = document.getElementById('btn-table-add-col');
+  const btnRemoveCol = document.getElementById('btn-table-remove-col');
+  const btnClear = document.getElementById('btn-table-clear');
+  const btnSample = document.getElementById('btn-table-sample');
+
+  const btnImportModal = document.getElementById('btn-table-import-modal');
+  const importTray = document.getElementById('table-import-tray');
+  const btnCloseImport = document.getElementById('btn-close-table-import');
+  const btnCancelImport = document.getElementById('btn-table-import-cancel');
+  const btnParseImport = document.getElementById('btn-table-import-parse');
+  const importTextarea = document.getElementById('table-import-raw');
+
+  const tabMd = document.getElementById('btn-table-tab-md');
+  const tabHtml = document.getElementById('btn-table-tab-html');
+  const tabJson = document.getElementById('btn-table-tab-json');
+  const tabCsv = document.getElementById('btn-table-tab-csv');
+
+  const btnCopyActive = document.getElementById('btn-table-copy-active-code');
+  const btnCopyMdTop = document.getElementById('btn-copy-table-md');
+  const btnDownloadCode = document.getElementById('btn-table-download-code');
+
+  if (!gridWrap || !codeOutput) return;
+
+  // Table State
+  let headers = ['Feature', 'OmniDoc Studio', 'Cloud Tools', 'Status'];
+  let alignments = ['left', 'center', 'center', 'center']; // 'left' | 'center' | 'right'
+  let rows = [
+    ['Client Privacy', '100% Local Browser', 'Server Uploaded', 'Active'],
+    ['Processing Speed', 'Instant Client-Side', 'Network Latency', 'Fast'],
+    ['Tool Count', '30+ All-in-One', 'Fragmented Sites', 'Ready'],
+    ['Security / EXIF', 'Zero Data Leak', 'Third-Party Risk', 'Protected']
+  ];
+  let activeTab = 'md'; // 'md' | 'html' | 'json' | 'csv'
+
+  function updateDimensionsBadge() {
+    if (dimBadge) {
+      dimBadge.textContent = `${headers.length} cols × ${rows.length} rows`;
+    }
+  }
+
+  function renderGrid() {
+    gridWrap.innerHTML = '';
+    const table = document.createElement('table');
+    table.className = 'table-editor-matrix';
+
+    // THEAD
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+
+    headers.forEach((h, colIdx) => {
+      const th = document.createElement('th');
+      th.className = 'table-matrix-th';
+
+      const alignBtn = document.createElement('button');
+      alignBtn.className = 'col-align-pill';
+      alignBtn.title = `Alignment: ${alignments[colIdx]} (Click to toggle)`;
+      const alignIcons = { left: 'align-left', center: 'align-center', right: 'align-right' };
+      alignBtn.innerHTML = `<i data-lucide="${alignIcons[alignments[colIdx]] || 'align-left'}" style="width: 12px; height: 12px;"></i>`;
+      alignBtn.addEventListener('click', () => {
+        const cycle = { left: 'center', center: 'right', right: 'left' };
+        alignments[colIdx] = cycle[alignments[colIdx]] || 'left';
+        renderGrid();
+        generateOutput();
+      });
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'table-cell-input table-cell-header';
+      input.value = h;
+      input.placeholder = `Col ${colIdx + 1}`;
+      input.addEventListener('input', (e) => {
+        headers[colIdx] = e.target.value;
+        generateOutput();
+      });
+
+      const thWrap = document.createElement('div');
+      thWrap.className = 'table-th-wrap';
+      thWrap.appendChild(alignBtn);
+      thWrap.appendChild(input);
+
+      th.appendChild(thWrap);
+      headerRow.appendChild(th);
+    });
+
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // TBODY
+    const tbody = document.createElement('tbody');
+    rows.forEach((row, rowIdx) => {
+      const tr = document.createElement('tr');
+
+      headers.forEach((_, colIdx) => {
+        const td = document.createElement('td');
+        td.className = 'table-matrix-td';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'table-cell-input';
+        input.value = row[colIdx] || '';
+        input.placeholder = `Row ${rowIdx + 1}, Col ${colIdx + 1}`;
+        input.style.textAlign = alignments[colIdx] || 'left';
+        input.addEventListener('input', (e) => {
+          if (!rows[rowIdx]) rows[rowIdx] = [];
+          rows[rowIdx][colIdx] = e.target.value;
+          generateOutput();
+        });
+
+        td.appendChild(input);
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    });
+
+    table.appendChild(tbody);
+    gridWrap.appendChild(table);
+
+    if (window.lucide) lucide.createIcons();
+    updateDimensionsBadge();
+  }
+
+  function generateMarkdown() {
+    if (headers.length === 0) return '';
+    const colCount = headers.length;
+
+    // Determine max column lengths for clean padding
+    const colWidths = headers.map((h, colIdx) => {
+      let maxLen = (h || '').length;
+      rows.forEach(r => {
+        const val = (r[colIdx] || '');
+        if (val.length > maxLen) maxLen = val.length;
+      });
+      return Math.max(maxLen, 3); // min width 3
+    });
+
+    // Header Row
+    const headerLine = '| ' + headers.map((h, i) => (h || '').padEnd(colWidths[i], ' ')).join(' | ') + ' |';
+
+    // Separator line
+    const sepLine = '| ' + alignments.map((a, i) => {
+      const len = colWidths[i];
+      if (a === 'center') return ':' + '-'.repeat(Math.max(len - 2, 1)) + ':';
+      if (a === 'right') return '-'.repeat(Math.max(len - 1, 2)) + ':';
+      return ':' + '-'.repeat(Math.max(len - 1, 2));
+    }).join(' | ') + ' |';
+
+    // Data rows
+    const dataLines = rows.map(row => {
+      return '| ' + headers.map((_, i) => {
+        const val = row[i] || '';
+        const len = colWidths[i];
+        if (alignments[i] === 'right') return val.padStart(len, ' ');
+        if (alignments[i] === 'center') {
+          const totalPad = len - val.length;
+          const leftPad = Math.floor(totalPad / 2);
+          const rightPad = totalPad - leftPad;
+          return ' '.repeat(leftPad) + val + ' '.repeat(rightPad);
+        }
+        return val.padEnd(len, ' ');
+      }).join(' | ') + ' |';
+    });
+
+    return [headerLine, sepLine, ...dataLines].join('\n');
+  }
+
+  function generateHTML() {
+    let out = '<table class="table">\n  <thead>\n    <tr>\n';
+    headers.forEach((h, i) => {
+      const alignAttr = alignments[i] !== 'left' ? ` align="${alignments[i]}"` : '';
+      out += `      <th${alignAttr}>${escapeHtmlText(h)}</th>\n`;
+    });
+    out += '    </tr>\n  </thead>\n  <tbody>\n';
+
+    rows.forEach(r => {
+      out += '    <tr>\n';
+      headers.forEach((_, i) => {
+        const val = r[i] || '';
+        const alignAttr = alignments[i] !== 'left' ? ` align="${alignments[i]}"` : '';
+        out += `      <td${alignAttr}>${escapeHtmlText(val)}</td>\n`;
+      });
+      out += '    </tr>\n';
+    });
+    out += '  </tbody>\n</table>';
+    return out;
+  }
+
+  function generateJSON() {
+    const arr = rows.map(row => {
+      const obj = {};
+      headers.forEach((h, i) => {
+        const key = h.trim() || `column_${i + 1}`;
+        obj[key] = row[i] || '';
+      });
+      return obj;
+    });
+    return JSON.stringify(arr, null, 2);
+  }
+
+  function generateCSV() {
+    const escapeCsv = (str) => {
+      const s = str || '';
+      if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+        return `"${s.replace(/"/g, '""')}"`;
+      }
+      return s;
+    };
+
+    const headerLine = headers.map(escapeCsv).join(',');
+    const dataLines = rows.map(r => headers.map((_, i) => escapeCsv(r[i] || '')).join(','));
+    return [headerLine, ...dataLines].join('\n');
+  }
+
+  function escapeHtmlText(str) {
+    return (str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function generateOutput() {
+    let code = '';
+    if (activeTab === 'md') {
+      code = generateMarkdown();
+      if (codeStats) codeStats.textContent = 'GitHub Flavored Markdown format';
+    } else if (activeTab === 'html') {
+      code = generateHTML();
+      if (codeStats) codeStats.textContent = 'Semantic HTML5 <table> structure';
+    } else if (activeTab === 'json') {
+      code = generateJSON();
+      if (codeStats) codeStats.textContent = 'Standard JSON Array of Objects';
+    } else if (activeTab === 'csv') {
+      code = generateCSV();
+      if (codeStats) codeStats.textContent = 'RFC 4180 standard Comma-Separated Values';
+    }
+    codeOutput.value = code;
+  }
+
+  // Row / Col manipulation
+  if (btnAddRow) {
+    btnAddRow.addEventListener('click', () => {
+      rows.push(headers.map(() => ''));
+      renderGrid();
+      generateOutput();
+    });
+  }
+
+  if (btnRemoveRow) {
+    btnRemoveRow.addEventListener('click', () => {
+      if (rows.length > 1) {
+        rows.pop();
+        renderGrid();
+        generateOutput();
+      } else {
+        showToast('Cannot remove last row', 'info');
+      }
+    });
+  }
+
+  if (btnAddCol) {
+    btnAddCol.addEventListener('click', () => {
+      const colNum = headers.length + 1;
+      headers.push(`Column ${colNum}`);
+      alignments.push('left');
+      rows.forEach(r => r.push(''));
+      renderGrid();
+      generateOutput();
+    });
+  }
+
+  if (btnRemoveCol) {
+    btnRemoveCol.addEventListener('click', () => {
+      if (headers.length > 1) {
+        headers.pop();
+        alignments.pop();
+        rows.forEach(r => r.pop());
+        renderGrid();
+        generateOutput();
+      } else {
+        showToast('Cannot remove last column', 'info');
+      }
+    });
+  }
+
+  if (btnClear) {
+    btnClear.addEventListener('click', () => {
+      headers = ['Col 1', 'Col 2', 'Col 3'];
+      alignments = ['left', 'left', 'left'];
+      rows = [
+        ['', '', ''],
+        ['', '', '']
+      ];
+      renderGrid();
+      generateOutput();
+      showToast('Table cleared', 'info');
+    });
+  }
+
+  if (btnSample) {
+    btnSample.addEventListener('click', () => {
+      headers = ['Feature', 'OmniDoc Studio', 'Cloud Tools', 'Status'];
+      alignments = ['left', 'center', 'center', 'center'];
+      rows = [
+        ['Client Privacy', '100% Local Browser', 'Server Uploaded', 'Active'],
+        ['Processing Speed', 'Instant Client-Side', 'Network Latency', 'Fast'],
+        ['Tool Count', '30+ All-in-One', 'Fragmented Sites', 'Ready'],
+        ['Security / EXIF', 'Zero Data Leak', 'Third-Party Risk', 'Protected']
+      ];
+      renderGrid();
+      generateOutput();
+      showToast('Sample comparison table loaded!', 'success');
+    });
+  }
+
+  // Import Tray
+  if (btnImportModal && importTray) {
+    btnImportModal.addEventListener('click', () => {
+      importTray.style.display = 'block';
+      if (importTextarea) importTextarea.focus();
+    });
+  }
+  if (btnCloseImport && importTray) {
+    btnCloseImport.addEventListener('click', () => {
+      importTray.style.display = 'none';
+    });
+  }
+  if (btnCancelImport && importTray) {
+    btnCancelImport.addEventListener('click', () => {
+      importTray.style.display = 'none';
+    });
+  }
+  if (btnParseImport && importTray && importTextarea) {
+    btnParseImport.addEventListener('click', () => {
+      const raw = importTextarea.value.trim();
+      if (!raw) {
+        showToast('Please paste CSV or TSV data first', 'error');
+        return;
+      }
+
+      // Split lines
+      const lines = raw.split(/\r?\n/).filter(l => l.trim().length > 0);
+      if (lines.length === 0) return;
+
+      // Detect delimiter: comma, tab, semicolon, pipe
+      const firstLine = lines[0];
+      let delimiter = ',';
+      if (firstLine.includes('\t')) delimiter = '\t';
+      else if (firstLine.includes(';') && !firstLine.includes(',')) delimiter = ';';
+      else if (firstLine.includes('|')) delimiter = '|';
+
+      const parsedLines = lines.map(line => {
+        if (delimiter === '|') {
+          return line.split('|').map(s => s.trim()).filter((s, idx, arr) => idx > 0 && idx < arr.length - 1 || arr.length <= 2);
+        }
+        return line.split(delimiter).map(s => s.trim().replace(/^["']|["']$/g, ''));
+      }).filter(arr => arr.length > 0);
+
+      if (parsedLines.length > 0) {
+        headers = parsedLines[0];
+        alignments = headers.map(() => 'left');
+        rows = parsedLines.slice(1);
+        if (rows.length === 0) {
+          rows = [headers.map(() => '')];
+        }
+        renderGrid();
+        generateOutput();
+        importTray.style.display = 'none';
+        showToast(`Successfully imported ${headers.length} columns and ${rows.length} rows!`, 'success');
+      }
+    });
+  }
+
+  // Tabs
+  function setTab(tabName) {
+    activeTab = tabName;
+    [tabMd, tabHtml, tabJson, tabCsv].forEach(btn => {
+      if (btn) btn.classList.remove('active');
+    });
+    if (tabName === 'md' && tabMd) tabMd.classList.add('active');
+    if (tabName === 'html' && tabHtml) tabHtml.classList.add('active');
+    if (tabName === 'json' && tabJson) tabJson.classList.add('active');
+    if (tabName === 'csv' && tabCsv) tabCsv.classList.add('active');
+    generateOutput();
+  }
+
+  if (tabMd) tabMd.addEventListener('click', () => setTab('md'));
+  if (tabHtml) tabHtml.addEventListener('click', () => setTab('html'));
+  if (tabJson) tabJson.addEventListener('click', () => setTab('json'));
+  if (tabCsv) tabCsv.addEventListener('click', () => setTab('csv'));
+
+  // Copy & Download Actions
+  if (btnCopyActive) {
+    btnCopyActive.addEventListener('click', () => {
+      if (!codeOutput.value) return;
+      copyToClipboard(codeOutput.value, `Copied ${activeTab.toUpperCase()} table code!`);
+    });
+  }
+
+  if (btnCopyMdTop) {
+    btnCopyMdTop.addEventListener('click', () => {
+      const md = generateMarkdown();
+      if (!md) return;
+      copyToClipboard(md, 'Markdown table copied to clipboard!');
+    });
+  }
+
+  if (btnDownloadCode) {
+    btnDownloadCode.addEventListener('click', () => {
+      const code = codeOutput.value;
+      if (!code) return;
+      const extensions = { md: 'md', html: 'html', json: 'json', csv: 'csv' };
+      const mimeTypes = { md: 'text/markdown', html: 'text/html', json: 'application/json', csv: 'text/csv' };
+      const ext = extensions[activeTab] || 'txt';
+      downloadTextFile(code, `table-export.${ext}`, mimeTypes[activeTab] || 'text/plain');
+      showToast(`Downloaded table-export.${ext}`, 'success');
+    });
+  }
+
+  // Initial render
+  renderGrid();
+  generateOutput();
+}
+
 function initAllTextTools() {
   initTextTransformer();
   initTextDiff();
   initPasswordGenerator();
   initRegexStudio();
+  initMarkdownTableStudio();
 }
 
 window.addEventListener('DOMContentLoaded', initAllTextTools);

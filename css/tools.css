@@ -1194,3 +1194,98 @@
   transition: transform 0.2s ease;
 }
 
+/* ==========================================================================
+   Markdown Table Studio
+   ========================================================================== */
+
+.table-editor-matrix {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  background: var(--bg-surface-elevated);
+}
+
+.table-matrix-th {
+  background: var(--bg-surface-hover);
+  padding: 0.4rem 0.5rem;
+  border-bottom: 2px solid var(--border-medium);
+  border-right: 1px solid var(--border-subtle);
+}
+
+.table-matrix-th:last-child {
+  border-right: none;
+}
+
+.table-th-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.col-align-pill {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.col-align-pill:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.table-matrix-td {
+  padding: 0.25rem 0.35rem;
+  border-bottom: 1px solid var(--border-subtle);
+  border-right: 1px solid var(--border-subtle);
+}
+
+.table-matrix-td:last-child {
+  border-right: none;
+}
+
+.table-editor-matrix tbody tr:last-child .table-matrix-td {
+  border-bottom: none;
+}
+
+.table-cell-input {
+  width: 100%;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.5rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+}
+
+.table-cell-input:hover {
+  background: var(--bg-input);
+  border-color: var(--border-subtle);
+}
+
+.table-cell-input:focus {
+  outline: none;
+  background: var(--bg-input);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-glow);
+}
+
+.table-cell-header {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+

@@ -26,6 +26,7 @@ const TOOLS_REGISTRY = [
   { id: 'text-diff', title: 'Text Compare & Diff', category: 'Text & Content', icon: 'git-compare', desc: 'Find differences between two texts side-by-side.' },
   { id: 'text-password', title: 'Password Generator', category: 'Text & Content', icon: 'lock', desc: 'Generate secure random passwords and passphrases with entropy score.' },
   { id: 'text-regex', title: 'Regex Tester & Matcher', category: 'Text & Content', icon: 'code-2', desc: 'Interactive regular expression playground with live match highlights and capture groups.' },
+  { id: 'text-table', title: 'Markdown Table Studio', category: 'Text & Content', icon: 'table-2', desc: 'Visual markdown table builder, CSV importer, and multi-format table code generator.' },
 
   // Data & Code
   { id: 'data-csv-json', title: 'CSV ↔ JSON', category: 'Data & Format', icon: 'table', desc: 'Convert CSV to JSON and JSON to CSV with live table preview.' },
