@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OmniDoc Studio — All-in-One Document, Image & File Suite</title>
+  <title>DocSuite — Document Utility Suite</title>
   <meta name="description" content="Ultra-fast, 100% client-side document, PDF, image, text, and data utility suite. Merge & split PDFs, compress images, convert formats, diff text, generate QR codes and more.">
   <meta name="keywords" content="pdf converter, merge pdf, split pdf, image compressor, image converter, text utilities, diff viewer, csv to json, qr generator">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path fill=%22none%22 stroke=%22%230f172a%22 stroke-width=%221.5%22 d=%22M6 2h7l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z%22/></svg>">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,8 +50,8 @@
           <div class="brand-icon">
             <i data-lucide="zap" style="width: 20px; height: 20px;"></i>
           </div>
-          <span class="brand-text">OmniDoc</span>
-          <span class="brand-badge">STUDIO</span>
+          <span class="brand-text">DocSuite</span>
+          <span class="brand-badge">SUITE</span>
         </div>
       </div>
 
@@ -69,141 +69,7 @@
 
         <!-- PDF Suite -->
         <div>
-          <div class="nav-category-title">
-            <span>PDF Suite</span>
-            <span class="nav-category-count">7</span>
-          </div>
-          <ul class="nav-list">
-            <li class="nav-item active" data-tool-target="pdf-merge">
-              <span class="nav-item-icon"><i data-lucide="layers"></i></span>
-              <span>Merge PDF</span>
-            </li>
-            <li class="nav-item" data-tool-target="pdf-split">
-              <span class="nav-item-icon"><i data-lucide="split"></i></span>
-              <span>Split PDF</span>
-            </li>
-            <li class="nav-item" data-tool-target="img-to-pdf">
-              <span class="nav-item-icon"><i data-lucide="file-image"></i></span>
-              <span>Images to PDF</span>
-            </li>
-            <li class="nav-item" data-tool-target="text-to-pdf">
-              <span class="nav-item-icon"><i data-lucide="file-text"></i></span>
-              <span>Text to PDF</span>
-            </li>
-            <li class="nav-item" data-tool-target="pdf-to-img">
-              <span class="nav-item-icon"><i data-lucide="image"></i></span>
-              <span>PDF to Images</span>
-            </li>
-            <li class="nav-item" data-tool-target="pdf-rotate">
-              <span class="nav-item-icon"><i data-lucide="rotate-cw"></i></span>
-              <span>Rotate PDF</span>
-            </li>
-            <li class="nav-item" data-tool-target="pdf-metadata">
-              <span class="nav-item-icon"><i data-lucide="file-search"></i></span>
-              <span>PDF Metadata</span>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Image Studio -->
-        <div>
-          <div class="nav-category-title">
-            <span>Image Studio</span>
-            <span class="nav-category-count">7</span>
-          </div>
-          <ul class="nav-list">
-            <li class="nav-item" data-tool-target="img-compress">
-              <span class="nav-item-icon"><i data-lucide="minimize-2"></i></span>
-              <span>Compress Image</span>
-            </li>
-            <li class="nav-item" data-tool-target="img-convert">
-              <span class="nav-item-icon"><i data-lucide="refresh-cw"></i></span>
-              <span>Format Converter</span>
-            </li>
-            <li class="nav-item" data-tool-target="img-b64">
-              <span class="nav-item-icon"><i data-lucide="binary"></i></span>
-              <span>Image ↔ Base64</span>
-            </li>
-            <li class="nav-item" data-tool-target="img-palette">
-              <span class="nav-item-icon"><i data-lucide="palette"></i></span>
-              <span>Palette & Filters</span>
-            </li>
-            <li class="nav-item" data-tool-target="img-inspect">
-              <span class="nav-item-icon"><i data-lucide="maximize"></i></span>
-              <span>Image Inspector</span>
-            </li>
-            <li class="nav-item" data-tool-target="img-svg">
-              <span class="nav-item-icon"><i data-lucide="sparkles"></i></span>
-              <span>SVG Studio & Optimizer</span>
-            </li>
-            <li class="nav-item" data-tool-target="img-watermark">
-              <span class="nav-item-icon"><i data-lucide="stamp"></i></span>
-              <span>Watermark & Privacy</span>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Text & Content -->
-        <div>
-          <div class="nav-category-title">
-            <span>Text & Content</span>
-            <span class="nav-category-count">5</span>
-          </div>
-          <ul class="nav-list">
-            <li class="nav-item" data-tool-target="text-transform">
-              <span class="nav-item-icon"><i data-lucide="type"></i></span>
-              <span>Text Transformer</span>
-            </li>
-            <li class="nav-item" data-tool-target="text-diff">
-              <span class="nav-item-icon"><i data-lucide="git-compare"></i></span>
-              <span>Text Diff & Compare</span>
-            </li>
-            <li class="nav-item" data-tool-target="text-password">
-              <span class="nav-item-icon"><i data-lucide="lock"></i></span>
-              <span>Password Generator</span>
-            </li>
-            <li class="nav-item" data-tool-target="text-regex">
-              <span class="nav-item-icon"><i data-lucide="code-2"></i></span>
-              <span>Regex Studio</span>
-            </li>
-            <li class="nav-item" data-tool-target="text-table">
-              <span class="nav-item-icon"><i data-lucide="table-2"></i></span>
-              <span>Markdown Table Studio</span>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Data & Code -->
-        <div>
-          <div class="nav-category-title">
-            <span>Data & Code</span>
-            <span class="nav-category-count">9</span>
-          </div>
-          <ul class="nav-list">
-            <li class="nav-item" data-tool-target="data-csv-json">
-              <span class="nav-item-icon"><i data-lucide="table"></i></span>
-              <span>CSV ↔ JSON</span>
-            </li>
-            <li class="nav-item" data-tool-target="data-color">
-              <span class="nav-item-icon"><i data-lucide="palette"></i></span>
-              <span>Color Studio</span>
-            </li>
-            <li class="nav-item" data-tool-target="data-json-beautifier">
-              <span class="nav-item-icon"><i data-lucide="braces"></i></span>
-              <span>JSON Studio</span>
-            </li>
-            <li class="nav-item" data-tool-target="data-jwt">
-              <span class="nav-item-icon"><i data-lucide="key-round"></i></span>
-              <span>JWT Inspector</span>
-            </li>
-            <li class="nav-item" data-tool-target="data-html-xml">
-              <span class="nav-item-icon"><i data-lucide="file-code-2"></i></span>
-              <span>HTML & XML Studio</span>
-            </li>
-            <li class="nav-item" data-tool-target="data-markdown">
-              <span class="nav-item-icon"><i data-lucide="file-code"></i></span>
-              <span>Markdown Editor</span>
-            </li>
+          <!-- Other tool categories removed for a focused main-only UI -->
             <li class="nav-item" data-tool-target="data-encode">
               <span class="nav-item-icon"><i data-lucide="shield"></i></span>
               <span>Base64 & URL Codec</span>

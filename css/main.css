@@ -211,6 +211,24 @@ button {
   z-index: 1;
 }
 
+/* Focused converters-only view: hide all tool panels except core converters */
+.tool-panel {
+  display: none;
+}
+.tool-panel#panel-pdf-merge,
+.tool-panel#panel-pdf-split,
+.tool-panel#panel-img-to-pdf,
+.tool-panel#panel-text-to-pdf,
+.tool-panel#panel-pdf-to-img,
+.tool-panel#panel-img-compress,
+.tool-panel#panel-img-convert {
+  display: block;
+}
+
+/* Sidebar: keep only the PDF Merge nav item visible when present */
+.sidebar .nav-category-title, .sidebar .nav-list { display: none; }
+.sidebar .nav-list .nav-item.active { display: flex; }
+
 /* Sidebar Styles */
 .sidebar {
   width: var(--sidebar-width);
