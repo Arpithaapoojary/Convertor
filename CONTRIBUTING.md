@@ -9,15 +9,17 @@ Please maintain a respectful, welcoming, and inclusive environment for everyone.
 ## 🛠️ Development Setup
 
 1. **Fork and Clone the Repository:**
+
    ```bash
-   git clone https://github.com/Arpithaapoojary/Convertor.git
-   cd Convertor
+   git clone https://github.com/Arpithaapoojary/DocSuite.git
+   cd DocSuite
    ```
 
 2. **Run Locally:**
    OmniDoc Studio is built with modern vanilla HTML5, CSS3, and JavaScript with 100% client-side processing. You don't need any complex build tooling!
-   
+
    Run any static local server:
+
    ```bash
    # Python 3
    python -m http.server 8000

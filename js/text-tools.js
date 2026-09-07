@@ -7,17 +7,17 @@
    ========================================================================== */
 
 function initTextTransformer() {
-  const textarea = document.getElementById('text-transform-input');
-  const copyBtn = document.getElementById('btn-copy-transform-text');
-  const clearBtn = document.getElementById('btn-clear-transform-text');
-  const downloadBtn = document.getElementById('btn-download-transform-text');
+  const textarea = document.getElementById("text-transform-input");
+  const copyBtn = document.getElementById("btn-copy-transform-text");
+  const clearBtn = document.getElementById("btn-clear-transform-text");
+  const downloadBtn = document.getElementById("btn-download-transform-text");
 
   // Stats widgets
-  const statWords = document.getElementById('stat-words');
-  const statChars = document.getElementById('stat-chars');
-  const statCharsNoSpace = document.getElementById('stat-chars-nospace');
-  const statLines = document.getElementById('stat-lines');
-  const statReadTime = document.getElementById('stat-readtime');
+  const statWords = document.getElementById("stat-words");
+  const statChars = document.getElementById("stat-chars");
+  const statCharsNoSpace = document.getElementById("stat-chars-nospace");
+  const statLines = document.getElementById("stat-lines");
+  const statReadTime = document.getElementById("stat-readtime");
 
   if (!textarea) return;
 
@@ -25,8 +25,8 @@ function initTextTransformer() {
     const text = textarea.value;
     const words = text.trim() ? text.trim().split(/\s+/).length : 0;
     const chars = text.length;
-    const charsNoSpace = text.replace(/\s/g, '').length;
-    const lines = text ? text.split('\n').length : 0;
+    const charsNoSpace = text.replace(/\s/g, "").length;
+    const lines = text ? text.split("\n").length : 0;
     const readMin = Math.ceil(words / 200);
 
     if (statWords) statWords.textContent = words;
@@ -36,201 +36,268 @@ function initTextTransformer() {
     if (statReadTime) statReadTime.textContent = `${readMin} min`;
   }
 
-  textarea.addEventListener('input', updateLiveStats);
+  textarea.addEventListener("input", updateLiveStats);
   updateLiveStats();
 
   // Transformation Actions
-  document.querySelectorAll('[data-text-transform]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const mode = btn.getAttribute('data-text-transform');
+  document.querySelectorAll("[data-text-transform]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const mode = btn.getAttribute("data-text-transform");
       const text = textarea.value;
-      if (!text && mode !== 'sample') return;
+      if (!text && mode !== "sample") return;
 
       let result = text;
       switch (mode) {
-        case 'upper':
+        case "upper":
           result = text.toUpperCase();
           break;
-        case 'lower':
+        case "lower":
           result = text.toLowerCase();
           break;
-        case 'title':
-          result = text.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.substr(1).toLowerCase());
+        case "title":
+          result = text.replace(
+            /\w\S*/g,
+            (w) => w.charAt(0).toUpperCase() + w.substr(1).toLowerCase(),
+          );
           break;
-        case 'sentence':
-          result = text.toLowerCase().replace(/(^\s*\w|[.!?]\s*\w)/g, (c) => c.toUpperCase());
+        case "sentence":
+          result = text
+            .toLowerCase()
+            .replace(/(^\s*\w|[.!?]\s*\w)/g, (c) => c.toUpperCase());
           break;
-        case 'camel':
-          result = text.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
+        case "camel":
+          result = text
+            .toLowerCase()
+            .replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
           break;
-        case 'pascal':
-          result = text.toLowerCase().replace(/(?:^|[^a-zA-Z0-9]+)(.)/g, (m, chr) => chr.toUpperCase());
+        case "pascal":
+          result = text
+            .toLowerCase()
+            .replace(/(?:^|[^a-zA-Z0-9]+)(.)/g, (m, chr) => chr.toUpperCase());
           break;
-        case 'kebab':
-          result = text.trim().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        case "kebab":
+          result = text
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-zA-Z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
           break;
-        case 'snake':
-          result = text.trim().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+        case "snake":
+          result = text
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-zA-Z0-9]+/g, "_")
+            .replace(/^_+|_+$/g, "");
           break;
-        case 'constant':
-          result = text.trim().toUpperCase().replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+        case "constant":
+          result = text
+            .trim()
+            .toUpperCase()
+            .replace(/[^a-zA-Z0-9]+/g, "_")
+            .replace(/^_+|_+$/g, "");
           break;
-        case 'dot':
-          result = text.trim().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '.').replace(/^\.+|\.+$/g, '');
+        case "dot":
+          result = text
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-zA-Z0-9]+/g, ".")
+            .replace(/^\.+|\.+$/g, "");
           break;
-        case 'slugify':
-          result = text.trim().toLowerCase()
-            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-z0-9 -]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-');
+        case "slugify":
+          result = text
+            .trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-z0-9 -]/g, "")
+            .replace(/\s+/g, "-")
+            .replace(/-+/g, "-");
           break;
-        case 'reverse':
-          result = text.split('').reverse().join('');
+        case "reverse":
+          result = text.split("").reverse().join("");
           break;
-        case 'clean-spaces':
-          result = text.replace(/[ \t]+/g, ' ').replace(/^\s+|\s+$/gm, '');
+        case "clean-spaces":
+          result = text.replace(/[ \t]+/g, " ").replace(/^\s+|\s+$/gm, "");
           break;
-        case 'remove-empty-lines':
-          result = text.split('\n').filter(line => line.trim().length > 0).join('\n');
+        case "remove-empty-lines":
+          result = text
+            .split("\n")
+            .filter((line) => line.trim().length > 0)
+            .join("\n");
           break;
-        case 'remove-duplicate-lines':
-          result = Array.from(new Set(text.split('\n'))).join('\n');
+        case "remove-duplicate-lines":
+          result = Array.from(new Set(text.split("\n"))).join("\n");
           break;
-        case 'sort-az':
-          result = text.split('\n').sort((a, b) => a.localeCompare(b)).join('\n');
+        case "sort-az":
+          result = text
+            .split("\n")
+            .sort((a, b) => a.localeCompare(b))
+            .join("\n");
           break;
-        case 'sort-za':
-          result = text.split('\n').sort((a, b) => b.localeCompare(a)).join('\n');
+        case "sort-za":
+          result = text
+            .split("\n")
+            .sort((a, b) => b.localeCompare(a))
+            .join("\n");
           break;
-        case 'number-lines':
-          result = text.split('\n').map((l, i) => `${i + 1}. ${l}`).join('\n');
+        case "number-lines":
+          result = text
+            .split("\n")
+            .map((l, i) => `${i + 1}. ${l}`)
+            .join("\n");
           break;
-        case 'json-escape':
+        case "json-escape":
           result = JSON.stringify(text).slice(1, -1);
           break;
-        case 'json-unescape':
+        case "json-unescape":
           try {
             result = JSON.parse(`"${text.replace(/"/g, '\\"')}"`);
           } catch (e) {
-            result = text.replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+            result = text
+              .replace(/\\n/g, "\n")
+              .replace(/\\t/g, "\t")
+              .replace(/\\"/g, '"')
+              .replace(/\\\\/g, "\\");
           }
           break;
-        case 'b64-encode':
+        case "b64-encode":
           try {
             result = btoa(unescape(encodeURIComponent(text)));
           } catch (e) {
-            showToast('Base64 encoding error', 'error');
+            showToast("Base64 encoding error", "error");
           }
           break;
-        case 'b64-decode':
+        case "b64-decode":
           try {
             result = decodeURIComponent(escape(atob(text.trim())));
           } catch (e) {
-            showToast('Invalid Base64 string', 'error');
+            showToast("Invalid Base64 string", "error");
           }
           break;
-        case 'rot13':
-          result = text.replace(/[a-zA-Z]/g, c => {
+        case "rot13":
+          result = text.replace(/[a-zA-Z]/g, (c) => {
             const code = c.charCodeAt(0);
             const base = code <= 90 ? 65 : 97;
             return String.fromCharCode(((code - base + 13) % 26) + base);
           });
           break;
-        case 'strip-html':
-          result = text.replace(/<[^>]*>/g, '');
+        case "strip-html":
+          result = text.replace(/<[^>]*>/g, "");
           break;
-        case 'extract-emails': {
-          const emails = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || [];
-          result = Array.from(new Set(emails)).join('\n');
-          if (!result) showToast('No email addresses found', 'warning');
+        case "extract-emails": {
+          const emails =
+            text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || [];
+          result = Array.from(new Set(emails)).join("\n");
+          if (!result) showToast("No email addresses found", "warning");
           break;
         }
-        case 'extract-urls': {
+        case "extract-urls": {
           const urls = text.match(/https?:\/\/[^\s$.?#].[^\s]*/gi) || [];
-          result = Array.from(new Set(urls)).join('\n');
-          if (!result) showToast('No URLs found', 'warning');
+          result = Array.from(new Set(urls)).join("\n");
+          if (!result) showToast("No URLs found", "warning");
           break;
         }
-        case 'binary-encode':
-          result = text.split('').map(c => c.charCodeAt(0).toString(2).padStart(8, '0')).join(' ');
+        case "binary-encode":
+          result = text
+            .split("")
+            .map((c) => c.charCodeAt(0).toString(2).padStart(8, "0"))
+            .join(" ");
           break;
-        case 'binary-decode':
+        case "binary-decode":
           try {
-            result = text.trim().split(/\s+/).map(bin => String.fromCharCode(parseInt(bin, 2))).join('');
+            result = text
+              .trim()
+              .split(/\s+/)
+              .map((bin) => String.fromCharCode(parseInt(bin, 2)))
+              .join("");
           } catch (e) {
-            showToast('Invalid binary string', 'error');
+            showToast("Invalid binary string", "error");
           }
           break;
-        case 'hex-encode':
-          result = text.split('').map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join(' ');
+        case "hex-encode":
+          result = text
+            .split("")
+            .map((c) => c.charCodeAt(0).toString(16).padStart(2, "0"))
+            .join(" ");
           break;
-        case 'hex-decode':
+        case "hex-decode":
           try {
-            result = text.replace(/\s+/g, '').match(/.{1,2}/g)?.map(byte => String.fromCharCode(parseInt(byte, 16))).join('') || '';
+            result =
+              text
+                .replace(/\s+/g, "")
+                .match(/.{1,2}/g)
+                ?.map((byte) => String.fromCharCode(parseInt(byte, 16)))
+                .join("") || "";
           } catch (e) {
-            showToast('Invalid hex string', 'error');
+            showToast("Invalid hex string", "error");
           }
           break;
-        case 'reverse-words':
-          result = text.split('\n').map(line => line.split(/\s+/).reverse().join(' ')).join('\n');
+        case "reverse-words":
+          result = text
+            .split("\n")
+            .map((line) => line.split(/\s+/).reverse().join(" "))
+            .join("\n");
           break;
-        case 'word-frequency': {
+        case "word-frequency": {
           const rawWords = text.toLowerCase().match(/\b[a-z0-9_]{2,}\b/g) || [];
           if (rawWords.length === 0) {
-            showToast('No words found for frequency analysis', 'warning');
+            showToast("No words found for frequency analysis", "warning");
             break;
           }
           const freqMap = {};
-          rawWords.forEach(w => freqMap[w] = (freqMap[w] || 0) + 1);
+          rawWords.forEach((w) => (freqMap[w] = (freqMap[w] || 0) + 1));
           const sorted = Object.entries(freqMap).sort((a, b) => b[1] - a[1]);
           const total = rawWords.length;
-          result = `=== KEYWORD FREQUENCY & DENSITY ANALYSIS ===\nTotal Words Analyzed: ${total}\nUnique Words: ${sorted.length}\n\nRank  Keyword             Count    Density\n------------------------------------------\n` + 
-            sorted.slice(0, 30).map(([k, v], i) => {
-              const rank = String(i + 1).padEnd(5);
-              const kw = k.padEnd(19);
-              const cnt = String(v).padEnd(8);
-              const pct = ((v / total) * 100).toFixed(2) + '%';
-              return `${rank} ${kw} ${cnt} ${pct}`;
-            }).join('\n');
+          result =
+            `=== KEYWORD FREQUENCY & DENSITY ANALYSIS ===\nTotal Words Analyzed: ${total}\nUnique Words: ${sorted.length}\n\nRank  Keyword             Count    Density\n------------------------------------------\n` +
+            sorted
+              .slice(0, 30)
+              .map(([k, v], i) => {
+                const rank = String(i + 1).padEnd(5);
+                const kw = k.padEnd(19);
+                const cnt = String(v).padEnd(8);
+                const pct = ((v / total) * 100).toFixed(2) + "%";
+                return `${rank} ${kw} ${cnt} ${pct}`;
+              })
+              .join("\n");
           break;
         }
-        case 'lorem':
+        case "lorem":
           result = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n\nCurabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida.`;
           break;
-        case 'sample':
+        case "sample":
           result = `OmniDoc Studio — Professional Document & Text Suite.
 Transform strings, parse data formats (JSON, CSV, XML), generate QR codes, and merge PDFs with ease!
-Contact our team at support@omnidoc.dev or visit https://github.com/Arpithaapoojary/Convertor for DocSuite documentation.`;
+Contact our team at support@omnidoc.dev or visit https://github.com/Arpithaapoojary/DocSuite for DocSuite documentation.`;
           break;
       }
 
       textarea.value = result;
       updateLiveStats();
-      showToast('Transformation applied!', 'info');
+      showToast("Transformation applied!", "info");
     });
   });
 
   if (copyBtn) {
-    copyBtn.addEventListener('click', () => {
+    copyBtn.addEventListener("click", () => {
       if (!textarea.value) return;
-      copyToClipboard(textarea.value, 'Text copied to clipboard!');
+      copyToClipboard(textarea.value, "Text copied to clipboard!");
     });
   }
 
   if (clearBtn) {
-    clearBtn.addEventListener('click', () => {
-      textarea.value = '';
+    clearBtn.addEventListener("click", () => {
+      textarea.value = "";
       updateLiveStats();
-      showToast('Text cleared', 'info');
+      showToast("Text cleared", "info");
     });
   }
 
   if (downloadBtn) {
-    downloadBtn.addEventListener('click', () => {
+    downloadBtn.addEventListener("click", () => {
       if (!textarea.value) return;
-      downloadTextFile(textarea.value, 'transformed_text.txt');
-      showToast('Text file downloaded!', 'success');
+      downloadTextFile(textarea.value, "transformed_text.txt");
+      showToast("Text file downloaded!", "success");
     });
   }
 }
@@ -240,15 +307,16 @@ Contact our team at support@omnidoc.dev or visit https://github.com/Arpithaapooj
    ========================================================================== */
 
 function initTextDiff() {
-  const origInput = document.getElementById('diff-original');
-  const modInput = document.getElementById('diff-modified');
-  const compareBtn = document.getElementById('btn-run-diff');
-  const outputContainer = document.getElementById('diff-output-view');
+  const origInput = document.getElementById("diff-original");
+  const modInput = document.getElementById("diff-modified");
+  const compareBtn = document.getElementById("btn-run-diff");
+  const outputContainer = document.getElementById("diff-output-view");
 
   if (!compareBtn) return;
 
   function computeLCS(a, b) {
-    const m = a.length, n = b.length;
+    const m = a.length,
+      n = b.length;
     const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
 
     for (let i = 1; i <= m; i++) {
@@ -262,56 +330,61 @@ function initTextDiff() {
 
   function getDiff(a, b) {
     const dp = computeLCS(a, b);
-    let i = a.length, j = b.length;
+    let i = a.length,
+      j = b.length;
     const diff = [];
 
     while (i > 0 || j > 0) {
       if (i > 0 && j > 0 && a[i - 1] === b[j - 1]) {
-        diff.unshift({ type: 'unchanged', text: a[i - 1] });
+        diff.unshift({ type: "unchanged", text: a[i - 1] });
         i--;
         j--;
       } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
-        diff.unshift({ type: 'added', text: b[j - 1] });
+        diff.unshift({ type: "added", text: b[j - 1] });
         j--;
       } else if (i > 0 && (j === 0 || dp[i][j - 1] < dp[i - 1][j])) {
-        diff.unshift({ type: 'removed', text: a[i - 1] });
+        diff.unshift({ type: "removed", text: a[i - 1] });
         i--;
       }
     }
     return diff;
   }
 
-  compareBtn.addEventListener('click', () => {
-    const origLines = (origInput.value || '').split('\n');
-    const modLines = (modInput.value || '').split('\n');
+  compareBtn.addEventListener("click", () => {
+    const origLines = (origInput.value || "").split("\n");
+    const modLines = (modInput.value || "").split("\n");
 
     if (!origInput.value && !modInput.value) {
-      showToast('Please enter text to compare', 'error');
+      showToast("Please enter text to compare", "error");
       return;
     }
 
     const diff = getDiff(origLines, modLines);
-    outputContainer.innerHTML = '';
+    outputContainer.innerHTML = "";
 
     let addedCount = 0;
     let removedCount = 0;
     let unchangedCount = 0;
 
-    diff.forEach(item => {
-      if (item.type === 'added') addedCount++;
-      else if (item.type === 'removed') removedCount++;
+    diff.forEach((item) => {
+      if (item.type === "added") addedCount++;
+      else if (item.type === "removed") removedCount++;
       else unchangedCount++;
 
-      const lineEl = document.createElement('div');
+      const lineEl = document.createElement("div");
       lineEl.className = `diff-line diff-${item.type}`;
-      const prefix = item.type === 'added' ? '+ ' : (item.type === 'removed' ? '- ' : '  ');
+      const prefix =
+        item.type === "added" ? "+ " : item.type === "removed" ? "- " : "  ";
       lineEl.textContent = prefix + item.text;
       outputContainer.appendChild(lineEl);
     });
 
     const totalLines = diff.length || 1;
     const similarity = Math.round((unchangedCount / totalLines) * 100);
-    showToast(`Diff comparison: ${similarity}% match (+${addedCount}, -${removedCount})`, 'success');
+    showToast(
+      `Diff comparison: ${similarity}% match (+${addedCount}, -${removedCount})`,
+      "success",
+    );
   });
 }
 
@@ -320,37 +393,107 @@ function initTextDiff() {
    ========================================================================== */
 
 function initPasswordGenerator() {
-  const lengthSlider = document.getElementById('pass-length-slider');
-  const lengthVal = document.getElementById('pass-length-val');
-  const optUpper = document.getElementById('pass-opt-upper');
-  const optLower = document.getElementById('pass-opt-lower');
-  const optNumbers = document.getElementById('pass-opt-numbers');
-  const optSymbols = document.getElementById('pass-opt-symbols');
-  const optNoAmbiguous = document.getElementById('pass-opt-no-ambiguous');
-  const modeSelect = document.getElementById('pass-mode-select');
-  const passOutput = document.getElementById('pass-output-text');
-  const strengthBar = document.getElementById('pass-strength-bar');
-  const strengthLabel = document.getElementById('pass-strength-label');
-  const entropyVal = document.getElementById('pass-entropy-val');
-  const generateBtn = document.getElementById('btn-generate-password');
-  const copyBtn = document.getElementById('btn-copy-password');
-  const bulkQty = document.getElementById('pass-bulk-qty');
-  const bulkOutput = document.getElementById('pass-bulk-output');
-  const copyBulkBtn = document.getElementById('btn-copy-bulk-passwords');
+  const lengthSlider = document.getElementById("pass-length-slider");
+  const lengthVal = document.getElementById("pass-length-val");
+  const optUpper = document.getElementById("pass-opt-upper");
+  const optLower = document.getElementById("pass-opt-lower");
+  const optNumbers = document.getElementById("pass-opt-numbers");
+  const optSymbols = document.getElementById("pass-opt-symbols");
+  const optNoAmbiguous = document.getElementById("pass-opt-no-ambiguous");
+  const modeSelect = document.getElementById("pass-mode-select");
+  const passOutput = document.getElementById("pass-output-text");
+  const strengthBar = document.getElementById("pass-strength-bar");
+  const strengthLabel = document.getElementById("pass-strength-label");
+  const entropyVal = document.getElementById("pass-entropy-val");
+  const generateBtn = document.getElementById("btn-generate-password");
+  const copyBtn = document.getElementById("btn-copy-password");
+  const bulkQty = document.getElementById("pass-bulk-qty");
+  const bulkOutput = document.getElementById("pass-bulk-output");
+  const copyBulkBtn = document.getElementById("btn-copy-bulk-passwords");
 
   if (!generateBtn) return;
 
   const WORD_LIST = [
-    'amber', 'azure', 'beacon', 'breeze', 'canyon', 'cascade', 'cipher', 'clover',
-    'cosmos', 'crater', 'crystal', 'delta', 'drift', 'echo', 'ember', 'falcon',
-    'flame', 'forest', 'fossil', 'galaxy', 'glacier', 'granite', 'harbor', 'haven',
-    'horizon', 'island', 'jungle', 'lagoon', 'legend', 'lotus', 'lunar', 'meadow',
-    'meteor', 'nebula', 'nexus', 'oasis', 'ocean', 'orbit', 'pebble', 'phoenix',
-    'planet', 'prism', 'pulse', 'pyramid', 'quantum', 'quartz', 'quiver', 'radius',
-    'ripple', 'river', 'rocket', 'safari', 'shadow', 'shield', 'siren', 'solar',
-    'spectrum', 'sphere', 'spiral', 'spring', 'starlight', 'summit', 'sunrise', 'sunset',
-    'thunder', 'timber', 'topaz', 'torrent', 'tower', 'tulip', 'valley', 'vapor',
-    'vector', 'velvet', 'vessel', 'vertex', 'vortex', 'voyage', 'whisper', 'zenith'
+    "amber",
+    "azure",
+    "beacon",
+    "breeze",
+    "canyon",
+    "cascade",
+    "cipher",
+    "clover",
+    "cosmos",
+    "crater",
+    "crystal",
+    "delta",
+    "drift",
+    "echo",
+    "ember",
+    "falcon",
+    "flame",
+    "forest",
+    "fossil",
+    "galaxy",
+    "glacier",
+    "granite",
+    "harbor",
+    "haven",
+    "horizon",
+    "island",
+    "jungle",
+    "lagoon",
+    "legend",
+    "lotus",
+    "lunar",
+    "meadow",
+    "meteor",
+    "nebula",
+    "nexus",
+    "oasis",
+    "ocean",
+    "orbit",
+    "pebble",
+    "phoenix",
+    "planet",
+    "prism",
+    "pulse",
+    "pyramid",
+    "quantum",
+    "quartz",
+    "quiver",
+    "radius",
+    "ripple",
+    "river",
+    "rocket",
+    "safari",
+    "shadow",
+    "shield",
+    "siren",
+    "solar",
+    "spectrum",
+    "sphere",
+    "spiral",
+    "spring",
+    "starlight",
+    "summit",
+    "sunrise",
+    "sunset",
+    "thunder",
+    "timber",
+    "topaz",
+    "torrent",
+    "tower",
+    "tulip",
+    "valley",
+    "vapor",
+    "vector",
+    "velvet",
+    "vessel",
+    "vertex",
+    "vortex",
+    "voyage",
+    "whisper",
+    "zenith",
   ];
 
   function getSecureRandomInt(max) {
@@ -360,19 +503,19 @@ function initPasswordGenerator() {
   }
 
   function generateSinglePassword() {
-    const mode = modeSelect ? modeSelect.value : 'random';
-    const length = parseInt(lengthSlider ? lengthSlider.value : '16', 10) || 16;
+    const mode = modeSelect ? modeSelect.value : "random";
+    const length = parseInt(lengthSlider ? lengthSlider.value : "16", 10) || 16;
 
-    if (mode === 'passphrase') {
+    if (mode === "passphrase") {
       const wordCount = Math.max(3, Math.min(8, Math.round(length / 4)));
       const words = [];
       for (let i = 0; i < wordCount; i++) {
         words.push(WORD_LIST[getSecureRandomInt(WORD_LIST.length)]);
       }
-      return words.join('-');
+      return words.join("-");
     }
 
-    let chars = '';
+    let chars = "";
     let required = [];
 
     const hasUpper = optUpper ? optUpper.checked : true;
@@ -381,22 +524,34 @@ function initPasswordGenerator() {
     const hasSymbols = optSymbols ? optSymbols.checked : true;
     const noAmbiguous = optNoAmbiguous ? optNoAmbiguous.checked : false;
 
-    let upperSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let lowerSet = 'abcdefghijklmnopqrstuvwxyz';
-    let numSet = '0123456789';
-    let symSet = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+    let upperSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let lowerSet = "abcdefghijklmnopqrstuvwxyz";
+    let numSet = "0123456789";
+    let symSet = "!@#$%^&*()_+-=[]{}|;:,.<>?";
 
     if (noAmbiguous) {
-      upperSet = upperSet.replace(/[IO]/g, '');
-      lowerSet = lowerSet.replace(/[lo]/g, '');
-      numSet = numSet.replace(/[01]/g, '');
-      symSet = symSet.replace(/[|:;]/g, '');
+      upperSet = upperSet.replace(/[IO]/g, "");
+      lowerSet = lowerSet.replace(/[lo]/g, "");
+      numSet = numSet.replace(/[01]/g, "");
+      symSet = symSet.replace(/[|:;]/g, "");
     }
 
-    if (hasUpper) { chars += upperSet; required.push(upperSet[getSecureRandomInt(upperSet.length)]); }
-    if (hasLower) { chars += lowerSet; required.push(lowerSet[getSecureRandomInt(lowerSet.length)]); }
-    if (hasNumbers) { chars += numSet; required.push(numSet[getSecureRandomInt(numSet.length)]); }
-    if (hasSymbols) { chars += symSet; required.push(symSet[getSecureRandomInt(symSet.length)]); }
+    if (hasUpper) {
+      chars += upperSet;
+      required.push(upperSet[getSecureRandomInt(upperSet.length)]);
+    }
+    if (hasLower) {
+      chars += lowerSet;
+      required.push(lowerSet[getSecureRandomInt(lowerSet.length)]);
+    }
+    if (hasNumbers) {
+      chars += numSet;
+      required.push(numSet[getSecureRandomInt(numSet.length)]);
+    }
+    if (hasSymbols) {
+      chars += symSet;
+      required.push(symSet[getSecureRandomInt(symSet.length)]);
+    }
 
     if (!chars) chars = lowerSet;
 
@@ -411,7 +566,7 @@ function initPasswordGenerator() {
       [password[i], password[j]] = [password[j], password[i]];
     }
 
-    return password.join('');
+    return password.join("");
   }
 
   function calculateEntropy(pass) {
@@ -420,9 +575,12 @@ function initPasswordGenerator() {
     if (/[A-Z]/.test(pass)) poolSize += 26;
     if (/[0-9]/.test(pass)) poolSize += 10;
     if (/[^a-zA-Z0-9]/.test(pass)) poolSize += 32;
-    if (pass.includes('-') && pass.split('-').every(w => WORD_LIST.includes(w))) {
+    if (
+      pass.includes("-") &&
+      pass.split("-").every((w) => WORD_LIST.includes(w))
+    ) {
       poolSize = WORD_LIST.length;
-      return Math.round(pass.split('-').length * Math.log2(poolSize));
+      return Math.round(pass.split("-").length * Math.log2(poolSize));
     }
     if (poolSize === 0) return 0;
     return Math.round(pass.length * Math.log2(poolSize));
@@ -435,22 +593,22 @@ function initPasswordGenerator() {
     const entropy = calculateEntropy(pass);
     if (entropyVal) entropyVal.textContent = `${entropy} bits`;
 
-    let strength = 'Weak';
-    let color = '#ef4444';
+    let strength = "Weak";
+    let color = "#ef4444";
     let pct = Math.min(100, Math.round((entropy / 100) * 100));
 
     if (entropy >= 90) {
-      strength = 'Military Grade (Ultra)';
-      color = '#10b981';
+      strength = "Military Grade (Ultra)";
+      color = "#10b981";
     } else if (entropy >= 70) {
-      strength = 'Very Strong';
-      color = '#06b6d4';
+      strength = "Very Strong";
+      color = "#06b6d4";
     } else if (entropy >= 50) {
-      strength = 'Strong';
-      color = '#3b82f6';
+      strength = "Strong";
+      color = "#3b82f6";
     } else if (entropy >= 35) {
-      strength = 'Moderate';
-      color = '#f59e0b';
+      strength = "Moderate";
+      color = "#f59e0b";
     }
 
     if (strengthBar) {
@@ -463,41 +621,49 @@ function initPasswordGenerator() {
     }
 
     // Generate bulk
-    const qty = parseInt(bulkQty ? bulkQty.value : '5', 10) || 5;
+    const qty = parseInt(bulkQty ? bulkQty.value : "5", 10) || 5;
     const bulkList = [];
     for (let i = 0; i < qty; i++) {
       bulkList.push(generateSinglePassword());
     }
-    if (bulkOutput) bulkOutput.value = bulkList.join('\n');
+    if (bulkOutput) bulkOutput.value = bulkList.join("\n");
   }
 
   if (lengthSlider && lengthVal) {
-    lengthSlider.addEventListener('input', (e) => {
+    lengthSlider.addEventListener("input", (e) => {
       lengthVal.textContent = `${e.target.value} chars`;
       updatePasswordUI();
     });
   }
 
-  [optUpper, optLower, optNumbers, optSymbols, optNoAmbiguous, modeSelect, bulkQty].forEach(el => {
-    if (el) el.addEventListener('change', updatePasswordUI);
+  [
+    optUpper,
+    optLower,
+    optNumbers,
+    optSymbols,
+    optNoAmbiguous,
+    modeSelect,
+    bulkQty,
+  ].forEach((el) => {
+    if (el) el.addEventListener("change", updatePasswordUI);
   });
 
-  generateBtn.addEventListener('click', () => {
+  generateBtn.addEventListener("click", () => {
     updatePasswordUI();
-    showToast('Generated fresh secure password!', 'success');
+    showToast("Generated fresh secure password!", "success");
   });
 
   if (copyBtn) {
-    copyBtn.addEventListener('click', () => {
+    copyBtn.addEventListener("click", () => {
       if (!passOutput.value) return;
-      copyToClipboard(passOutput.value, 'Password copied to clipboard!');
+      copyToClipboard(passOutput.value, "Password copied to clipboard!");
     });
   }
 
   if (copyBulkBtn) {
-    copyBulkBtn.addEventListener('click', () => {
+    copyBulkBtn.addEventListener("click", () => {
       if (!bulkOutput.value) return;
-      copyToClipboard(bulkOutput.value, 'All bulk passwords copied!');
+      copyToClipboard(bulkOutput.value, "All bulk passwords copied!");
     });
   }
 
@@ -509,73 +675,73 @@ function initPasswordGenerator() {
    ========================================================================== */
 
 function initRegexStudio() {
-  const patternInput = document.getElementById('regex-pattern-input');
-  const testInput = document.getElementById('regex-test-input');
-  const highlightBackdrop = document.getElementById('regex-highlight-backdrop');
+  const patternInput = document.getElementById("regex-pattern-input");
+  const testInput = document.getElementById("regex-test-input");
+  const highlightBackdrop = document.getElementById("regex-highlight-backdrop");
 
-  const flagG = document.getElementById('regex-flag-g');
-  const flagI = document.getElementById('regex-flag-i');
-  const flagM = document.getElementById('regex-flag-m');
-  const flagS = document.getElementById('regex-flag-s');
-  const flagU = document.getElementById('regex-flag-u');
+  const flagG = document.getElementById("regex-flag-g");
+  const flagI = document.getElementById("regex-flag-i");
+  const flagM = document.getElementById("regex-flag-m");
+  const flagS = document.getElementById("regex-flag-s");
+  const flagU = document.getElementById("regex-flag-u");
 
-  const statMatches = document.getElementById('regex-stat-matches');
-  const statGroups = document.getElementById('regex-stat-groups');
-  const statStatus = document.getElementById('regex-stat-status');
-  const matchesList = document.getElementById('regex-matches-list');
+  const statMatches = document.getElementById("regex-stat-matches");
+  const statGroups = document.getElementById("regex-stat-groups");
+  const statStatus = document.getElementById("regex-stat-status");
+  const matchesList = document.getElementById("regex-matches-list");
 
-  const replaceTemplate = document.getElementById('regex-replace-template');
-  const replaceOutput = document.getElementById('regex-replace-output');
+  const replaceTemplate = document.getElementById("regex-replace-template");
+  const replaceOutput = document.getElementById("regex-replace-output");
 
-  const langSelect = document.getElementById('regex-lang-select');
-  const codeOutput = document.getElementById('regex-code-output');
+  const langSelect = document.getElementById("regex-lang-select");
+  const codeOutput = document.getElementById("regex-code-output");
 
-  const btnTabMatches = document.getElementById('btn-regex-tab-matches');
-  const btnTabReplace = document.getElementById('btn-regex-tab-replace');
-  const btnTabCode = document.getElementById('btn-regex-tab-code');
-  const viewMatches = document.getElementById('regex-view-matches');
-  const viewReplace = document.getElementById('regex-view-replace');
-  const viewCode = document.getElementById('regex-view-code');
+  const btnTabMatches = document.getElementById("btn-regex-tab-matches");
+  const btnTabReplace = document.getElementById("btn-regex-tab-replace");
+  const btnTabCode = document.getElementById("btn-regex-tab-code");
+  const viewMatches = document.getElementById("regex-view-matches");
+  const viewReplace = document.getElementById("regex-view-replace");
+  const viewCode = document.getElementById("regex-view-code");
 
-  const btnCopyPattern = document.getElementById('btn-copy-regex-pattern');
-  const btnCopyMatches = document.getElementById('btn-copy-regex-matches');
-  const btnCopyReplaced = document.getElementById('btn-copy-regex-replaced');
-  const btnCopyCode = document.getElementById('btn-copy-regex-code');
-  const btnSampleText = document.getElementById('btn-regex-sample-text');
+  const btnCopyPattern = document.getElementById("btn-copy-regex-pattern");
+  const btnCopyMatches = document.getElementById("btn-copy-regex-matches");
+  const btnCopyReplaced = document.getElementById("btn-copy-regex-replaced");
+  const btnCopyCode = document.getElementById("btn-copy-regex-code");
+  const btnSampleText = document.getElementById("btn-regex-sample-text");
 
   if (!patternInput || !testInput) return;
 
   const REGEX_PRESETS = {
-    email: '([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})',
-    url: 'https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&//=]*)',
-    ipv4: '\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b',
-    phone: '(?:\\+?1[-. ]?)?\\(?([0-9]{3})\\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})',
-    date: '\\b(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])\\b',
-    hex: '#(?:[a-fA-F0-9]{6}|[a-fA-F0-9]{3})\\b',
-    html: '<([a-zA-Z][a-zA-Z0-9]*)\\b[^>]*>(.*?)<\\/\\1>',
-    uuid: '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}',
-    slug: '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+    email: "([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})",
+    url: "https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&//=]*)",
+    ipv4: "\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b",
+    phone: "(?:\\+?1[-. ]?)?\\(?([0-9]{3})\\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})",
+    date: "\\b(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])\\b",
+    hex: "#(?:[a-fA-F0-9]{6}|[a-fA-F0-9]{3})\\b",
+    html: "<([a-zA-Z][a-zA-Z0-9]*)\\b[^>]*>(.*?)<\\/\\1>",
+    uuid: "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}",
+    slug: "^[a-z0-9]+(?:-[a-z0-9]+)*$",
   };
 
   let extractedMatches = [];
 
   function getActiveFlags() {
-    let flags = '';
-    if (flagG && flagG.checked) flags += 'g';
-    if (flagI && flagI.checked) flags += 'i';
-    if (flagM && flagM.checked) flags += 'm';
-    if (flagS && flagS.checked) flags += 's';
-    if (flagU && flagU.checked) flags += 'u';
+    let flags = "";
+    if (flagG && flagG.checked) flags += "g";
+    if (flagI && flagI.checked) flags += "i";
+    if (flagM && flagM.checked) flags += "m";
+    if (flagS && flagS.checked) flags += "s";
+    if (flagU && flagU.checked) flags += "u";
     return flags;
   }
 
   function escapeHtmlChars(str) {
-    return (str || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
+    return (str || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   }
 
   function updateRegexEngine() {
@@ -587,13 +753,16 @@ function initRegexStudio() {
 
     if (!patternStr) {
       if (statStatus) {
-        statStatus.textContent = 'Empty Pattern';
-        statStatus.style.color = 'var(--text-muted)';
+        statStatus.textContent = "Empty Pattern";
+        statStatus.style.color = "var(--text-muted)";
       }
-      if (statMatches) statMatches.textContent = '0';
-      if (statGroups) statGroups.textContent = '0';
-      if (highlightBackdrop) highlightBackdrop.innerHTML = escapeHtmlChars(testText);
-      if (matchesList) matchesList.innerHTML = '<p class="text-secondary" style="font-size: 0.85rem; padding: 1rem; text-align: center;">Enter a regex pattern to see matches.</p>';
+      if (statMatches) statMatches.textContent = "0";
+      if (statGroups) statGroups.textContent = "0";
+      if (highlightBackdrop)
+        highlightBackdrop.innerHTML = escapeHtmlChars(testText);
+      if (matchesList)
+        matchesList.innerHTML =
+          '<p class="text-secondary" style="font-size: 0.85rem; padding: 1rem; text-align: center;">Enter a regex pattern to see matches.</p>';
       if (replaceOutput) replaceOutput.value = testText;
       updateCodeSnippet(patternStr, flags);
       return;
@@ -603,18 +772,20 @@ function initRegexStudio() {
     try {
       regex = new RegExp(patternStr, flags);
       if (statStatus) {
-        statStatus.textContent = 'Valid Pattern';
-        statStatus.style.color = 'var(--accent-emerald)';
+        statStatus.textContent = "Valid Pattern";
+        statStatus.style.color = "var(--accent-emerald)";
       }
     } catch (e) {
       if (statStatus) {
-        statStatus.textContent = 'Syntax Error';
-        statStatus.style.color = 'var(--accent-rose)';
+        statStatus.textContent = "Syntax Error";
+        statStatus.style.color = "var(--accent-rose)";
       }
-      if (statMatches) statMatches.textContent = '0';
-      if (statGroups) statGroups.textContent = '0';
-      if (highlightBackdrop) highlightBackdrop.innerHTML = escapeHtmlChars(testText);
-      if (matchesList) matchesList.innerHTML = `<p class="badge-error" style="padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.82rem;">${e.message}</p>`;
+      if (statMatches) statMatches.textContent = "0";
+      if (statGroups) statGroups.textContent = "0";
+      if (highlightBackdrop)
+        highlightBackdrop.innerHTML = escapeHtmlChars(testText);
+      if (matchesList)
+        matchesList.innerHTML = `<p class="badge-error" style="padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.82rem;">${e.message}</p>`;
       return;
     }
 
@@ -623,7 +794,7 @@ function initRegexStudio() {
     let totalGroups = 0;
     let matchItems = [];
 
-    if (flags.includes('g')) {
+    if (flags.includes("g")) {
       let loopGuard = 0;
       while ((match = regex.exec(testText)) !== null && loopGuard < 1000) {
         loopGuard++;
@@ -631,7 +802,7 @@ function initRegexStudio() {
           index: match.index,
           length: match[0].length,
           value: match[0],
-          groups: match.slice(1)
+          groups: match.slice(1),
         });
         if (match[0].length === 0) {
           regex.lastIndex++;
@@ -644,16 +815,19 @@ function initRegexStudio() {
           index: match.index,
           length: match[0].length,
           value: match[0],
-          groups: match.slice(1)
+          groups: match.slice(1),
         });
       }
     }
 
-    extractedMatches = matchItems.map(m => m.value);
+    extractedMatches = matchItems.map((m) => m.value);
 
     if (statMatches) statMatches.textContent = matchItems.length;
     if (statGroups) {
-      totalGroups = matchItems.reduce((acc, m) => Math.max(acc, m.groups.length), 0);
+      totalGroups = matchItems.reduce(
+        (acc, m) => Math.max(acc, m.groups.length),
+        0,
+      );
       statGroups.textContent = totalGroups;
     }
 
@@ -662,11 +836,13 @@ function initRegexStudio() {
       if (matchItems.length === 0) {
         highlightBackdrop.innerHTML = escapeHtmlChars(testText);
       } else {
-        let highlightedHtml = '';
+        let highlightedHtml = "";
         let lastIndex = 0;
 
         matchItems.forEach((m) => {
-          highlightedHtml += escapeHtmlChars(testText.substring(lastIndex, m.index));
+          highlightedHtml += escapeHtmlChars(
+            testText.substring(lastIndex, m.index),
+          );
           highlightedHtml += `<mark class="regex-match-mark">${escapeHtmlChars(m.value)}</mark>`;
           lastIndex = m.index + m.length;
         });
@@ -679,20 +855,27 @@ function initRegexStudio() {
     // Render Match Breakdown Cards
     if (matchesList) {
       if (matchItems.length === 0) {
-        matchesList.innerHTML = '<p class="text-secondary" style="font-size: 0.85rem; padding: 1rem; text-align: center;">No matches found in test string.</p>';
+        matchesList.innerHTML =
+          '<p class="text-secondary" style="font-size: 0.85rem; padding: 1rem; text-align: center;">No matches found in test string.</p>';
       } else {
-        matchesList.innerHTML = matchItems.map((m, idx) => {
-          const groupsHtml = m.groups.length > 0
-            ? `<div style="margin-top: 0.4rem; padding-top: 0.35rem; border-top: 1px dashed var(--border-subtle); display: flex; flex-direction: column; gap: 0.2rem;">
-                ${m.groups.map((g, gIdx) => `
+        matchesList.innerHTML = matchItems
+          .map((m, idx) => {
+            const groupsHtml =
+              m.groups.length > 0
+                ? `<div style="margin-top: 0.4rem; padding-top: 0.35rem; border-top: 1px dashed var(--border-subtle); display: flex; flex-direction: column; gap: 0.2rem;">
+                ${m.groups
+                  .map(
+                    (g, gIdx) => `
                   <div style="font-size: 0.76rem; color: var(--text-secondary);">
-                    <strong style="color: var(--primary);">$${gIdx + 1}:</strong> "${escapeHtmlChars(g || 'undefined')}"
+                    <strong style="color: var(--primary);">$${gIdx + 1}:</strong> "${escapeHtmlChars(g || "undefined")}"
                   </div>
-                `).join('')}
+                `,
+                  )
+                  .join("")}
               </div>`
-            : '';
+                : "";
 
-          return `
+            return `
             <div class="regex-match-card">
               <div style="flex: 1; overflow: hidden;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
@@ -704,14 +887,17 @@ function initRegexStudio() {
               </div>
             </div>
           `;
-        }).join('');
+          })
+          .join("");
       }
     }
 
     // Replace Preview
     if (replaceOutput && replaceTemplate) {
       try {
-        const rep = regex ? testText.replace(regex, replaceTemplate.value) : testText;
+        const rep = regex
+          ? testText.replace(regex, replaceTemplate.value)
+          : testText;
         replaceOutput.value = rep;
       } catch {
         replaceOutput.value = testText;
@@ -724,125 +910,134 @@ function initRegexStudio() {
 
   function updateCodeSnippet(pattern, flags) {
     if (!codeOutput) return;
-    const lang = langSelect ? langSelect.value : 'js';
+    const lang = langSelect ? langSelect.value : "js";
 
     switch (lang) {
-      case 'js':
+      case "js":
         codeOutput.value = `// JavaScript Regex Matching\nconst pattern = /${pattern}/${flags};\nconst str = "your test string";\n\n// Find all matches\nconst matches = [...str.matchAll(pattern)];\nmatches.forEach(m => console.log(m[0], m.groups));\n\n// Replace\nconst replaced = str.replace(pattern, "replacement");`;
         break;
-      case 'python':
-        codeOutput.value = `# Python Regex Matching\nimport re\n\npattern = r"${pattern}"\ntext = "your test string"\n\n# Find all matches\nmatches = re.findall(pattern, text${flags.includes('i') ? ', re.IGNORECASE' : ''})\nprint("Matches:", matches)\n\n# Replace\nresult = re.sub(pattern, "replacement", text)`;
+      case "python":
+        codeOutput.value = `# Python Regex Matching\nimport re\n\npattern = r"${pattern}"\ntext = "your test string"\n\n# Find all matches\nmatches = re.findall(pattern, text${flags.includes("i") ? ", re.IGNORECASE" : ""})\nprint("Matches:", matches)\n\n# Replace\nresult = re.sub(pattern, "replacement", text)`;
         break;
-      case 'php':
+      case "php":
         codeOutput.value = `<?php\n// PHP PCRE Matching\n$pattern = '/${pattern.replace(/'/g, "\\'")}/${flags}';\n$text = 'your test string';\n\nif (preg_match_all($pattern, $text, $matches)) {\n    print_r($matches[0]);\n}\n\n$replaced = preg_replace($pattern, 'replacement', $text);`;
         break;
-      case 'go':
+      case "go":
         codeOutput.value = `package main\n\nimport (\n\t"fmt"\n\t"regexp"\n)\n\nfunc main() {\n\tre := regexp.MustCompile(\`${pattern}\`)\n\ttext := "your test string"\n\n\tmatches := re.FindAllString(text, -1)\n\tfmt.Println("Matches:", matches)\n}`;
         break;
     }
   }
 
   // Scroll synchronization between textarea and backdrop
-  testInput.addEventListener('scroll', () => {
+  testInput.addEventListener("scroll", () => {
     if (highlightBackdrop) {
       highlightBackdrop.scrollTop = testInput.scrollTop;
       highlightBackdrop.scrollLeft = testInput.scrollLeft;
     }
   });
 
-  patternInput.addEventListener('input', updateRegexEngine);
-  testInput.addEventListener('input', updateRegexEngine);
-  if (replaceTemplate) replaceTemplate.addEventListener('input', updateRegexEngine);
+  patternInput.addEventListener("input", updateRegexEngine);
+  testInput.addEventListener("input", updateRegexEngine);
+  if (replaceTemplate)
+    replaceTemplate.addEventListener("input", updateRegexEngine);
 
-  [flagG, flagI, flagM, flagS, flagU].forEach(f => {
-    if (f) f.addEventListener('change', updateRegexEngine);
+  [flagG, flagI, flagM, flagS, flagU].forEach((f) => {
+    if (f) f.addEventListener("change", updateRegexEngine);
   });
 
   if (langSelect) {
-    langSelect.addEventListener('change', () => updateCodeSnippet(patternInput.value, getActiveFlags()));
+    langSelect.addEventListener("change", () =>
+      updateCodeSnippet(patternInput.value, getActiveFlags()),
+    );
   }
 
   // Tabs
   if (btnTabMatches && btnTabReplace && btnTabCode) {
-    btnTabMatches.addEventListener('click', () => {
-      btnTabMatches.classList.add('active');
-      btnTabReplace.classList.remove('active');
-      btnTabCode.classList.remove('active');
-      if (viewMatches) viewMatches.style.display = 'block';
-      if (viewReplace) viewReplace.style.display = 'none';
-      if (viewCode) viewCode.style.display = 'none';
+    btnTabMatches.addEventListener("click", () => {
+      btnTabMatches.classList.add("active");
+      btnTabReplace.classList.remove("active");
+      btnTabCode.classList.remove("active");
+      if (viewMatches) viewMatches.style.display = "block";
+      if (viewReplace) viewReplace.style.display = "none";
+      if (viewCode) viewCode.style.display = "none";
     });
 
-    btnTabReplace.addEventListener('click', () => {
-      btnTabReplace.classList.add('active');
-      btnTabMatches.classList.remove('active');
-      btnTabCode.classList.remove('active');
-      if (viewMatches) viewMatches.style.display = 'none';
-      if (viewReplace) viewReplace.style.display = 'block';
-      if (viewCode) viewCode.style.display = 'none';
+    btnTabReplace.addEventListener("click", () => {
+      btnTabReplace.classList.add("active");
+      btnTabMatches.classList.remove("active");
+      btnTabCode.classList.remove("active");
+      if (viewMatches) viewMatches.style.display = "none";
+      if (viewReplace) viewReplace.style.display = "block";
+      if (viewCode) viewCode.style.display = "none";
     });
 
-    btnTabCode.addEventListener('click', () => {
-      btnTabCode.classList.add('active');
-      btnTabMatches.classList.remove('active');
-      btnTabReplace.classList.remove('active');
-      if (viewMatches) viewMatches.style.display = 'none';
-      if (viewReplace) viewReplace.style.display = 'none';
-      if (viewCode) viewCode.style.display = 'block';
+    btnTabCode.addEventListener("click", () => {
+      btnTabCode.classList.add("active");
+      btnTabMatches.classList.remove("active");
+      btnTabReplace.classList.remove("active");
+      if (viewMatches) viewMatches.style.display = "none";
+      if (viewReplace) viewReplace.style.display = "none";
+      if (viewCode) viewCode.style.display = "block";
     });
   }
 
   // Presets
-  document.querySelectorAll('[data-regex-preset]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const presetKey = btn.getAttribute('data-regex-preset');
+  document.querySelectorAll("[data-regex-preset]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const presetKey = btn.getAttribute("data-regex-preset");
       const presetVal = REGEX_PRESETS[presetKey];
       if (presetVal) {
         patternInput.value = presetVal;
         updateRegexEngine();
-        showToast(`Loaded ${btn.textContent} Regex preset!`, 'info');
+        showToast(`Loaded ${btn.textContent} Regex preset!`, "info");
       }
     });
   });
 
   // Sample Text
   if (btnSampleText) {
-    btnSampleText.addEventListener('click', () => {
+    btnSampleText.addEventListener("click", () => {
       testInput.value = `Welcome to OmniDoc Studio! For support, contact support@omnidoc.dev or sales@enterprise-apps.io. Visit https://omnidoc.dev/portal for updates. Phone: (800) 555-0199. IPv4 server: 192.168.1.1. Date created: 2026-09-02.`;
       updateRegexEngine();
-      showToast('Inserted comprehensive test sample!', 'info');
+      showToast("Inserted comprehensive test sample!", "info");
     });
   }
 
   // Copy Buttons
   if (btnCopyPattern) {
-    btnCopyPattern.addEventListener('click', () => {
+    btnCopyPattern.addEventListener("click", () => {
       const full = `/${patternInput.value}/${getActiveFlags()}`;
       copyToClipboard(full, `Copied regex ${full}!`);
     });
   }
 
   if (btnCopyMatches) {
-    btnCopyMatches.addEventListener('click', () => {
+    btnCopyMatches.addEventListener("click", () => {
       if (extractedMatches.length === 0) {
-        showToast('No matches to copy', 'warning');
+        showToast("No matches to copy", "warning");
         return;
       }
-      copyToClipboard(extractedMatches.join('\n'), `Copied ${extractedMatches.length} matches!`);
+      copyToClipboard(
+        extractedMatches.join("\n"),
+        `Copied ${extractedMatches.length} matches!`,
+      );
     });
   }
 
   if (btnCopyReplaced) {
-    btnCopyReplaced.addEventListener('click', () => {
+    btnCopyReplaced.addEventListener("click", () => {
       if (!replaceOutput || !replaceOutput.value) return;
-      copyToClipboard(replaceOutput.value, 'Replaced text copied to clipboard!');
+      copyToClipboard(
+        replaceOutput.value,
+        "Replaced text copied to clipboard!",
+      );
     });
   }
 
   if (btnCopyCode) {
-    btnCopyCode.addEventListener('click', () => {
+    btnCopyCode.addEventListener("click", () => {
       if (!codeOutput || !codeOutput.value) return;
-      copyToClipboard(codeOutput.value, 'Code snippet copied to clipboard!');
+      copyToClipboard(codeOutput.value, "Code snippet copied to clipboard!");
     });
   }
 
@@ -855,46 +1050,46 @@ function initRegexStudio() {
    ========================================================================== */
 
 function initMarkdownTableStudio() {
-  const gridWrap = document.getElementById('table-studio-grid-wrap');
-  const codeOutput = document.getElementById('table-output-code');
-  const dimBadge = document.getElementById('table-dimensions-badge');
-  const codeStats = document.getElementById('table-code-stats');
+  const gridWrap = document.getElementById("table-studio-grid-wrap");
+  const codeOutput = document.getElementById("table-output-code");
+  const dimBadge = document.getElementById("table-dimensions-badge");
+  const codeStats = document.getElementById("table-code-stats");
 
-  const btnAddRow = document.getElementById('btn-table-add-row');
-  const btnRemoveRow = document.getElementById('btn-table-remove-row');
-  const btnAddCol = document.getElementById('btn-table-add-col');
-  const btnRemoveCol = document.getElementById('btn-table-remove-col');
-  const btnClear = document.getElementById('btn-table-clear');
-  const btnSample = document.getElementById('btn-table-sample');
+  const btnAddRow = document.getElementById("btn-table-add-row");
+  const btnRemoveRow = document.getElementById("btn-table-remove-row");
+  const btnAddCol = document.getElementById("btn-table-add-col");
+  const btnRemoveCol = document.getElementById("btn-table-remove-col");
+  const btnClear = document.getElementById("btn-table-clear");
+  const btnSample = document.getElementById("btn-table-sample");
 
-  const btnImportModal = document.getElementById('btn-table-import-modal');
-  const importTray = document.getElementById('table-import-tray');
-  const btnCloseImport = document.getElementById('btn-close-table-import');
-  const btnCancelImport = document.getElementById('btn-table-import-cancel');
-  const btnParseImport = document.getElementById('btn-table-import-parse');
-  const importTextarea = document.getElementById('table-import-raw');
+  const btnImportModal = document.getElementById("btn-table-import-modal");
+  const importTray = document.getElementById("table-import-tray");
+  const btnCloseImport = document.getElementById("btn-close-table-import");
+  const btnCancelImport = document.getElementById("btn-table-import-cancel");
+  const btnParseImport = document.getElementById("btn-table-import-parse");
+  const importTextarea = document.getElementById("table-import-raw");
 
-  const tabMd = document.getElementById('btn-table-tab-md');
-  const tabHtml = document.getElementById('btn-table-tab-html');
-  const tabJson = document.getElementById('btn-table-tab-json');
-  const tabCsv = document.getElementById('btn-table-tab-csv');
+  const tabMd = document.getElementById("btn-table-tab-md");
+  const tabHtml = document.getElementById("btn-table-tab-html");
+  const tabJson = document.getElementById("btn-table-tab-json");
+  const tabCsv = document.getElementById("btn-table-tab-csv");
 
-  const btnCopyActive = document.getElementById('btn-table-copy-active-code');
-  const btnCopyMdTop = document.getElementById('btn-copy-table-md');
-  const btnDownloadCode = document.getElementById('btn-table-download-code');
+  const btnCopyActive = document.getElementById("btn-table-copy-active-code");
+  const btnCopyMdTop = document.getElementById("btn-copy-table-md");
+  const btnDownloadCode = document.getElementById("btn-table-download-code");
 
   if (!gridWrap || !codeOutput) return;
 
   // Table State
-  let headers = ['Feature', 'OmniDoc Studio', 'Cloud Tools', 'Status'];
-  let alignments = ['left', 'center', 'center', 'center']; // 'left' | 'center' | 'right'
+  let headers = ["Feature", "OmniDoc Studio", "Cloud Tools", "Status"];
+  let alignments = ["left", "center", "center", "center"]; // 'left' | 'center' | 'right'
   let rows = [
-    ['Client Privacy', '100% Local Browser', 'Server Uploaded', 'Active'],
-    ['Processing Speed', 'Instant Client-Side', 'Network Latency', 'Fast'],
-    ['Tool Count', '30+ All-in-One', 'Fragmented Sites', 'Ready'],
-    ['Security / EXIF', 'Zero Data Leak', 'Third-Party Risk', 'Protected']
+    ["Client Privacy", "100% Local Browser", "Server Uploaded", "Active"],
+    ["Processing Speed", "Instant Client-Side", "Network Latency", "Fast"],
+    ["Tool Count", "30+ All-in-One", "Fragmented Sites", "Ready"],
+    ["Security / EXIF", "Zero Data Leak", "Third-Party Risk", "Protected"],
   ];
-  let activeTab = 'md'; // 'md' | 'html' | 'json' | 'csv'
+  let activeTab = "md"; // 'md' | 'html' | 'json' | 'csv'
 
   function updateDimensionsBadge() {
     if (dimBadge) {
@@ -903,42 +1098,46 @@ function initMarkdownTableStudio() {
   }
 
   function renderGrid() {
-    gridWrap.innerHTML = '';
-    const table = document.createElement('table');
-    table.className = 'table-editor-matrix';
+    gridWrap.innerHTML = "";
+    const table = document.createElement("table");
+    table.className = "table-editor-matrix";
 
     // THEAD
-    const thead = document.createElement('thead');
-    const headerRow = document.createElement('tr');
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
 
     headers.forEach((h, colIdx) => {
-      const th = document.createElement('th');
-      th.className = 'table-matrix-th';
+      const th = document.createElement("th");
+      th.className = "table-matrix-th";
 
-      const alignBtn = document.createElement('button');
-      alignBtn.className = 'col-align-pill';
+      const alignBtn = document.createElement("button");
+      alignBtn.className = "col-align-pill";
       alignBtn.title = `Alignment: ${alignments[colIdx]} (Click to toggle)`;
-      const alignIcons = { left: 'align-left', center: 'align-center', right: 'align-right' };
-      alignBtn.innerHTML = `<i data-lucide="${alignIcons[alignments[colIdx]] || 'align-left'}" style="width: 12px; height: 12px;"></i>`;
-      alignBtn.addEventListener('click', () => {
-        const cycle = { left: 'center', center: 'right', right: 'left' };
-        alignments[colIdx] = cycle[alignments[colIdx]] || 'left';
+      const alignIcons = {
+        left: "align-left",
+        center: "align-center",
+        right: "align-right",
+      };
+      alignBtn.innerHTML = `<i data-lucide="${alignIcons[alignments[colIdx]] || "align-left"}" style="width: 12px; height: 12px;"></i>`;
+      alignBtn.addEventListener("click", () => {
+        const cycle = { left: "center", center: "right", right: "left" };
+        alignments[colIdx] = cycle[alignments[colIdx]] || "left";
         renderGrid();
         generateOutput();
       });
 
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.className = 'table-cell-input table-cell-header';
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "table-cell-input table-cell-header";
       input.value = h;
       input.placeholder = `Col ${colIdx + 1}`;
-      input.addEventListener('input', (e) => {
+      input.addEventListener("input", (e) => {
         headers[colIdx] = e.target.value;
         generateOutput();
       });
 
-      const thWrap = document.createElement('div');
-      thWrap.className = 'table-th-wrap';
+      const thWrap = document.createElement("div");
+      thWrap.className = "table-th-wrap";
       thWrap.appendChild(alignBtn);
       thWrap.appendChild(input);
 
@@ -950,21 +1149,21 @@ function initMarkdownTableStudio() {
     table.appendChild(thead);
 
     // TBODY
-    const tbody = document.createElement('tbody');
+    const tbody = document.createElement("tbody");
     rows.forEach((row, rowIdx) => {
-      const tr = document.createElement('tr');
+      const tr = document.createElement("tr");
 
       headers.forEach((_, colIdx) => {
-        const td = document.createElement('td');
-        td.className = 'table-matrix-td';
+        const td = document.createElement("td");
+        td.className = "table-matrix-td";
 
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'table-cell-input';
-        input.value = row[colIdx] || '';
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "table-cell-input";
+        input.value = row[colIdx] || "";
         input.placeholder = `Row ${rowIdx + 1}, Col ${colIdx + 1}`;
-        input.style.textAlign = alignments[colIdx] || 'left';
-        input.addEventListener('input', (e) => {
+        input.style.textAlign = alignments[colIdx] || "left";
+        input.addEventListener("input", (e) => {
           if (!rows[rowIdx]) rows[rowIdx] = [];
           rows[rowIdx][colIdx] = e.target.value;
           generateOutput();
@@ -985,76 +1184,93 @@ function initMarkdownTableStudio() {
   }
 
   function generateMarkdown() {
-    if (headers.length === 0) return '';
+    if (headers.length === 0) return "";
     const colCount = headers.length;
 
     // Determine max column lengths for clean padding
     const colWidths = headers.map((h, colIdx) => {
-      let maxLen = (h || '').length;
-      rows.forEach(r => {
-        const val = (r[colIdx] || '');
+      let maxLen = (h || "").length;
+      rows.forEach((r) => {
+        const val = r[colIdx] || "";
         if (val.length > maxLen) maxLen = val.length;
       });
       return Math.max(maxLen, 3); // min width 3
     });
 
     // Header Row
-    const headerLine = '| ' + headers.map((h, i) => (h || '').padEnd(colWidths[i], ' ')).join(' | ') + ' |';
+    const headerLine =
+      "| " +
+      headers.map((h, i) => (h || "").padEnd(colWidths[i], " ")).join(" | ") +
+      " |";
 
     // Separator line
-    const sepLine = '| ' + alignments.map((a, i) => {
-      const len = colWidths[i];
-      if (a === 'center') return ':' + '-'.repeat(Math.max(len - 2, 1)) + ':';
-      if (a === 'right') return '-'.repeat(Math.max(len - 1, 2)) + ':';
-      return ':' + '-'.repeat(Math.max(len - 1, 2));
-    }).join(' | ') + ' |';
+    const sepLine =
+      "| " +
+      alignments
+        .map((a, i) => {
+          const len = colWidths[i];
+          if (a === "center")
+            return ":" + "-".repeat(Math.max(len - 2, 1)) + ":";
+          if (a === "right") return "-".repeat(Math.max(len - 1, 2)) + ":";
+          return ":" + "-".repeat(Math.max(len - 1, 2));
+        })
+        .join(" | ") +
+      " |";
 
     // Data rows
-    const dataLines = rows.map(row => {
-      return '| ' + headers.map((_, i) => {
-        const val = row[i] || '';
-        const len = colWidths[i];
-        if (alignments[i] === 'right') return val.padStart(len, ' ');
-        if (alignments[i] === 'center') {
-          const totalPad = len - val.length;
-          const leftPad = Math.floor(totalPad / 2);
-          const rightPad = totalPad - leftPad;
-          return ' '.repeat(leftPad) + val + ' '.repeat(rightPad);
-        }
-        return val.padEnd(len, ' ');
-      }).join(' | ') + ' |';
+    const dataLines = rows.map((row) => {
+      return (
+        "| " +
+        headers
+          .map((_, i) => {
+            const val = row[i] || "";
+            const len = colWidths[i];
+            if (alignments[i] === "right") return val.padStart(len, " ");
+            if (alignments[i] === "center") {
+              const totalPad = len - val.length;
+              const leftPad = Math.floor(totalPad / 2);
+              const rightPad = totalPad - leftPad;
+              return " ".repeat(leftPad) + val + " ".repeat(rightPad);
+            }
+            return val.padEnd(len, " ");
+          })
+          .join(" | ") +
+        " |"
+      );
     });
 
-    return [headerLine, sepLine, ...dataLines].join('\n');
+    return [headerLine, sepLine, ...dataLines].join("\n");
   }
 
   function generateHTML() {
     let out = '<table class="table">\n  <thead>\n    <tr>\n';
     headers.forEach((h, i) => {
-      const alignAttr = alignments[i] !== 'left' ? ` align="${alignments[i]}"` : '';
+      const alignAttr =
+        alignments[i] !== "left" ? ` align="${alignments[i]}"` : "";
       out += `      <th${alignAttr}>${escapeHtmlText(h)}</th>\n`;
     });
-    out += '    </tr>\n  </thead>\n  <tbody>\n';
+    out += "    </tr>\n  </thead>\n  <tbody>\n";
 
-    rows.forEach(r => {
-      out += '    <tr>\n';
+    rows.forEach((r) => {
+      out += "    <tr>\n";
       headers.forEach((_, i) => {
-        const val = r[i] || '';
-        const alignAttr = alignments[i] !== 'left' ? ` align="${alignments[i]}"` : '';
+        const val = r[i] || "";
+        const alignAttr =
+          alignments[i] !== "left" ? ` align="${alignments[i]}"` : "";
         out += `      <td${alignAttr}>${escapeHtmlText(val)}</td>\n`;
       });
-      out += '    </tr>\n';
+      out += "    </tr>\n";
     });
-    out += '  </tbody>\n</table>';
+    out += "  </tbody>\n</table>";
     return out;
   }
 
   function generateJSON() {
-    const arr = rows.map(row => {
+    const arr = rows.map((row) => {
       const obj = {};
       headers.forEach((h, i) => {
         const key = h.trim() || `column_${i + 1}`;
-        obj[key] = row[i] || '';
+        obj[key] = row[i] || "";
       });
       return obj;
     });
@@ -1063,174 +1279,191 @@ function initMarkdownTableStudio() {
 
   function generateCSV() {
     const escapeCsv = (str) => {
-      const s = str || '';
-      if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+      const s = str || "";
+      if (s.includes(",") || s.includes('"') || s.includes("\n")) {
         return `"${s.replace(/"/g, '""')}"`;
       }
       return s;
     };
 
-    const headerLine = headers.map(escapeCsv).join(',');
-    const dataLines = rows.map(r => headers.map((_, i) => escapeCsv(r[i] || '')).join(','));
-    return [headerLine, ...dataLines].join('\n');
+    const headerLine = headers.map(escapeCsv).join(",");
+    const dataLines = rows.map((r) =>
+      headers.map((_, i) => escapeCsv(r[i] || "")).join(","),
+    );
+    return [headerLine, ...dataLines].join("\n");
   }
 
   function escapeHtmlText(str) {
-    return (str || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+    return (str || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
   }
 
   function generateOutput() {
-    let code = '';
-    if (activeTab === 'md') {
+    let code = "";
+    if (activeTab === "md") {
       code = generateMarkdown();
-      if (codeStats) codeStats.textContent = 'GitHub Flavored Markdown format';
-    } else if (activeTab === 'html') {
+      if (codeStats) codeStats.textContent = "GitHub Flavored Markdown format";
+    } else if (activeTab === "html") {
       code = generateHTML();
-      if (codeStats) codeStats.textContent = 'Semantic HTML5 <table> structure';
-    } else if (activeTab === 'json') {
+      if (codeStats) codeStats.textContent = "Semantic HTML5 <table> structure";
+    } else if (activeTab === "json") {
       code = generateJSON();
-      if (codeStats) codeStats.textContent = 'Standard JSON Array of Objects';
-    } else if (activeTab === 'csv') {
+      if (codeStats) codeStats.textContent = "Standard JSON Array of Objects";
+    } else if (activeTab === "csv") {
       code = generateCSV();
-      if (codeStats) codeStats.textContent = 'RFC 4180 standard Comma-Separated Values';
+      if (codeStats)
+        codeStats.textContent = "RFC 4180 standard Comma-Separated Values";
     }
     codeOutput.value = code;
   }
 
   // Row / Col manipulation
   if (btnAddRow) {
-    btnAddRow.addEventListener('click', () => {
-      rows.push(headers.map(() => ''));
+    btnAddRow.addEventListener("click", () => {
+      rows.push(headers.map(() => ""));
       renderGrid();
       generateOutput();
     });
   }
 
   if (btnRemoveRow) {
-    btnRemoveRow.addEventListener('click', () => {
+    btnRemoveRow.addEventListener("click", () => {
       if (rows.length > 1) {
         rows.pop();
         renderGrid();
         generateOutput();
       } else {
-        showToast('Cannot remove last row', 'info');
+        showToast("Cannot remove last row", "info");
       }
     });
   }
 
   if (btnAddCol) {
-    btnAddCol.addEventListener('click', () => {
+    btnAddCol.addEventListener("click", () => {
       const colNum = headers.length + 1;
       headers.push(`Column ${colNum}`);
-      alignments.push('left');
-      rows.forEach(r => r.push(''));
+      alignments.push("left");
+      rows.forEach((r) => r.push(""));
       renderGrid();
       generateOutput();
     });
   }
 
   if (btnRemoveCol) {
-    btnRemoveCol.addEventListener('click', () => {
+    btnRemoveCol.addEventListener("click", () => {
       if (headers.length > 1) {
         headers.pop();
         alignments.pop();
-        rows.forEach(r => r.pop());
+        rows.forEach((r) => r.pop());
         renderGrid();
         generateOutput();
       } else {
-        showToast('Cannot remove last column', 'info');
+        showToast("Cannot remove last column", "info");
       }
     });
   }
 
   if (btnClear) {
-    btnClear.addEventListener('click', () => {
-      headers = ['Col 1', 'Col 2', 'Col 3'];
-      alignments = ['left', 'left', 'left'];
+    btnClear.addEventListener("click", () => {
+      headers = ["Col 1", "Col 2", "Col 3"];
+      alignments = ["left", "left", "left"];
       rows = [
-        ['', '', ''],
-        ['', '', '']
+        ["", "", ""],
+        ["", "", ""],
       ];
       renderGrid();
       generateOutput();
-      showToast('Table cleared', 'info');
+      showToast("Table cleared", "info");
     });
   }
 
   if (btnSample) {
-    btnSample.addEventListener('click', () => {
-      headers = ['Feature', 'OmniDoc Studio', 'Cloud Tools', 'Status'];
-      alignments = ['left', 'center', 'center', 'center'];
+    btnSample.addEventListener("click", () => {
+      headers = ["Feature", "OmniDoc Studio", "Cloud Tools", "Status"];
+      alignments = ["left", "center", "center", "center"];
       rows = [
-        ['Client Privacy', '100% Local Browser', 'Server Uploaded', 'Active'],
-        ['Processing Speed', 'Instant Client-Side', 'Network Latency', 'Fast'],
-        ['Tool Count', '30+ All-in-One', 'Fragmented Sites', 'Ready'],
-        ['Security / EXIF', 'Zero Data Leak', 'Third-Party Risk', 'Protected']
+        ["Client Privacy", "100% Local Browser", "Server Uploaded", "Active"],
+        ["Processing Speed", "Instant Client-Side", "Network Latency", "Fast"],
+        ["Tool Count", "30+ All-in-One", "Fragmented Sites", "Ready"],
+        ["Security / EXIF", "Zero Data Leak", "Third-Party Risk", "Protected"],
       ];
       renderGrid();
       generateOutput();
-      showToast('Sample comparison table loaded!', 'success');
+      showToast("Sample comparison table loaded!", "success");
     });
   }
 
   // Import Tray
   if (btnImportModal && importTray) {
-    btnImportModal.addEventListener('click', () => {
-      importTray.style.display = 'block';
+    btnImportModal.addEventListener("click", () => {
+      importTray.style.display = "block";
       if (importTextarea) importTextarea.focus();
     });
   }
   if (btnCloseImport && importTray) {
-    btnCloseImport.addEventListener('click', () => {
-      importTray.style.display = 'none';
+    btnCloseImport.addEventListener("click", () => {
+      importTray.style.display = "none";
     });
   }
   if (btnCancelImport && importTray) {
-    btnCancelImport.addEventListener('click', () => {
-      importTray.style.display = 'none';
+    btnCancelImport.addEventListener("click", () => {
+      importTray.style.display = "none";
     });
   }
   if (btnParseImport && importTray && importTextarea) {
-    btnParseImport.addEventListener('click', () => {
+    btnParseImport.addEventListener("click", () => {
       const raw = importTextarea.value.trim();
       if (!raw) {
-        showToast('Please paste CSV or TSV data first', 'error');
+        showToast("Please paste CSV or TSV data first", "error");
         return;
       }
 
       // Split lines
-      const lines = raw.split(/\r?\n/).filter(l => l.trim().length > 0);
+      const lines = raw.split(/\r?\n/).filter((l) => l.trim().length > 0);
       if (lines.length === 0) return;
 
       // Detect delimiter: comma, tab, semicolon, pipe
       const firstLine = lines[0];
-      let delimiter = ',';
-      if (firstLine.includes('\t')) delimiter = '\t';
-      else if (firstLine.includes(';') && !firstLine.includes(',')) delimiter = ';';
-      else if (firstLine.includes('|')) delimiter = '|';
+      let delimiter = ",";
+      if (firstLine.includes("\t")) delimiter = "\t";
+      else if (firstLine.includes(";") && !firstLine.includes(","))
+        delimiter = ";";
+      else if (firstLine.includes("|")) delimiter = "|";
 
-      const parsedLines = lines.map(line => {
-        if (delimiter === '|') {
-          return line.split('|').map(s => s.trim()).filter((s, idx, arr) => idx > 0 && idx < arr.length - 1 || arr.length <= 2);
-        }
-        return line.split(delimiter).map(s => s.trim().replace(/^["']|["']$/g, ''));
-      }).filter(arr => arr.length > 0);
+      const parsedLines = lines
+        .map((line) => {
+          if (delimiter === "|") {
+            return line
+              .split("|")
+              .map((s) => s.trim())
+              .filter(
+                (s, idx, arr) =>
+                  (idx > 0 && idx < arr.length - 1) || arr.length <= 2,
+              );
+          }
+          return line
+            .split(delimiter)
+            .map((s) => s.trim().replace(/^["']|["']$/g, ""));
+        })
+        .filter((arr) => arr.length > 0);
 
       if (parsedLines.length > 0) {
         headers = parsedLines[0];
-        alignments = headers.map(() => 'left');
+        alignments = headers.map(() => "left");
         rows = parsedLines.slice(1);
         if (rows.length === 0) {
-          rows = [headers.map(() => '')];
+          rows = [headers.map(() => "")];
         }
         renderGrid();
         generateOutput();
-        importTray.style.display = 'none';
-        showToast(`Successfully imported ${headers.length} columns and ${rows.length} rows!`, 'success');
+        importTray.style.display = "none";
+        showToast(
+          `Successfully imported ${headers.length} columns and ${rows.length} rows!`,
+          "success",
+        );
       }
     });
   }
@@ -1238,46 +1471,58 @@ function initMarkdownTableStudio() {
   // Tabs
   function setTab(tabName) {
     activeTab = tabName;
-    [tabMd, tabHtml, tabJson, tabCsv].forEach(btn => {
-      if (btn) btn.classList.remove('active');
+    [tabMd, tabHtml, tabJson, tabCsv].forEach((btn) => {
+      if (btn) btn.classList.remove("active");
     });
-    if (tabName === 'md' && tabMd) tabMd.classList.add('active');
-    if (tabName === 'html' && tabHtml) tabHtml.classList.add('active');
-    if (tabName === 'json' && tabJson) tabJson.classList.add('active');
-    if (tabName === 'csv' && tabCsv) tabCsv.classList.add('active');
+    if (tabName === "md" && tabMd) tabMd.classList.add("active");
+    if (tabName === "html" && tabHtml) tabHtml.classList.add("active");
+    if (tabName === "json" && tabJson) tabJson.classList.add("active");
+    if (tabName === "csv" && tabCsv) tabCsv.classList.add("active");
     generateOutput();
   }
 
-  if (tabMd) tabMd.addEventListener('click', () => setTab('md'));
-  if (tabHtml) tabHtml.addEventListener('click', () => setTab('html'));
-  if (tabJson) tabJson.addEventListener('click', () => setTab('json'));
-  if (tabCsv) tabCsv.addEventListener('click', () => setTab('csv'));
+  if (tabMd) tabMd.addEventListener("click", () => setTab("md"));
+  if (tabHtml) tabHtml.addEventListener("click", () => setTab("html"));
+  if (tabJson) tabJson.addEventListener("click", () => setTab("json"));
+  if (tabCsv) tabCsv.addEventListener("click", () => setTab("csv"));
 
   // Copy & Download Actions
   if (btnCopyActive) {
-    btnCopyActive.addEventListener('click', () => {
+    btnCopyActive.addEventListener("click", () => {
       if (!codeOutput.value) return;
-      copyToClipboard(codeOutput.value, `Copied ${activeTab.toUpperCase()} table code!`);
+      copyToClipboard(
+        codeOutput.value,
+        `Copied ${activeTab.toUpperCase()} table code!`,
+      );
     });
   }
 
   if (btnCopyMdTop) {
-    btnCopyMdTop.addEventListener('click', () => {
+    btnCopyMdTop.addEventListener("click", () => {
       const md = generateMarkdown();
       if (!md) return;
-      copyToClipboard(md, 'Markdown table copied to clipboard!');
+      copyToClipboard(md, "Markdown table copied to clipboard!");
     });
   }
 
   if (btnDownloadCode) {
-    btnDownloadCode.addEventListener('click', () => {
+    btnDownloadCode.addEventListener("click", () => {
       const code = codeOutput.value;
       if (!code) return;
-      const extensions = { md: 'md', html: 'html', json: 'json', csv: 'csv' };
-      const mimeTypes = { md: 'text/markdown', html: 'text/html', json: 'application/json', csv: 'text/csv' };
-      const ext = extensions[activeTab] || 'txt';
-      downloadTextFile(code, `table-export.${ext}`, mimeTypes[activeTab] || 'text/plain');
-      showToast(`Downloaded table-export.${ext}`, 'success');
+      const extensions = { md: "md", html: "html", json: "json", csv: "csv" };
+      const mimeTypes = {
+        md: "text/markdown",
+        html: "text/html",
+        json: "application/json",
+        csv: "text/csv",
+      };
+      const ext = extensions[activeTab] || "txt";
+      downloadTextFile(
+        code,
+        `table-export.${ext}`,
+        mimeTypes[activeTab] || "text/plain",
+      );
+      showToast(`Downloaded table-export.${ext}`, "success");
     });
   }
 
@@ -1294,6 +1539,4 @@ function initAllTextTools() {
   initMarkdownTableStudio();
 }
 
-window.addEventListener('DOMContentLoaded', initAllTextTools);
-
-
+window.addEventListener("DOMContentLoaded", initAllTextTools);
