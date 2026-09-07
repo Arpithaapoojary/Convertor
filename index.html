@@ -44,6 +44,18 @@
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 </head>
 <body>
+  <!-- Debug: show runtime JS errors on the page for easier diagnosis (temporary) -->
+  <div id="error-overlay" style="position:fixed;left:12px;right:12px;top:84px;z-index:99999;background:rgba(255,235,238,0.95);color:#660000;border:1px solid #ffb3b3;padding:12px;border-radius:8px;display:none;font-family:monospace;white-space:pre-wrap;max-height:40vh;overflow:auto;"></div>
+  <script>
+    (function(){
+      function show(msg){var el=document.getElementById('error-overlay');el.style.display='block';el.textContent=msg}
+      window.addEventListener('error',function(e){try{show('Error: '+(e.message||e.error||e.type)+'\nAt: '+(e.filename||e.target&&e.target.src||location.href)+'\nLine: '+(e.lineno||'n/a')+' Col: '+(e.colno||'n/a')+'\n\nStack:\n'+(e.error&&e.error.stack||'no stack'))}catch(_){}}
+      );
+      window.addEventListener('unhandledrejection',function(e){try{show('Promise rejection: '+(e.reason&&e.reason.stack||e.reason||'unknown'))}catch(_){}}
+      );
+      window.__showOverlay=show;
+    })();
+  </script>
   <div id="app-container">
     
     <!-- Sidebar Navigation -->
