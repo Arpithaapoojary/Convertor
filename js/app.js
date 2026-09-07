@@ -58,7 +58,7 @@ const ACCENT_THEMES = {
 class OmniDocApp {
   constructor() {
     this.activeToolId = 'pdf-merge';
-    this.theme = localStorage.getItem('omnidoc_theme') || 'dark';
+    this.theme = localStorage.getItem('omnidoc_theme') || 'light';
     this.accent = localStorage.getItem('omnidoc_accent') || 'indigo';
     this.recentTools = JSON.parse(localStorage.getItem('omnidoc_recent_tools') || '[]');
     this.favoriteTools = new Set(JSON.parse(localStorage.getItem('omnidoc_favorite_tools') || '["pdf-merge", "img-compress", "text-transform", "data-csv-json", "qr-generator"]'));
