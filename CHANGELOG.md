@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the **OmniDoc Studio (Convertor)** project will be documented in this file.
+All notable changes to the **DocSuite** project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -8,12 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.7.0] - 2026-09-03
 
 ### Added
+
 - **Markdown Table Studio & Multi-Format Converter**: Interactive visual matrix table builder with dynamic column/row add-remove controls, column alignment selectors (Left, Center, Right), CSV/TSV paste parser, and real-time multi-format export to GitHub Flavored Markdown tables, semantic HTML `<table>` markup, JSON Array of objects, and CSV.
 - **HTML & XML Studio (Formatter, Minifier & Entity Codec)**: Code beautifier and formatter with customizable indent spacing (2 spaces, 4 spaces, tabs), comment preservation toggle, minifier engine with whitespace collapsing, comprehensive HTML entity encoder/decoder (special characters, symbols, unicode), live size compression metrics, and sandboxed rendered iframe preview.
 - **Image Watermark & EXIF Privacy Sanitizer**: HTML5 Canvas watermarking engine supporting custom text, high-DPI font scaling, opacity transparency, continuous diagonal tile grid repetition, custom angles (-90° to 90°), placement presets, and one-click EXIF/GPS/device metadata stripping for 100% client-side privacy.
 - **Tool Favorites Bookmark System**: Pin and bookmark favorite tools with persistent `localStorage` support, dedicated Starred Favorites sidebar category, 1-click star toggles across navigation and Command Palette (`Ctrl + K`), and `#fav` quick filter query.
 
 ### Enhanced
+
 - Expanded total suite capacity to **31+ client-side tools**.
 - Enhanced Command Palette (`Ctrl + K`) with favorite tool starring and `#fav` / `star` search shortcuts.
 - Added custom slider and range control styling with dynamic accent glow.
@@ -22,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.6.0] - 2026-09-02
 
 ### Added
+
 - **Batch Multi-Line Timestamp Processor**: Paste multiple Unix epoch timestamps or ISO dates to convert in bulk into formatted CSV with UTC, ISO 8601, and localized datetime strings.
 - **Interactive Keyboard Shortcuts Cheatsheet Modal**: Dedicated visual cheat-sheet modal triggered by `?` key or header help button covering navigation, workspace, view controls, and palette triggers.
 - **Responsive CSS Unit Converter**: Real-time bidirectional converter between `px`, `rem`, `em`, `vw`, `vh`, `pt`, and `%` with customizable root base font size.
@@ -30,17 +33,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.5.0] - 2026-09-02
 
 ### Added
+
 - **SVG Studio & Vector Optimizer**: Interactive SVG vector editor and live rendering canvas with one-click XML minification (strip comments, DOCTYPE, editor namespaces, metadata), color recoloring, and multi-format export (optimized SVG, 1x/2x/4x high-res PNG, Base64 Data URI, CSS snippet).
 - **Regex Studio & Visual Matcher**: Live regular expression testbench featuring real-time syntax error validation, interactive highlight overlay, capture group inspector table, live `$1`/`$2` replace engine, and multi-language code snippets for JavaScript, Python, PHP, and Go.
 - **Timestamp & Unix Epoch Studio**: Live Unix epoch ticker clock with Pause/Resume, bidirectional converter (Epoch ↔ ISO 8601, UTC, Local, RFC 2822, Relative time), date duration & business day calculator, and live world timezone matrix (London, New York, San Francisco, Berlin, Tokyo, Mumbai, Sydney, Dubai).
 
 ### Enhanced
+
 - Expanded total suite capacity to **28+ client-side tools**.
 - Updated navigation counts, tool registry, command palette indexing (`Ctrl + K`), and responsive view layouts.
 
 ## [2.4.0] - 2026-08-30
 
 ### Added
+
 - **PDF Metadata Inspector**: Extract author, title, creation/modification dates, software producer, and exact page dimensions with paper format detection (A4, US Letter, US Legal).
 - **Image Inspector & Aspect Ratio Studio**: Instant resolution readout, megapixel calculator, simplified aspect ratios, and proportional scaling calculator with presets (16:9, 4:3, 1:1, 9:16, 21:9, 3:2).
 - **Barcode 128 Studio**: Scannable Code 128 linear barcode generator with adjustable bar height, scaling, custom colors, human-readable labels, and vector SVG/PNG export.
@@ -52,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **JWT Token Inspector & Debugger**: 3-part color-coded breakdown (Header, Payload, Signature) with live expiration countdown and claims table.
 
 ### Enhanced
+
 - Extended **Smart Text Transformer** with Binary, Hex, Word Density analysis, Reverse Words, and Lorem Ipsum generators.
 - Improved sidebar navigation counts and tool routing with fuzzy Command Palette search (`Ctrl + K`).
 - Memory optimization with centralized Object URL tracking and cleanup.

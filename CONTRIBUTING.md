@@ -1,4 +1,4 @@
-# Contributing to OmniDoc Studio (Convertor)
+# Contributing to DocSuite
 
 Thank you for your interest in contributing to **OmniDoc Studio**! We welcome contributions, bug fixes, and feature proposals.
 

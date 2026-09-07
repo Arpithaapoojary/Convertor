@@ -201,7 +201,7 @@ function initTextTransformer() {
         case 'sample':
           result = `OmniDoc Studio — Professional Document & Text Suite.
 Transform strings, parse data formats (JSON, CSV, XML), generate QR codes, and merge PDFs with ease!
-Contact our team at support@omnidoc.dev or visit https://github.com/Arpithaapoojary/Convertor for documentation.`;
+Contact our team at support@omnidoc.dev or visit https://github.com/Arpithaapoojary/Convertor for DocSuite documentation.`;
           break;
       }
 
